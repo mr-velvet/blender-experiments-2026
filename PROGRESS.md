@@ -23,6 +23,16 @@
 - **Resultado:** materiais Cardboard Outer/Inner funcionam perfeito no GLB. Mat1/Mat2 saem cinza (sao materiais pra texto)
 - **Verificado visualmente** via screenshot do viewer (playwright)
 
+### Experimento 3: Clay 4.Doh (DoubleGum) — pack premium 23 materiais
+- Pasta `claydoh/` — pipeline reaproveitado do experimento 2 (bake_and_export.py funciona sem mudancas)
+- `claydoh/inspect.py` — inventario do .blend (gera blend_inventory.json)
+- `claydoh/batch_claydoh.py` — selecao curada de 8 materiais (Clay Doh, Bubble Gum, Porcelain, Crackle, Glitter, Plasticine, Pottery, Terracotta)
+- 32 combos (4 formas: sphere/cylinder/torus/suzanne x 8 materiais) — **cubo dropado** (smart_project distorce procedural com Object Mapping)
+- 32/32 OK no batch, todos GLBs validos (1.3-3.4MB cada)
+- `claydoh/index.html` — pagina demo com tema clay (beige/terracotta), filtros por material/forma
+- **Hospedado:** https://st.did.lu/blender-claydoh/v1/index.html
+- **Doc do pack:** shader 100% procedural (sem displacement de geometria, so surface) — bake regular basta
+
 ### Repo
 - GitHub: https://github.com/mr-velvet/blender-experiments-2026
 - Branch: master

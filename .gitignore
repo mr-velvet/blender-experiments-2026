@@ -1,4 +1,7 @@
 out/
+claydoh/out/
+claydoh/screenshots/
+claydoh/viewer_test.html
 *.blend1
 __pycache__/
 .DS_Store

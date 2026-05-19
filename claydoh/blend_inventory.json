@@ -1,0 +1,861 @@
+{
+  "blend_file": "C:\\Users\\manu\\Downloads\\BLENDER-CLAY\\Clay Doh 4.0.4 (Blender 4.4+)\\Clay Doh 4.0.4 (Blender 4.4+).blend",
+  "materials_total": 23,
+  "objects_total": 14,
+  "node_groups_total": 38,
+  "images_total": 17,
+  "materials": [
+    {
+      "name": "Bubble Gum",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [
+        "Clay Doh"
+      ],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Candle Wax",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Clay 4.Doh - Text",
+      "use_nodes": true,
+      "asset": false,
+      "users": 2,
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Clay Doh",
+      "use_nodes": true,
+      "asset": true,
+      "users": 8,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Clay Eye Material",
+      "use_nodes": true,
+      "asset": false,
+      "users": 7,
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1,
+        "ATTRIBUTE": 4,
+        "MIX": 1,
+        "FRAME": 2
+      }
+    },
+    {
+      "name": "Crackle",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 2
+      }
+    },
+    {
+      "name": "Dirty Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.001",
+      "group_node_tree": "Dirt Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 2
+      }
+    },
+    {
+      "name": "Dots Stroke",
+      "use_nodes": true,
+      "asset": false,
+      "users": 2,
+      "surface_source_type": "BSDF_PRINCIPLED",
+      "surface_source_name": "Principled BSDF",
+      "node_types": {
+        "FRAME": 1,
+        "OUTPUT_MATERIAL": 2,
+        "BSDF_PRINCIPLED": 1,
+        "BSDF_DIFFUSE": 1
+      }
+    },
+    {
+      "name": "Dusty Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.001",
+      "group_node_tree": "Dirt Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 2
+      }
+    },
+    {
+      "name": "Glitter Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.004",
+      "group_node_tree": "Glitter Node",
+      "uses_displacement": true,
+      "node_types": {
+        "GROUP": 2,
+        "OUTPUT_MATERIAL": 1
+      }
+    },
+    {
+      "name": "Iridescent Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1,
+        "HUE_SAT": 1,
+        "MATH": 1,
+        "LAYER_WEIGHT": 1,
+        "VALTORGB": 1
+      }
+    },
+    {
+      "name": "Metalliclay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Mixed Doh",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 2,
+        "FRAME": 3,
+        "TEX_NOISE": 1,
+        "VALTORGB": 2
+      }
+    },
+    {
+      "name": "Modeling Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.002",
+      "group_node_tree": "Modeling Clay",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Plasticine",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.002",
+      "group_node_tree": "Plasticine",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Polymer Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.002",
+      "group_node_tree": "Polymer Clay",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Porcelain",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.001",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Pottery Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 3,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.003",
+      "group_node_tree": "Pottery Clay",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Putty",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.002",
+      "group_node_tree": "Putty",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Slime",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Space Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.004",
+      "group_node_tree": "Glitter Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 2,
+        "VALTORGB": 1,
+        "TEX_COORD": 1,
+        "TEX_NOISE": 1,
+        "HUE_SAT": 2
+      }
+    },
+    {
+      "name": "Terracotta",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "1d4c2f56-460f-4f7f-a711-0e029e527dfe",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group.003",
+      "group_node_tree": "Terracotta",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    },
+    {
+      "name": "Wet Clay",
+      "use_nodes": true,
+      "asset": true,
+      "users": 1,
+      "catalog": "fbf5f23c-0263-4a56-b3a5-da286d4c2091",
+      "asset_tags": [],
+      "surface_source_type": "GROUP",
+      "surface_source_name": "Group",
+      "group_node_tree": "Clay 4.Doh Node",
+      "uses_displacement": true,
+      "node_types": {
+        "OUTPUT_MATERIAL": 1,
+        "GROUP": 1
+      }
+    }
+  ],
+  "objects": [
+    {
+      "name": "Clay Collection Object",
+      "type": "MESH",
+      "asset": true,
+      "materials": [
+        "Clay Doh"
+      ]
+    },
+    {
+      "name": "Clay Eye Object",
+      "type": "MESH",
+      "asset": true,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Clay Pottery Object",
+      "type": "CURVE",
+      "asset": true,
+      "materials": [
+        "Pottery Clay"
+      ]
+    },
+    {
+      "name": "Clay Text Object",
+      "type": "MESH",
+      "asset": true,
+      "materials": [
+        "Clay 4.Doh - Text"
+      ]
+    },
+    {
+      "name": "Pupil.Cat",
+      "type": "MESH",
+      "asset": false,
+      "materials": []
+    },
+    {
+      "name": "Pupil.Circle",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Pupil.Crescent",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Pupil.Cross",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Pupil.Goat",
+      "type": "MESH",
+      "asset": false,
+      "materials": []
+    },
+    {
+      "name": "Pupil.Heart",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Pupil.Hourglass",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Eye Material"
+      ]
+    },
+    {
+      "name": "Suzanne",
+      "type": "MESH",
+      "asset": false,
+      "materials": [
+        "Clay Doh"
+      ]
+    },
+    {
+      "name": "Text",
+      "type": "FONT",
+      "asset": false,
+      "materials": []
+    },
+    {
+      "name": "Text.001",
+      "type": "FONT",
+      "asset": false,
+      "materials": []
+    }
+  ],
+  "node_groups": [
+    {
+      "name": "*Sticky Textures",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": ".Animation Vector",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 7
+    },
+    {
+      "name": ".BlinkAnimMenu",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": ".Clay Text Node",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": ".Convert 2 Mesh",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 3
+    },
+    {
+      "name": ".CurveType + Resample",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 4
+    },
+    {
+      "name": ".DGTK. HSV+ (Float Input)",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": ".Extrude",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 3
+    },
+    {
+      "name": ".Image Based Clay",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 6
+    },
+    {
+      "name": ".Remesh",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 6
+    },
+    {
+      "name": ".Resample (before or after conversion)",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": ".Voronoi+",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Clay 4.Doh Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 17
+    },
+    {
+      "name": "Clay Collection",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": "Clay Eye",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": "Clay Pottery",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": "Clay Text",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": "Compositing Nodetree",
+      "type": "CompositorNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Crackle Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 2
+    },
+    {
+      "name": "Curve > Clay",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 2
+    },
+    {
+      "name": "Dirt Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 3
+    },
+    {
+      "name": "Generated Mapping+ Node",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Glitter Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 3
+    },
+    {
+      "name": "Grease Pencil > Clay",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": "Mesh > Clay",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": "Modeling Clay",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Move Textures (Per Object)",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": "Noise Displace",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 8
+    },
+    {
+      "name": "Object Mapping+ Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 11
+    },
+    {
+      "name": "Organic Deform",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": "Plasticine",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Polymer Clay",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Pottery Clay",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Putty",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Random Colors Node",
+      "type": "ShaderNodeTree",
+      "asset": true,
+      "users": 1
+    },
+    {
+      "name": "Smooth by Angle",
+      "type": "GeometryNodeTree",
+      "asset": false,
+      "users": 2
+    },
+    {
+      "name": "Terracotta",
+      "type": "ShaderNodeTree",
+      "asset": false,
+      "users": 1
+    },
+    {
+      "name": "Volume > Clay",
+      "type": "GeometryNodeTree",
+      "asset": true,
+      "users": 1
+    }
+  ],
+  "images": [
+    {
+      "name": "Dirt tex 01.jpg",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Dirt tex 01.jpg",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "fingerprints4k 07 16bit imp NEW.png",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Anguli Scatter new\\fingerprints4k 07 16bit imp NEW.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "fingerprints4k 07 8bit 2pxblur.png",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Anguli Scatter new\\fingerprints4k 07 8bit 2pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Modeling Clay Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Modeling Clay FINAL\\Modeling Clay FINAL Height 16bit 2pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Modeling Clay Roughness",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Plasticine AI 5\\Plasticine AI 5_Roughness.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Modleing Clay Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Modeling Clay FINAL\\Modeling Clay FINAL_BaseColor.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Plasticine Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\1k textures\\My Clay NEW 2\\Clay8_BaseColor.png",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Plasticine Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\1k textures\\My Clay NEW 2\\Clay8_Displacement 16bit 2pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Polymer Clay Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Sculpey FINAL\\Sculpey FINAL_Roughness.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Polymer Clay Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Sculpey FINAL\\Sculpey FINAL Height 16bit 2pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Pottery Clay Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Potters Clay 2 tiled\\Potters Clay 2 tiled_Roughness.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Pottery Clay Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Potters Clay 1\\Potters Clay 1_Displacement 16BIT.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Putty Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\1k textures\\Flat Clay NEW\\Flat Clay_BaseColor.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Putty Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\1k textures\\Flat Clay NEW\\Flat Clay_Normal_height 16bit 1pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Render Result",
+      "filepath": "",
+      "size": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Terracotta Dirty",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Terracotta FINAL 2\\Terracotta FINAL 2_BaseColor.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Terracotta Height",
+      "filepath": "//..\\..\\..\\Tex ClayDoh\\Final Tests\\Terracotta FINAL 2\\Terracotta FINAL 2 Height 16bit 1pxblur.png",
+      "size": [
+        4096,
+        4096
+      ]
+    }
+  ]
+}

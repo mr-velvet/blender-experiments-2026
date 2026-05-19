@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clay 4.Doh — Bake & Export Demo</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
+<style>
+  :root {
+    --bg: #f5e6d3;
+    --bg-alt: #ead2b3;
+    --card: #ffffff;
+    --text: #2a1f1a;
+    --muted: #806b5e;
+    --accent: #d4754a;
+    --accent-dark: #a8542f;
+    --border: #d8c0a8;
+    --shadow: 0 2px 8px rgba(42,31,26,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-alt) 100%);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    padding: 32px 24px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  header {
+    max-width: 1500px;
+    margin: 0 auto 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent-dark);
+  }
+  h1 .tag {
+    display: inline-block;
+    margin-left: 12px;
+    font-size: 13px;
+    background: var(--accent);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    vertical-align: middle;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 720px;
+  }
+  .sub b { color: var(--text); }
+  .controls {
+    max-width: 1500px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+    background: var(--card);
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .controls label {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .controls input[type=range] { width: 120px; }
+  .ctrl-custom {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 28px 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23806b5e' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .ctrl-custom:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .stats {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .stats b { color: var(--text); }
+  .grid {
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(42,31,26,0.12);
+  }
+  .card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card h3 .shape {
+    font-size: 11px;
+    background: var(--bg);
+    color: var(--muted);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .compare > div {
+    background: #f5e6d3;
+    position: relative;
+    aspect-ratio: 1;
+  }
+  .compare > div::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 6px; left: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    z-index: 2;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    font-weight: 600;
+  }
+  .compare img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  model-viewer {
+    width: 100%; height: 100%;
+    --poster-color: transparent;
+    background: linear-gradient(180deg, #f5e6d3 0%, #ead2b3 100%);
+  }
+  .meta {
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    background: #fbf5ec;
+  }
+  .meta .ok { color: #5a8a3a; font-weight: 600; }
+  .meta .fail { color: #c44a3a; font-weight: 600; }
+  .status-empty {
+    max-width: 1500px;
+    margin: 80px auto;
+    text-align: center;
+    color: var(--muted);
+  }
+  footer {
+    max-width: 1500px;
+    margin: 40px auto 0;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+  footer a { color: var(--accent-dark); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Clay 4.Doh<span class="tag">Bake → GLB Demo</span></h1>
+  <div class="sub">
+    Demonstração do pipeline <b>Blender → Cycles bake → glTF/GLB</b> aplicado ao pack
+    <b>Clay 4.Doh</b> da <a href="https://superhivemarket.com/products/claydoh" style="color:var(--accent-dark)">DoubleGum</a>.
+    Cada cartão mostra à esquerda o <b>render Cycles</b> dentro do Blender, e à direita o <b>GLB exportado</b>
+    renderizado num viewer web (three.js / model-viewer). Os shaders procedurais do Clay Doh são bakeados
+    em texturas PBR (baseColor + roughness + normal) antes do export — sem isso, o glTF perderia o material inteiro.
+  </div>
+</header>
+
+<div class="controls">
+  <label>Ambiente:
+    <select id="env" class="ctrl-custom">
+      <option value="neutral">neutral</option>
+      <option value="legacy">legacy</option>
+      <option value="">none</option>
+    </select>
+  </label>
+  <label>Exposure: <input type="range" id="exp" min="0.3" max="2.5" step="0.1" value="1.0"></label>
+  <label><input type="checkbox" id="autorot" checked> auto-rotate</label>
+  <label><input type="checkbox" id="shadow" checked> shadows</label>
+  <label>Material:
+    <select id="filtermat" class="ctrl-custom"><option value="">todos</option></select>
+  </label>
+  <label>Forma:
+    <select id="filtershape" class="ctrl-custom"><option value="">todas</option></select>
+  </label>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div id="grid" class="grid"></div>
+<div id="empty" class="status-empty" style="display:none">Manifest vazio. Rode <code>python claydoh/batch_claydoh.py</code>.</div>
+
+<footer>
+  Pipeline: <a href="https://github.com/mr-velvet/blender-experiments-2026">mr-velvet/blender-experiments-2026</a> ·
+  Materiais: <a href="https://superhivemarket.com/products/claydoh">Clay 4.Doh by DoubleGum</a>
+</footer>
+
+<script>
+let ITEMS = [];
+
+async function loadManifest() {
+  const r = await fetch("out/manifest.json?t=" + Date.now());
+  if (!r.ok) throw new Error("manifest.json nao encontrado em claydoh/out/");
+  return await r.json();
+}
+
+function render() {
+  const matF = document.getElementById("filtermat").value;
+  const shapeF = document.getElementById("filtershape").value;
+  const items = ITEMS.filter(it =>
+    (!matF || it.material === matF) && (!shapeF || it.shape === shapeF)
+  );
+
+  const grid = document.getElementById("grid");
+  if (!items.length) {
+    document.getElementById("empty").style.display = "block";
+    grid.innerHTML = "";
+    return;
+  }
+  document.getElementById("empty").style.display = "none";
+  grid.innerHTML = items.map(it => {
+    if (it.status === "fail") return `
+      <div class="card">
+        <h3>${it.material} <span class="shape">${it.shape}</span></h3>
+        <div class="compare"><div data-label="FAIL"></div><div data-label="FAIL"></div></div>
+        <div class="meta"><span class="fail">fail</span><span>${it.combo_id}</span></div>
+      </div>`;
+    return `
+      <div class="card">
+        <h3>${it.material} <span class="shape">${it.shape}</span></h3>
+        <div class="compare">
+          <div data-label="Cycles">
+            <img src="${it.render}" loading="lazy" alt="cycles">
+          </div>
+          <div data-label="GLB">
+            <model-viewer
+              src="${it.glb}"
+              camera-controls
+              auto-rotate
+              shadow-intensity="0.6"
+              exposure="1.0"
+              environment-image="neutral"
+              tone-mapping="aces"
+              interaction-prompt="none"
+            ></model-viewer>
+          </div>
+        </div>
+        <div class="meta"><span class="ok">${it.status}</span><span>${it.combo_id}</span></div>
+      </div>`;
+  }).join("");
+  applyControlsToViewers();
+}
+
+function buildFilters() {
+  const mats = [...new Set(ITEMS.map(i => i.material))].sort();
+  const shapes = [...new Set(ITEMS.map(i => i.shape))].sort();
+  const mf = document.getElementById("filtermat");
+  const sf = document.getElementById("filtershape");
+  mats.forEach(m => mf.insertAdjacentHTML("beforeend", `<option value="${m}">${m}</option>`));
+  shapes.forEach(s => sf.insertAdjacentHTML("beforeend", `<option value="${s}">${s}</option>`));
+}
+
+function applyControlsToViewers() {
+  const env = document.getElementById("env").value;
+  const exp = document.getElementById("exp").value;
+  const ar = document.getElementById("autorot").checked;
+  const sh = document.getElementById("shadow").checked;
+  document.querySelectorAll("model-viewer").forEach(m => {
+    if (env) m.setAttribute("environment-image", env);
+    else m.removeAttribute("environment-image");
+    m.setAttribute("exposure", exp);
+    if (ar) m.setAttribute("auto-rotate", ""); else m.removeAttribute("auto-rotate");
+    m.setAttribute("shadow-intensity", sh ? "0.6" : "0");
+  });
+}
+
+function hookControls() {
+  ["env","exp","autorot","shadow"].forEach(id => {
+    const el = document.getElementById(id);
+    const evt = el.type === "range" ? "input" : "change";
+    el.addEventListener(evt, applyControlsToViewers);
+  });
+  ["filtermat","filtershape"].forEach(id => {
+    document.getElementById(id).addEventListener("change", render);
+  });
+}
+
+function updateStats() {
+  const ok = ITEMS.filter(i => i.status === "ok" || i.status === "cached").length;
+  const fail = ITEMS.filter(i => i.status === "fail").length;
+  const totalGlb = ITEMS.filter(i => i.status === "ok" || i.status === "cached").length;
+  document.getElementById("stats").innerHTML =
+    `<b>${ok}</b> OK · <b>${fail}</b> fail · <b>${ITEMS.length}</b> combos`;
+}
+
+loadManifest().then(items => {
+  ITEMS = items;
+  buildFilters();
+  hookControls();
+  updateStats();
+  render();
+}).catch(e => {
+  document.getElementById("empty").style.display = "block";
+  document.getElementById("empty").innerHTML = "Erro: " + e.message;
+});
+</script>
+</body>
+</html>
