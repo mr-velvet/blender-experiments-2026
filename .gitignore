@@ -3,3 +3,8 @@ out/
 __pycache__/
 .DS_Store
 node_modules/
+.playwright-mcp/
+viewer-full.png
+zoom-*.png
+top-*.png
+card-*.png
