@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Blender Experiments 2026 — GLB Material Test</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --card: #242424;
+    --text: #e8e8e8;
+    --muted: #888;
+    --accent: #d4a373;
+    --border: #333;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    padding: 32px 24px;
+    line-height: 1.5;
+  }
+  header { max-width: 1400px; margin: 0 auto 32px; }
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .controls {
+    max-width: 1400px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .controls label { color: var(--muted); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .controls input[type=range] { width: 120px; }
+  .controls select {
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    padding: 6px 10px; border-radius: 4px; font-size: 13px;
+  }
+  .grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .card h3 .mat { color: var(--accent); }
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .compare > div {
+    background: #2a2a2a;
+    position: relative;
+    aspect-ratio: 1;
+  }
+  .compare > div::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 6px; left: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    z-index: 2;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  .compare img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  model-viewer {
+    width: 100%; height: 100%;
+    --poster-color: transparent;
+    background: #2a2a2a;
+  }
+  .meta {
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+  .status-empty {
+    max-width: 1400px;
+    margin: 80px auto;
+    text-align: center;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Blender Experiments — Material Bake Test</h1>
+  <div class="sub">Esquerda: render Cycles dentro do Blender. Direita: GLB exportado com PBR baked, renderizado pelo model-viewer (three.js).</div>
+</header>
+
+<div class="controls">
+  <label>Ambiente:
+    <select id="env">
+      <option value="neutral">neutral</option>
+      <option value="legacy">legacy</option>
+      <option value="">none</option>
+    </select>
+  </label>
+  <label>Exposure: <input type="range" id="exp" min="0.3" max="2.5" step="0.1" value="1.0"></label>
+  <label><input type="checkbox" id="autorot" checked> auto-rotate</label>
+  <label><input type="checkbox" id="shadow" checked> shadows</label>
+</div>
+
+<div id="grid" class="grid"></div>
+<div id="empty" class="status-empty" style="display:none">Manifest vazio. Rode <code>python pipeline/batch_run.py</code>.</div>
+
+<script>
+async function loadManifest() {
+  const r = await fetch("../out/manifest.json?t=" + Date.now());
+  if (!r.ok) throw new Error("manifest.json nao encontrado");
+  return await r.json();
+}
+
+function render(items) {
+  const grid = document.getElementById("grid");
+  if (!items.length) { document.getElementById("empty").style.display = "block"; return; }
+  grid.innerHTML = items.map(it => {
+    if (it.status === "fail") return `
+      <div class="card">
+        <h3>${it.shape} <span class="mat">— ${it.material}</span></h3>
+        <div class="compare"><div data-label="FAIL"></div><div data-label="FAIL"></div></div>
+        <div class="meta"><span>fail</span><span>${it.combo_id}</span></div>
+      </div>`;
+    return `
+      <div class="card">
+        <h3>${it.shape} <span class="mat">— ${it.material}</span></h3>
+        <div class="compare">
+          <div data-label="Cycles render">
+            <img src="../${it.render}" loading="lazy" alt="cycles">
+          </div>
+          <div data-label="GLB (model-viewer)">
+            <model-viewer
+              src="../${it.glb}"
+              camera-controls
+              auto-rotate
+              shadow-intensity="0.6"
+              exposure="1.0"
+              environment-image="neutral"
+              tone-mapping="aces"
+              interaction-prompt="none"
+            ></model-viewer>
+          </div>
+        </div>
+        <div class="meta"><span>${it.status}</span><span>${it.combo_id}</span></div>
+      </div>`;
+  }).join("");
+  hookControls();
+}
+
+function hookControls() {
+  const env = document.getElementById("env");
+  const exp = document.getElementById("exp");
+  const ar = document.getElementById("autorot");
+  const sh = document.getElementById("shadow");
+  const all = () => document.querySelectorAll("model-viewer");
+  env.onchange = () => all().forEach(m => m.setAttribute("environment-image", env.value));
+  exp.oninput = () => all().forEach(m => m.setAttribute("exposure", exp.value));
+  ar.onchange = () => all().forEach(m => ar.checked ? m.setAttribute("auto-rotate","") : m.removeAttribute("auto-rotate"));
+  sh.onchange = () => all().forEach(m => m.setAttribute("shadow-intensity", sh.checked ? "0.6" : "0"));
+}
+
+loadManifest().then(render).catch(e => {
+  document.getElementById("empty").style.display = "block";
+  document.getElementById("empty").innerHTML = "Erro: " + e.message;
+});
+</script>
+</body>
+</html>

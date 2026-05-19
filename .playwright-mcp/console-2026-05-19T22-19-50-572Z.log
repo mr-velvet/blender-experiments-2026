@@ -1,0 +1,5 @@
+[     107ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/C:/Users/manu/ved/blender-experiments-2026/out/renders/cube_cardboard-outer.png:0
+[     521ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/C:/Users/manu/ved/blender-experiments-2026/out/glb/cube_cardboard-outer.glb:0
+[     521ms] [ERROR] $l: fetch for "http://localhost:8765/C:/Users/manu/ved/blender-experiments-2026/out/glb/cube_cardboard-outer.glb" responded with 404: File not found
+    at https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js:17:507206 @ https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js:569
+[     680ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0

@@ -1,0 +1,421 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading "Blender Experiments — Material Bake Test" [level=1] [ref=e3]
+    - generic [ref=e4]: "Esquerda: render Cycles dentro do Blender. Direita: GLB exportado com PBR baked, renderizado pelo model-viewer (three.js)."
+  - generic [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - text: "Ambiente:"
+      - combobox "Ambiente:" [ref=e7]:
+        - option "neutral" [selected]
+        - option "legacy"
+        - option "none"
+    - generic [ref=e8] [cursor=pointer]:
+      - text: "Exposure:"
+      - slider "Exposure:" [ref=e9]: "1"
+    - generic [ref=e10] [cursor=pointer]:
+      - checkbox "auto-rotate" [checked] [ref=e11]
+      - text: auto-rotate
+    - generic [ref=e12] [cursor=pointer]:
+      - checkbox "shadows" [checked] [ref=e13]
+      - text: shadows
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - heading "cube — Cardboard Outer" [level=3] [ref=e16]
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - text: Cycles render
+          - img "cycles" [ref=e19]
+        - generic [ref=e20]:
+          - text: GLB (model-viewer)
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - button "3D model" [ref=e24]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e28]:
+        - generic [ref=e29]: cached
+        - generic [ref=e30]: cube_cardboard-outer
+    - generic [ref=e31]:
+      - heading "cube — Cardboard Inner" [level=3] [ref=e32]
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - text: Cycles render
+          - img "cycles" [ref=e35]
+        - generic [ref=e36]:
+          - text: GLB (model-viewer)
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - button "3D model" [ref=e40]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e44]:
+        - generic [ref=e45]: ok
+        - generic [ref=e46]: cube_cardboard-inner
+    - generic [ref=e47]:
+      - heading "cube — Mat1 (text)" [level=3] [ref=e48]
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - text: Cycles render
+          - img "cycles" [ref=e51]
+        - generic [ref=e52]:
+          - text: GLB (model-viewer)
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - button "3D model" [ref=e56]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e60]:
+        - generic [ref=e61]: ok
+        - generic [ref=e62]: cube_mat1
+    - generic [ref=e63]:
+      - heading "cube — Mat2 (text)" [level=3] [ref=e64]
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - text: Cycles render
+          - img "cycles" [ref=e67]
+        - generic [ref=e68]:
+          - text: GLB (model-viewer)
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - button "3D model" [ref=e72]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e76]:
+        - generic [ref=e77]: ok
+        - generic [ref=e78]: cube_mat2
+    - generic [ref=e79]:
+      - heading "sphere — Cardboard Outer" [level=3] [ref=e80]
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - text: Cycles render
+          - img "cycles" [ref=e83]
+        - generic [ref=e84]:
+          - text: GLB (model-viewer)
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - button "3D model" [ref=e88]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e92]:
+        - generic [ref=e93]: ok
+        - generic [ref=e94]: sphere_cardboard-outer
+    - generic [ref=e95]:
+      - heading "sphere — Cardboard Inner" [level=3] [ref=e96]
+      - generic [ref=e97]:
+        - generic [ref=e98]:
+          - text: Cycles render
+          - img "cycles" [ref=e99]
+        - generic [ref=e100]:
+          - text: GLB (model-viewer)
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - button "3D model" [ref=e104]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e108]:
+        - generic [ref=e109]: ok
+        - generic [ref=e110]: sphere_cardboard-inner
+    - generic [ref=e111]:
+      - heading "sphere — Mat1 (text)" [level=3] [ref=e112]
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - text: Cycles render
+          - img "cycles" [ref=e115]
+        - generic [ref=e116]:
+          - text: GLB (model-viewer)
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - button "3D model" [ref=e120]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e124]:
+        - generic [ref=e125]: ok
+        - generic [ref=e126]: sphere_mat1
+    - generic [ref=e127]:
+      - heading "sphere — Mat2 (text)" [level=3] [ref=e128]
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - text: Cycles render
+          - img "cycles" [ref=e131]
+        - generic [ref=e132]:
+          - text: GLB (model-viewer)
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - button "3D model" [ref=e136]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e140]:
+        - generic [ref=e141]: ok
+        - generic [ref=e142]: sphere_mat2
+    - generic [ref=e143]:
+      - heading "cylinder — Cardboard Outer" [level=3] [ref=e144]
+      - generic [ref=e145]:
+        - generic [ref=e146]:
+          - text: Cycles render
+          - img "cycles" [ref=e147]
+        - generic [ref=e148]:
+          - text: GLB (model-viewer)
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - button "3D model" [ref=e152]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e156]:
+        - generic [ref=e157]: ok
+        - generic [ref=e158]: cylinder_cardboard-outer
+    - generic [ref=e159]:
+      - heading "cylinder — Cardboard Inner" [level=3] [ref=e160]
+      - generic [ref=e161]:
+        - generic [ref=e162]:
+          - text: Cycles render
+          - img "cycles" [ref=e163]
+        - generic [ref=e164]:
+          - text: GLB (model-viewer)
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - button "3D model" [ref=e168]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e172]:
+        - generic [ref=e173]: ok
+        - generic [ref=e174]: cylinder_cardboard-inner
+    - generic [ref=e175]:
+      - heading "cylinder — Mat1 (text)" [level=3] [ref=e176]
+      - generic [ref=e177]:
+        - generic [ref=e178]:
+          - text: Cycles render
+          - img "cycles" [ref=e179]
+        - generic [ref=e180]:
+          - text: GLB (model-viewer)
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - button "3D model" [ref=e184]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e188]:
+        - generic [ref=e189]: ok
+        - generic [ref=e190]: cylinder_mat1
+    - generic [ref=e191]:
+      - heading "cylinder — Mat2 (text)" [level=3] [ref=e192]
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - text: Cycles render
+          - img "cycles" [ref=e195]
+        - generic [ref=e196]:
+          - text: GLB (model-viewer)
+          - generic [ref=e197]:
+            - generic [ref=e198]:
+              - button "3D model" [ref=e200]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e204]:
+        - generic [ref=e205]: ok
+        - generic [ref=e206]: cylinder_mat2
+    - generic [ref=e207]:
+      - heading "torus — Cardboard Outer" [level=3] [ref=e208]
+      - generic [ref=e209]:
+        - generic [ref=e210]:
+          - text: Cycles render
+          - img "cycles" [ref=e211]
+        - generic [ref=e212]:
+          - text: GLB (model-viewer)
+          - generic [ref=e213]:
+            - generic [ref=e214]:
+              - button "3D model" [ref=e216]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e220]:
+        - generic [ref=e221]: ok
+        - generic [ref=e222]: torus_cardboard-outer
+    - generic [ref=e223]:
+      - heading "torus — Cardboard Inner" [level=3] [ref=e224]
+      - generic [ref=e225]:
+        - generic [ref=e226]:
+          - text: Cycles render
+          - img "cycles" [ref=e227]
+        - generic [ref=e228]:
+          - text: GLB (model-viewer)
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - button "3D model" [ref=e232]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e236]:
+        - generic [ref=e237]: ok
+        - generic [ref=e238]: torus_cardboard-inner
+    - generic [ref=e239]:
+      - heading "torus — Mat1 (text)" [level=3] [ref=e240]
+      - generic [ref=e241]:
+        - generic [ref=e242]:
+          - text: Cycles render
+          - img "cycles" [ref=e243]
+        - generic [ref=e244]:
+          - text: GLB (model-viewer)
+          - generic [ref=e245]:
+            - generic [ref=e246]:
+              - button "3D model" [ref=e248]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e252]:
+        - generic [ref=e253]: ok
+        - generic [ref=e254]: torus_mat1
+    - generic [ref=e255]:
+      - heading "torus — Mat2 (text)" [level=3] [ref=e256]
+      - generic [ref=e257]:
+        - generic [ref=e258]:
+          - text: Cycles render
+          - img "cycles" [ref=e259]
+        - generic [ref=e260]:
+          - text: GLB (model-viewer)
+          - generic [ref=e261]:
+            - generic [ref=e262]:
+              - button "3D model" [ref=e264]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e268]:
+        - generic [ref=e269]: ok
+        - generic [ref=e270]: torus_mat2
+    - generic [ref=e271]:
+      - heading "suzanne — Cardboard Outer" [level=3] [ref=e272]
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - text: Cycles render
+          - img "cycles" [ref=e275]
+        - generic [ref=e276]:
+          - text: GLB (model-viewer)
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - button "3D model" [ref=e280]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e284]:
+        - generic [ref=e285]: ok
+        - generic [ref=e286]: suzanne_cardboard-outer
+    - generic [ref=e287]:
+      - heading "suzanne — Cardboard Inner" [level=3] [ref=e288]
+      - generic [ref=e289]:
+        - generic [ref=e290]:
+          - text: Cycles render
+          - img "cycles" [ref=e291]
+        - generic [ref=e292]:
+          - text: GLB (model-viewer)
+          - generic [ref=e293]:
+            - generic [ref=e294]:
+              - button "3D model" [ref=e296]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e300]:
+        - generic [ref=e301]: ok
+        - generic [ref=e302]: suzanne_cardboard-inner
+    - generic [ref=e303]:
+      - heading "suzanne — Mat1 (text)" [level=3] [ref=e304]
+      - generic [ref=e305]:
+        - generic [ref=e306]:
+          - text: Cycles render
+          - img "cycles" [ref=e307]
+        - generic [ref=e308]:
+          - text: GLB (model-viewer)
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - button "3D model" [ref=e312]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e316]:
+        - generic [ref=e317]: ok
+        - generic [ref=e318]: suzanne_mat1
+    - generic [ref=e319]:
+      - heading "suzanne — Mat2 (text)" [level=3] [ref=e320]
+      - generic [ref=e321]:
+        - generic [ref=e322]:
+          - text: Cycles render
+          - img "cycles" [ref=e323]
+        - generic [ref=e324]:
+          - text: GLB (model-viewer)
+          - generic [ref=e325]:
+            - generic [ref=e326]:
+              - button "3D model" [ref=e328]
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - region "Live announcements":
+              - status
+      - generic [ref=e332]:
+        - generic [ref=e333]: ok
+        - generic [ref=e334]: suzanne_mat2
