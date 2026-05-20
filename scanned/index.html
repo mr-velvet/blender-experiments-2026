@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Scanned Model — Instancing Stress Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0e1116; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: #e8eaed; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, rgba(14,17,22,.95) 0%, rgba(14,17,22,0) 100%);
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap; z-index: 10;
+    pointer-events: none;
+  }
+  #hud > * { pointer-events: auto; }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    color: #e8eaed; padding: 6px 11px; border-radius: 18px; font-size: 12px;
+    cursor: pointer; transition: background .15s; font-weight: 500;
+    user-select: none;
+  }
+  .pill:hover { background: rgba(255,255,255,.14); }
+  .pill.active { background: #4a7eff; border-color: #4a7eff; color: white; }
+  .label { font-size: 11px; opacity: .55; letter-spacing: .03em; text-transform: uppercase; padding: 0 4px; }
+  .sep { width: 1px; height: 18px; background: rgba(255,255,255,.12); margin: 0 4px; }
+
+  .slider-group { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.05); padding: 4px 10px 4px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.1); }
+  .slider-group input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 120px; height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; outline: none;
+  }
+  .slider-group input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; background: #4a7eff; border-radius: 50%; cursor: pointer;
+  }
+  .slider-value { font-family: ui-monospace, monospace; font-size: 12px; min-width: 42px; text-align: right; opacity: .85; }
+
+  #stats-box {
+    position: fixed; top: 64px; right: 16px;
+    background: rgba(0,0,0,.55); padding: 10px 14px; border-radius: 6px;
+    font-family: ui-monospace, monospace; font-size: 11px; line-height: 1.6;
+    z-index: 9; pointer-events: none; min-width: 200px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  #stats-box .row { display: flex; justify-content: space-between; gap: 12px; }
+  #stats-box .k { opacity: .55; }
+  #stats-box .v { color: #8bb4ff; }
+  #stats-box .v.warn { color: #ffb84a; }
+  #stats-box .v.bad { color: #ff6a6a; }
+  #stats-box h4 { font-size: 10px; opacity: .5; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; font-weight: 600; }
+  #stats-box .sep-line { height: 1px; background: rgba(255,255,255,.08); margin: 6px 0; }
+
+  #hint {
+    position: fixed; bottom: 14px; left: 16px; right: 16px;
+    text-align: center; font-size: 12px; opacity: .55; pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,.7);
+    z-index: 10;
+  }
+  kbd {
+    display: inline-block; padding: 1px 5px; border: 1px solid rgba(255,255,255,.2);
+    border-radius: 3px; font-family: ui-monospace, "SF Mono", monospace; font-size: 11px;
+    background: rgba(255,255,255,.05);
+  }
+
+  #loader {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #0e1116; z-index: 20; transition: opacity .3s;
+  }
+  #loader.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 28px; height: 28px; border: 2px solid rgba(255,255,255,.15);
+    border-top-color: #4a7eff; border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #lock-prompt {
+    position: fixed; inset: 0; background: rgba(14,17,22,.7); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 15;
+    cursor: pointer; transition: opacity .25s;
+  }
+  #lock-prompt.hidden { opacity: 0; pointer-events: none; }
+  .lock-card {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    padding: 28px 44px; border-radius: 12px; text-align: center;
+  }
+  .lock-card h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .lock-card p { opacity: .65; font-size: 13px; line-height: 1.5; }
+  .lock-card .key-row { margin-top: 14px; display: flex; gap: 14px; justify-content: center; font-size: 11px; opacity: .75; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="hud">
+  <span class="label">LOD</span>
+  <button class="pill" data-lod="lod0">11.5k</button>
+  <button class="pill active" data-lod="lod1">5.7k</button>
+  <button class="pill" data-lod="lod2">3.8k</button>
+  <button class="pill" data-lod="lod_tex512">5.7k·tex512</button>
+  <button class="pill" data-lod="lod_tiny">3.8k·tex256</button>
+
+  <div class="sep"></div>
+
+  <span class="label">Layout</span>
+  <button class="pill active" data-layout="grid">Grid</button>
+  <button class="pill" data-layout="ring">Ring</button>
+  <button class="pill" data-layout="forest">Floresta</button>
+  <button class="pill" data-layout="tower">Coluna</button>
+
+  <div class="sep"></div>
+
+  <div class="slider-group">
+    <span class="label" style="padding: 0">Quantidade</span>
+    <input type="range" id="count-slider" min="1" max="20000" value="500" step="1">
+    <span class="slider-value" id="count-value">500</span>
+  </div>
+
+  <div class="sep"></div>
+
+  <span class="label">Modo</span>
+  <button class="pill active" data-mode="fps">FPS</button>
+  <button class="pill" data-mode="fly">Fly</button>
+  <button class="pill" id="reset-btn">Reset</button>
+  <button class="pill" id="instanced-toggle" data-on="1">Instancing: ON</button>
+</div>
+
+<div id="stats-box">
+  <h4>Performance</h4>
+  <div class="row"><span class="k">FPS</span><span class="v" id="s-fps">—</span></div>
+  <div class="row"><span class="k">Frame ms</span><span class="v" id="s-ms">—</span></div>
+  <div class="sep-line"></div>
+  <h4>GPU Workload</h4>
+  <div class="row"><span class="k">Instancias</span><span class="v" id="s-count">—</span></div>
+  <div class="row"><span class="k">Draw calls</span><span class="v" id="s-calls">—</span></div>
+  <div class="row"><span class="k">Triangulos</span><span class="v" id="s-tris">—</span></div>
+  <div class="row"><span class="k">Texturas</span><span class="v" id="s-tex">—</span></div>
+  <div class="sep-line"></div>
+  <h4>Modelo</h4>
+  <div class="row"><span class="k">LOD ativo</span><span class="v" id="s-lod">—</span></div>
+  <div class="row"><span class="k">Tris/inst</span><span class="v" id="s-trisperinst">—</span></div>
+</div>
+
+<div id="hint">
+  <span id="hint-fps"><kbd>WASD</kbd> mover  <kbd>Mouse</kbd> olhar  <kbd>Espaço</kbd> pular  <kbd>Shift</kbd> correr  <kbd>Esc</kbd> sair</span>
+  <span id="hint-fly" style="display:none"><kbd>WASD</kbd> mover  <kbd>Q/E</kbd> baixo/cima  <kbd>Mouse arrastar</kbd> olhar  <kbd>Shift</kbd> rápido</span>
+</div>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<div id="lock-prompt">
+  <div class="lock-card">
+    <h2>Clique pra entrar</h2>
+    <p>Modo FPS captura o mouse. Aperte <kbd>Esc</kbd> pra sair.</p>
+    <div class="key-row">
+      <span><kbd>WASD</kbd> mover</span>
+      <span><kbd>Espaço</kbd> pular</span>
+      <span><kbd>Shift</kbd> correr</span>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.166.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.166.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+const GLB_BASE = window.location.search.includes('local')
+  ? './out/glb/'
+  : 'https://st.did.lu/blender-scanned/v1/glb/';
+
+const LOD_META = {
+  lod0:       { tris: 11506 },
+  lod1:       { tris: 5752 },
+  lod2:       { tris: 3837 },
+  lod_tex512: { tris: 5752 },
+  lod_tiny:   { tris: 3837 },
+};
+
+const state = {
+  lod: 'lod1',
+  layout: 'grid',
+  count: 500,
+  mode: 'fps',
+  useInstancing: true,
+};
+
+let scene, camera, renderer, controls;
+let velocity = new THREE.Vector3();
+let keys = {};
+let isLocked = false;
+let lastTime = performance.now();
+let fpsSample = 0; let fpsAccum = 0; let frameCount = 0;
+const flyState = { drag: false, dragX: 0, dragY: 0, yaw: 0, pitch: 0 };
+
+let currentGroup = null;
+let cachedGLTFs = {};
+let currentBaseGeometry = null;
+let currentBaseMaterial = null;
+
+init();
+loadAndRebuild();
+animate();
+
+function init() {
+  const app = document.getElementById('app');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9bb1c8);
+  scene.fog = new THREE.Fog(0x9bb1c8, 80, 400);
+
+  camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.05, 800);
+  camera.position.set(0, 1.7, 8);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  app.appendChild(renderer.domElement);
+
+  const hemi = new THREE.HemisphereLight(0xc9e0f5, 0x4a3b2a, 1.0);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff4dc, 1.3);
+  sun.position.set(40, 100, 30);
+  scene.add(sun);
+
+  const groundGeo = new THREE.PlaneGeometry(800, 800);
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x2e3640, roughness: 1.0 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = 0;
+  scene.add(ground);
+
+  // grid helper sutil
+  const grid = new THREE.GridHelper(200, 100, 0x4a5567, 0x3a4453);
+  grid.position.y = 0.01;
+  grid.material.opacity = 0.25;
+  grid.material.transparent = true;
+  scene.add(grid);
+
+  controls = new PointerLockControls(camera, document.body);
+  controls.addEventListener('lock', () => {
+    isLocked = true;
+    document.getElementById('lock-prompt').classList.add('hidden');
+  });
+  controls.addEventListener('unlock', () => {
+    isLocked = false;
+    if (state.mode === 'fps') document.getElementById('lock-prompt').classList.remove('hidden');
+  });
+
+  document.addEventListener('keydown', e => { keys[e.code] = true; });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  renderer.domElement.addEventListener('mousedown', e => {
+    if (state.mode !== 'fly') return;
+    flyState.drag = true; flyState.dragX = e.clientX; flyState.dragY = e.clientY;
+  });
+  document.addEventListener('mousemove', e => {
+    if (state.mode !== 'fly' || !flyState.drag) return;
+    const dx = e.clientX - flyState.dragX;
+    const dy = e.clientY - flyState.dragY;
+    flyState.dragX = e.clientX; flyState.dragY = e.clientY;
+    flyState.yaw -= dx * 0.003;
+    flyState.pitch -= dy * 0.003;
+    flyState.pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, flyState.pitch));
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(flyState.pitch, flyState.yaw, 0, 'YXZ'));
+    camera.quaternion.copy(q);
+  });
+  document.addEventListener('mouseup', () => { flyState.drag = false; });
+
+  document.getElementById('lock-prompt').addEventListener('click', () => {
+    if (state.mode === 'fps') controls.lock();
+  });
+
+  // HUD bindings
+  document.querySelectorAll('[data-lod]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-lod]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.lod = btn.dataset.lod;
+      loadAndRebuild();
+    });
+  });
+  document.querySelectorAll('[data-layout]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-layout]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.layout = btn.dataset.layout;
+      rebuild();
+    });
+  });
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setMode(btn.dataset.mode);
+    });
+  });
+  const slider = document.getElementById('count-slider');
+  const sliderVal = document.getElementById('count-value');
+  slider.addEventListener('input', () => {
+    state.count = parseInt(slider.value);
+    sliderVal.textContent = state.count;
+    rebuild();
+  });
+  document.getElementById('reset-btn').addEventListener('click', resetPosition);
+  document.getElementById('instanced-toggle').addEventListener('click', e => {
+    state.useInstancing = !state.useInstancing;
+    e.target.textContent = `Instancing: ${state.useInstancing ? 'ON' : 'OFF'}`;
+    e.target.dataset.on = state.useInstancing ? '1' : '0';
+    rebuild();
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function loadAndRebuild() {
+  document.getElementById('loader').classList.remove('hidden');
+  const url = GLB_BASE + state.lod + '.glb';
+
+  const apply = gltf => {
+    cachedGLTFs[state.lod] = gltf;
+    // extract base geometry+material from the first mesh
+    let baseMesh = null;
+    gltf.scene.traverse(o => { if (!baseMesh && o.isMesh) baseMesh = o; });
+    if (!baseMesh) {
+      console.error('no mesh in glb');
+      return;
+    }
+    // Bake the local transform into the geometry so InstancedMesh transforms work cleanly
+    const geom = baseMesh.geometry.clone();
+    baseMesh.updateMatrixWorld(true);
+    geom.applyMatrix4(baseMesh.matrixWorld);
+    currentBaseGeometry = geom;
+    currentBaseMaterial = baseMesh.material;
+    rebuild();
+    document.getElementById('loader').classList.add('hidden');
+  };
+
+  if (cachedGLTFs[state.lod]) {
+    apply(cachedGLTFs[state.lod]);
+  } else {
+    new GLTFLoader().load(url, apply, undefined, err => {
+      console.error('failed to load', url, err);
+      document.getElementById('loader').classList.add('hidden');
+    });
+  }
+}
+
+function rebuild() {
+  if (!currentBaseGeometry) return;
+  if (currentGroup) {
+    scene.remove(currentGroup);
+    // dispose instanced meshes (geometry/material are shared, dont dispose those)
+    currentGroup.traverse(o => {
+      if (o.isInstancedMesh && o.dispose) o.dispose();
+    });
+  }
+  currentGroup = new THREE.Group();
+  currentGroup.userData.builtAt = performance.now();
+
+  const positions = computeLayout(state.layout, state.count);
+
+  if (state.useInstancing) {
+    // single InstancedMesh = 1 draw call for all copies
+    const im = new THREE.InstancedMesh(currentBaseGeometry, currentBaseMaterial, positions.length);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i];
+      dummy.position.set(p.x, p.y, p.z);
+      dummy.rotation.set(0, p.ry || 0, 0);
+      const s = p.s || 1;
+      dummy.scale.setScalar(s);
+      dummy.updateMatrix();
+      im.setMatrixAt(i, dummy.matrix);
+    }
+    im.instanceMatrix.needsUpdate = true;
+    currentGroup.add(im);
+  } else {
+    // raw meshes = 1 draw call per copy (stress mode)
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i];
+      const m = new THREE.Mesh(currentBaseGeometry, currentBaseMaterial);
+      m.position.set(p.x, p.y, p.z);
+      m.rotation.y = p.ry || 0;
+      const s = p.s || 1;
+      m.scale.setScalar(s);
+      currentGroup.add(m);
+    }
+  }
+  scene.add(currentGroup);
+}
+
+function computeLayout(layout, n) {
+  // The scanned model bbox is ~16cm. We scale to ~1m visible so the world feels populated.
+  // Display scale chosen so each instance is roughly 60cm tall.
+  const VISIBLE_SCALE = 4.0;
+  const HALF_HEIGHT = 0.083 * VISIBLE_SCALE;  // bbox.y/2 * scale
+  const out = [];
+
+  if (layout === 'grid') {
+    // square-ish grid
+    const cols = Math.ceil(Math.sqrt(n));
+    const SPACING = 1.0;
+    const offset = (cols - 1) * SPACING / 2;
+    for (let i = 0; i < n; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      out.push({
+        x: col * SPACING - offset,
+        y: HALF_HEIGHT,
+        z: row * SPACING - offset,
+        ry: 0,
+        s: VISIBLE_SCALE,
+      });
+    }
+  } else if (layout === 'ring') {
+    // concentric rings expanding outward
+    const RING_SPACING = 0.9;
+    const POINT_SPACING = 0.9;
+    let placed = 0;
+    let r = 1.5;
+    while (placed < n) {
+      const circ = 2 * Math.PI * r;
+      const perRing = Math.max(6, Math.floor(circ / POINT_SPACING));
+      for (let j = 0; j < perRing && placed < n; j++) {
+        const a = (j / perRing) * Math.PI * 2;
+        out.push({
+          x: Math.cos(a) * r,
+          y: HALF_HEIGHT,
+          z: Math.sin(a) * r,
+          ry: -a + Math.PI / 2,
+          s: VISIBLE_SCALE,
+        });
+        placed++;
+      }
+      r += RING_SPACING;
+    }
+  } else if (layout === 'forest') {
+    // pseudo-random poisson-ish using deterministic seed
+    let seed = 1;
+    const rand = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+    const radius = Math.sqrt(n) * 1.4;
+    for (let i = 0; i < n; i++) {
+      const a = rand() * Math.PI * 2;
+      const r = Math.sqrt(rand()) * radius;
+      const sc = (0.7 + rand() * 0.6) * VISIBLE_SCALE;
+      out.push({
+        x: Math.cos(a) * r,
+        y: HALF_HEIGHT * (sc / VISIBLE_SCALE),
+        z: Math.sin(a) * r,
+        ry: rand() * Math.PI * 2,
+        s: sc,
+      });
+    }
+  } else if (layout === 'tower') {
+    // vertical helix
+    const PER_RING = 12;
+    const RING_HEIGHT = 0.6;
+    const RADIUS = 3.0;
+    for (let i = 0; i < n; i++) {
+      const level = Math.floor(i / PER_RING);
+      const a = ((i % PER_RING) / PER_RING) * Math.PI * 2 + level * 0.2;
+      out.push({
+        x: Math.cos(a) * RADIUS,
+        y: HALF_HEIGHT + level * RING_HEIGHT,
+        z: Math.sin(a) * RADIUS,
+        ry: -a + Math.PI / 2,
+        s: VISIBLE_SCALE,
+      });
+    }
+  }
+
+  return out;
+}
+
+function resetPosition() {
+  if (state.layout === 'tower') {
+    camera.position.set(8, 4, 8);
+    camera.lookAt(0, 4, 0);
+  } else if (state.layout === 'forest') {
+    camera.position.set(0, 2.5, 0);
+    camera.lookAt(5, 1.0, 5);
+  } else {
+    camera.position.set(-3, 2.0, -3);
+    camera.lookAt(0, 0.5, 0);
+  }
+  if (state.mode === 'fly') {
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    flyState.yaw = Math.atan2(-dir.x, -dir.z);
+    flyState.pitch = Math.asin(dir.y);
+  }
+  velocity.set(0, 0, 0);
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  if (mode === 'fps') {
+    document.getElementById('hint-fps').style.display = '';
+    document.getElementById('hint-fly').style.display = 'none';
+    document.getElementById('lock-prompt').classList.remove('hidden');
+  } else {
+    if (isLocked) controls.unlock();
+    document.getElementById('hint-fps').style.display = 'none';
+    document.getElementById('hint-fly').style.display = '';
+    document.getElementById('lock-prompt').classList.add('hidden');
+  }
+  resetPosition();
+}
+
+function updateFPSMovement(dt) {
+  if (!isLocked) return;
+  const speed = (keys['ShiftLeft'] || keys['ShiftRight']) ? 14 : 6;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0));
+
+  const move = new THREE.Vector3();
+  if (keys['KeyW']) move.add(forward);
+  if (keys['KeyS']) move.sub(forward);
+  if (keys['KeyD']) move.add(right);
+  if (keys['KeyA']) move.sub(right);
+  if (move.lengthSq() > 0) move.normalize().multiplyScalar(speed * dt);
+
+  // gravidade
+  velocity.y -= 25 * dt;
+  if (keys['Space'] && camera.position.y <= 1.71) velocity.y = 8;
+
+  camera.position.x += move.x;
+  camera.position.z += move.z;
+  camera.position.y += velocity.y * dt;
+  if (camera.position.y < 1.7) {
+    camera.position.y = 1.7;
+    velocity.y = 0;
+  }
+}
+
+function updateFlyMovement(dt) {
+  const speed = (keys['ShiftLeft'] || keys['ShiftRight']) ? 30 : 12;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward).normalize();
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+  const move = new THREE.Vector3();
+  if (keys['KeyW']) move.add(forward);
+  if (keys['KeyS']) move.sub(forward);
+  if (keys['KeyD']) move.add(right);
+  if (keys['KeyA']) move.sub(right);
+  if (keys['KeyE']) move.y += 1;
+  if (keys['KeyQ']) move.y -= 1;
+  if (move.lengthSq() > 0) move.normalize().multiplyScalar(speed * dt);
+  camera.position.add(move);
+}
+
+function updateStats(dt) {
+  fpsAccum += dt; frameCount += 1;
+  if (fpsAccum >= 0.4) {
+    fpsSample = frameCount / fpsAccum;
+    fpsAccum = 0; frameCount = 0;
+    const fpsEl = document.getElementById('s-fps');
+    fpsEl.textContent = fpsSample.toFixed(0);
+    fpsEl.className = 'v ' + (fpsSample < 25 ? 'bad' : fpsSample < 50 ? 'warn' : '');
+    const ms = (1000 / fpsSample);
+    const msEl = document.getElementById('s-ms');
+    msEl.textContent = ms.toFixed(1);
+    msEl.className = fpsEl.className;
+
+    const info = renderer.info;
+    document.getElementById('s-count').textContent = state.count;
+    document.getElementById('s-calls').textContent = info.render.calls;
+    document.getElementById('s-tris').textContent = info.render.triangles.toLocaleString('pt-BR');
+    document.getElementById('s-tex').textContent = info.memory.textures;
+    document.getElementById('s-lod').textContent = state.lod;
+    document.getElementById('s-trisperinst').textContent = LOD_META[state.lod].tris.toLocaleString('pt-BR');
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - lastTime) / 1000);
+  lastTime = now;
+
+  if (state.mode === 'fps') updateFPSMovement(dt);
+  else updateFlyMovement(dt);
+
+  updateStats(dt);
+  renderer.render(scene, camera);
+}
+</script>
+</body>
+</html>

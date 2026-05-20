@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-20 (sessao 2 — experimento 6: estruturas infinitas)
+2026-05-20 (sessao 3 — experimento 7: scan 3D + instancing stress test)
 
 ## O que ja foi feito
 
@@ -87,6 +87,31 @@
 - **Hospedado:** https://st.did.lu/blender-infinite/v1/index.html
 - **Insight tecnico chave:** instancing nativo via `bpy.data.objects.new(name, shared_mesh_data)` (todos os 340 objetos da torre compartilham 4 datas distintas) gera GLBs **dezenas de vezes menores** que duplicar geometria; glTF 2.0 lida com instancing nativamente, Three.js + GLTFLoader respeita
 
+### Experimento 7: modelo escaneado (app 3D scanner) + stress test de instancing
+- Pasta `scanned/` — analise de mesh + LODs + demo Three.js navegavel com instancing massivo
+- **Input:** GLB do scanner (objeto organico ~16cm, 11506 tris, 13262 verts, 1 material PBR com textura JPEG 2048x2048, 1.2MB total)
+- **Analise:** mesh **leve** (11.5k tris eh metade do padrao AAA). Peso real esta na textura (2K JPEG = 16MB descomprimido na VRAM)
+- **LOD pipeline (`scripts/make_lods.py`):** decimate modifier do Blender + downscale de textura
+  - lod0: 11506 tris, 1.2MB (original)
+  - lod1: 5752 tris, 1.1MB (decimate 0.5)
+  - lod2: 3837 tris, 1.0MB (decimate 0.25 — trava aqui, topologia minima)
+  - lod_tex512: 5752 tris, 437KB (tex downscaled)
+  - lod_tiny: 3837 tris, 305KB
+- **Demo (`scanned/index.html`):** Three.js + InstancedMesh + PointerLockControls
+  - 5 LODs selecionaveis em runtime, 4 layouts (grid/ring/forest/tower)
+  - Slider de 1 a 20000 instancias
+  - Toggle Instancing ON/OFF (InstancedMesh vs Mesh por copia)
+  - HUD com FPS, frame ms, draw calls, tris renderizados, contagem de texturas (renderer.info)
+  - 2 modos navegacao: FPS (PointerLock + WASD + gravidade) e Fly (mouse drag + WASD + Q/E)
+- **Benchmark com instancing ON (LOD1):**
+  - 500 instancias: 2.9M tris, 3 draw calls, 60 fps
+  - 1000 instancias: 5.7M tris, 3 draw calls, 60 fps
+  - 5000 instancias: 28.8M tris, 3 draw calls, 30 fps
+  - 10000 instancias: 57.5M tris, 3 draw calls, 22 fps
+  - 20000 instancias: 115M tris, 3 draw calls, 25 fps (frustum culling no GPU)
+- **Insight:** com instancing ativo, GPU fica fill-rate bound (overdraw das pedras grandes) e nao mais draw-call bound. Sem instancing, 5000 copias = 1500+ draw calls mas ainda 60 fps porque o browser frustum culla agressivo.
+- **Hospedado:** https://st.did.lu/blender-scanned/v1/index.html
+
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
 - Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
@@ -146,6 +171,7 @@ blender-experiments-2026/
 | Clay Doh v2 (modal) | https://st.did.lu/blender-claydoh/v2/index.html |
 | Faces + Clay Doh v1 | https://st.did.lu/blender-claydoh-faces/v1/index.html |
 | Infinite v1 (FPS demo navegavel) | https://st.did.lu/blender-infinite/v1/index.html |
+| Scanned v1 (instancing stress test) | https://st.did.lu/blender-scanned/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 
