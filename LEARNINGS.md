@@ -165,3 +165,149 @@ Pro model-viewer no HTML: `environment-image="neutral"` + `tone-mapping="aces"` 
 | Export GLB | Setup de animacao/rigging |
 | Render preview Cycles 64 samples | Iluminacao cinematica (HDR setup, area lights tuning) |
 | Batch geracao de variacoes | Modelagem organica de zero |
+| Deformacao procedural (subsurf+displace) | Sculpt detalhado de feicoes especificas |
+| VDM stamping em primitivos com poucas faces | VDM stamping em mesh densa organica (vira spike) |
+
+## 14. Cubo + Smart UV + materiais com Object Coord = lixo
+
+Pack Clay Doh (e provavelmente outros com `Object Mapping+ Node`) usa coordenadas de objeto/mundo internamente. Quando rodo `smart_project` no cubo + bakeio, cada face recebe pedaco descontinuo do volume procedural → resultado: listras, distorcoes, cubo virou "casca de madeira".
+
+**Solucoes:**
+- **Dropar cubo do batch** se materiais sao procedurais com Object Coord (decisao usada no batch Clay Doh)
+- Forcar `cube_project` em vez de `smart_project` pra cubos (faces alinhadas com eixos preserva continuidade)
+- Materiais com Generated/UV coord nao sofrem isso
+
+Formas organicas (sphere/torus/suzanne) nao tem esse problema porque smart_project ja respeita topologia continua.
+
+## 15. Deformacao real da geometria antes do export (massinha amassada)
+
+`faces/squash_and_export.py` — adiciona modifiers ANTES do bake:
+
+```python
+subsurf = obj.modifiers.new(name="Subsurf", type='SUBSURF')
+subsurf.levels = 4
+tex = bpy.data.textures.new(name="Clouds", type='CLOUDS')
+tex.noise_scale = 1.0 / noise_scale
+disp = obj.modifiers.new(name="Displace", type='DISPLACE')
+disp.texture = tex
+disp.strength = 0.25
+disp.mid_level = 0.5
+bpy.ops.object.modifier_apply(modifier=subsurf.name)
+bpy.ops.object.modifier_apply(modifier=disp.name)
+```
+
+**Importante:**
+- Apply na ORDEM (Subsurf primeiro pra ter geometria, Displace depois)
+- Use `CLOUDS` (smooth bumps) em vez de `NOISE` (white noise = serrilhado)
+- `strength=0.15` sutil; `0.3` bem amassado; `>0.5` derrete o cubo todo
+- `noise_scale=0.5` bumps grandes; `2.0` bumps medios; `5.0` bumps pequenos
+- GLB sai 3-5x maior (geometria densa), mas silhouette muda ao rotacionar (nao eh ilusao)
+
+Combinar com bake do material: faz a deformacao primeiro, depois bakeia o material em cima da mesh ja deformada. Normal map captura detalhes finos, geometria captura volume grosso.
+
+## 16. VDM brush stamping algoritmico (sem bpy.ops.sculpt)
+
+**O problema:** VDM (Vector Displacement Map) brushes sao stamps de displacement 3D, RGB → XYZ em tangent space. Operadores `bpy.ops.sculpt.brush_stroke` sao fragil — exigem sculpt mode + brush asset + stroke dict + texture sample carregada. Em scripts headless da problema.
+
+**A solucao:** algoritmo manual em `faces/vdm_stamp.py`:
+
+```
+1. Pra cada poly F na mesh ORIGINAL (antes de subdividir):
+     anchor = (center, normal, tangent_u, tangent_v, radius=sqrt(area)*0.5)
+2. Subdivide a mesh densamente (subsurf 4-5)
+3. Carrega EXR como bpy.data.images, le pixels em float
+4. Pra cada anchor, pra cada vertex novo:
+     d = vert.co_world - anchor.center
+     if abs(d.dot(n)) > radius*1.5: skip  # vertex muito longe do plano da face
+     u_local = d.dot(tangent_u); v_local = d.dot(tangent_v)
+     if max(|u_local|, |v_local|) > radius*stamp_scale: skip  # fora do quadrado
+     uv = ((u_local/half)*0.5+0.5, (v_local/half)*0.5+0.5)
+     r,g,b = sample_exr_bilinear(pixels, uv)  # ja centrado em 0, nao em 0.5
+     delta = (tangent_u*r + tangent_v*g + normal*b) * displace_strength
+     falloff = radial cosine na borda (0.85-1.0)
+     vert.co += delta * falloff (em local space)
+```
+
+**Convencao VDM:**
+- R = tangent u (deslocamento no eixo horizontal do brush)
+- G = tangent v (vertical)
+- B = normal (pra fora da face — "altura" do detalhe)
+- Valores **centrados em 0** (nao 0.5), variam em [-0.2, 0.8] tipicamente
+- Linear Rec.709 colorspace (nao sRGB)
+
+**Pack Human Face VDM (DoubleGum):** 30 EXRs 512x512 float, cada um eh uma face humana diferente. `Texture/Map_ (N).exr` (espaco no nome).
+
+## 17. Edge crease via bmesh em Blender 5.1+
+
+A API antiga `edge.crease = 1.0` nao funciona mais — atributo nao existe na BMEdge. Tem que ir via bmesh layer:
+
+```python
+bm = bmesh.new()
+bm.from_mesh(obj.data)
+crease_layer = bm.edges.layers.float.get("crease_edge")
+if crease_layer is None:
+    crease_layer = bm.edges.layers.float.new("crease_edge")
+for e in bm.edges:
+    e[crease_layer] = 1.0
+bm.to_mesh(obj.data)
+bm.free()
+```
+
+Depois, no modifier Subsurf: `mod.use_creases = True` (default ja eh True).
+
+**Quando preservar crease em batch:**
+- ✅ Cube, cylinder (poliedros quadrangulares) — preserva quinas duras
+- ❌ Icosphere, sphere com muitos segments, suzanne — vira "ourico" porque cada triangulo vira spike preservado
+- Heuristica: `len(obj.data.polygons) <= 60` ou `shape in ("cube", "cylinder")`
+
+## 18. VDM stamping em mesh organica = virus com espinhos
+
+Algoritmo de stamp colocar 1 anchor por face. Se a mesh original tem 80 faces triangulares pequenas (icosphere subdiv=2), bakeia 80 caras minusculas → mesh vira porco-espinho de massinha.
+
+**Workarounds:**
+- Usar formas com poucas faces grandes: cube (6), cylinder com vertices=12 (14), icosphere com subdivisions=1 (20)
+- Pra suzanne/sphere: precisaria identificar regioes planas grandes ("patches" de bochecha, testa) e estampar so la — nao implementado
+- Filtrar anchors por area minima: `if poly.area < 0.3: skip` (nao testado, mas direto)
+
+## 19. Pattern de viewer com modal de detalhe + deep-link
+
+Padrao usado em `claydoh/index.html` e `viewer/index_v2.html`:
+
+- Card clicavel abre modal fullscreen com `<model-viewer>` grande + render Cycles lado a lado
+- Click no modelo dentro do card NAO abre modal (`e.target.closest("model-viewer")` retorna early)
+- URL hash sincronizada com modal aberto (`#combo_id`) → deep-link funciona
+- Close por X, click no backdrop, ou ESC
+- Botao "baixar .glb" no footer do modal (download link)
+- Manifest com paths absolutos GCS pra evitar duplicacao entre v1/v2
+
+Implementacao JS:
+```js
+function openModal(it) {
+  history.replaceState(null, "", "#" + it.combo_id);
+  // ... popular modal ...
+  document.getElementById("modal").classList.add("open");
+}
+function openFromHash() {
+  const id = location.hash.replace(/^#/, "");
+  const it = ITEMS.find(x => x.combo_id === id);
+  if (it) openModal(it);
+}
+window.addEventListener("hashchange", openFromHash);
+```
+
+## 20. Deploy padrao no GCS (st.did.lu)
+
+Estrutura usada: `gs://didlu-imagestore/<projeto>/v<N>/`:
+- `index.html` na raiz
+- `out/manifest.json` (ou `manifest_v2.json` com URLs absolutas pros assets de uma v1)
+- `out/glb/*.glb`, `out/renders/*.png`
+
+Versionamento (v1, v2, ...) pra invalidar cache agressivo do bucket. v2 pode reaproveitar assets da v1 via manifest com URLs absolutas (`https://st.did.lu/projeto/v1/out/...`) → economiza upload de centenas de MB.
+
+Upload via gcloud:
+```bash
+"/c/Program Files (x86)/Google/Cloud SDK/google-cloud-sdk/bin/gcloud.cmd" \
+  storage cp --recursive out/glb gs://didlu-imagestore/projeto/v1/out/
+```
+
+URL curta: `https://st.did.lu/<path>` (CNAME DNS pro bucket).

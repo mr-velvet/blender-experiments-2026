@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-19
+2026-05-20
 
 ## O que ja foi feito
 
@@ -63,7 +63,7 @@
 ### Repo
 - GitHub: https://github.com/mr-velvet/blender-experiments-2026
 - Branch: master
-- Commits: init + feat (pipeline) + chore (gitignore)
+- Ultimos commits: feat(claydoh) → feat(viewer v2 modal) → feat(faces VDM + squash)
 
 ## Estrutura atual
 ```
@@ -72,33 +72,58 @@ blender-experiments-2026/
 ├── PROGRESS.md             # este arquivo
 ├── README.md
 ├── demo_cardboard_cube.py  # primeira demo (gera GLB quebrado — referencia)
-├── pipeline/
+├── pipeline/               # cardboard (experimento 2)
 │   ├── bake_and_export.py  # core: 1 combo (forma x material) -> GLB
 │   ├── batch_run.py        # batch: matriz NxM
-│   └── fix_manifest.py     # utility: caminhos relativos
-├── setup/addon.py          # blender-mcp addon (ja instalado no Blender)
-├── viewer/index.html       # grid Cycles vs GLB, controles de env/exposure
-└── out/                    # gitignored: glb/, renders/, baked_textures/, manifest.json
+│   └── fix_manifest.py
+├── viewer/                 # cardboard viewer
+│   ├── index.html          # v1 (sem modal)
+│   ├── index_v2.html       # v2 com modal de detalhe
+│   └── gen_manifest_v2.py  # gera manifest com URLs GCS absolutas
+├── claydoh/                # experimento 3 (Clay 4.Doh)
+│   ├── inspect.py
+│   ├── batch_claydoh.py
+│   ├── index.html          # com modal (v2 ja embutido)
+│   └── gen_manifest_v2.py
+├── faces/                  # experimento 4 (VDM stamp + Clay Doh)
+│   ├── inspect_vdm.py
+│   ├── squash_and_export.py  # 4a: subsurf + displace pre-export
+│   ├── vdm_stamp.py          # 4b: stamping algoritmico de VDM
+│   ├── batch_vdm.py          # 4c: batch combinado
+│   └── index.html            # demo com modal + meta de EXR
+├── setup/addon.py
+└── out/, claydoh/out/, faces/out/   # gitignored: glb/, renders/, baked_textures/
 ```
+
+## Hospedado em GCS (st.did.lu)
+| Experimento | URL |
+|---|---|
+| Cardboard v2 (modal) | https://st.did.lu/blender-cardboard/v2/index.html |
+| Clay Doh v1 | https://st.did.lu/blender-claydoh/v1/index.html |
+| Clay Doh v2 (modal) | https://st.did.lu/blender-claydoh/v2/index.html |
+| Faces + Clay Doh v1 | https://st.did.lu/blender-claydoh-faces/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 
-### Curto prazo (proxima sessao)
-- Testar com outros materiais comprados (que voce ja tem)
-- Validar pipeline com materiais que tem displacement (so bake basico nao pega)
-- Comparar `Principled BSDF puro pre-existente` vs `bake` — se material ja for BSDF nativo, pular bake e exportar direto
+### Curto prazo
+- Pasta `faces/` ainda nao tem v2 com modal hospedado (modal ja existe na pagina, so subir como v2)
+- Resolver "virus com espinhos" pra meshes organicas (suzanne/sphere): decimar anchors por area minima, ou agrupar faces adjacentes em "patches" antes de estampar
+- Combinar 4a (massinha amassada) com 3 (Clay Doh batch) — variante "deformado" do batch existente
+- Comparar `Principled BSDF puro pre-existente` vs `bake` — pular bake quando possivel
 
 ### Medio prazo
 - HDR environment proprio pra renders (em vez do sun simples)
 - Bake de AO + thickness pra dar mais profundidade nos GLBs
 - Testar o node `glTF Material Output` (alternativa ao bake)
 - Pipeline pra materiais de pack PBR padrao (basecolor.jpg + roughness.jpg + normal.jpg) — caminho diferente, sem bake
+- VDM stamping em "patches" de mesh organica (suzanne): identificar regioes planas grandes (bochecha, testa) e estampar so la
 
 ### Longo prazo / ideias
 - Modo MCP interativo: testar trabalhar ao vivo na cena com Blender aberto
 - Bake de modelos complexos (nao so primitivos) — Suzanne ja foi, mas modelo real comprado
 - Pipeline reversa: dado um GLB, abrir no Blender e modificar
 - Animacao simples (rotacao, scale, morph targets) preservada no GLB
+- Aplicar pack VDM diferente (creature, abstract, etc) — vdm_stamp.py eh agnostico ao conteudo do EXR
 
 ## Servidor local
-Viewer em http://localhost:8765/viewer/index.html (rodar `python -m http.server 8765` na raiz se cair)
+Viewer em http://localhost:8765/{viewer,claydoh,faces}/index.html (rodar `python -m http.server 8765` na raiz se cair)

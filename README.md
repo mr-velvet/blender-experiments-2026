@@ -6,35 +6,56 @@ Experimentos de automacao do Blender via Python headless e MCP.
 - **[LEARNINGS.md](./LEARNINGS.md)** — aprendizados tecnicos reutilizaveis. **LER PRIMEIRO antes de comecar novo experimento.**
 - **[PROGRESS.md](./PROGRESS.md)** — estado atual da sessao + proximos passos.
 
+## Demos hospedados
+- **Cardboard:** https://st.did.lu/blender-cardboard/v2/index.html
+- **Clay Doh:** https://st.did.lu/blender-claydoh/v2/index.html
+- **Clay Doh + VDM Faces:** https://st.did.lu/blender-claydoh-faces/v1/index.html
+
 ## Setup
-- Blender 5.1.2
+- Blender 5.1.2 (Blender 4.4 tambem instalado pra compatibilidade)
 - blender-mcp addon instalado (setup/addon.py)
 - MCP server configurado no Claude Code (escopo user)
 
 ## Quickstart
 
 ```bash
-# Gerar 1 combo
+# 1. Bake basico (1 combo: forma + material -> GLB)
 "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python pipeline/bake_and_export.py -- \
-  --shape cube --material "Cardboard Outer" \
-  --src-blend "caminho/do/material.blend" \
-  --out-glb out/glb/teste.glb \
-  --out-render out/renders/teste.png \
-  --tex-dir out/baked_textures \
-  --combo-id teste
+  --shape sphere --material "Clay Doh" \
+  --src-blend "C:\Users\manu\Downloads\BLENDER-CLAY\...Clay Doh 4.0.4.blend" \
+  --out-glb out/glb/teste.glb --out-render out/renders/teste.png \
+  --tex-dir out/baked_textures --combo-id teste
 
-# Gerar batch inteiro
-python pipeline/batch_run.py
+# 2. Batch inteiros (por experimento)
+python pipeline/batch_run.py            # cardboard
+python claydoh/batch_claydoh.py         # Clay Doh (32 combos)
+python faces/batch_vdm.py               # VDM faces stamped + Clay Doh (9 combos)
 
-# Ver no browser
+# 3. Massinha amassada (deformacao real, nao so normal map)
+"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python faces/squash_and_export.py -- \
+  --shape sphere --material "Clay Doh" --src-blend "..." \
+  --out-glb out/teste_amassado.glb --tex-dir out/baked --combo-id teste \
+  --subdiv-levels 4 --displace-strength 0.25 --noise-scale 2.0
+
+# 4. VDM brush stamping (1 face humana no centro de cada face da mesh)
+"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --background --python faces/vdm_stamp.py -- \
+  --shape cube --exr "C:\Users\manu\Downloads\BLENDER-FACES-BRUSH\Texture\Map_ (5).exr" \
+  --material "Clay Doh" --src-blend "..." \
+  --out-glb out/teste_faces.glb --tex-dir out/baked --combo-id teste \
+  --subdiv-levels 5 --stamp-scale 0.7 --displace-strength 0.35
+
+# Ver localmente
 python -m http.server 8765
-# abrir http://localhost:8765/viewer/index.html
+# http://localhost:8765/{viewer,claydoh,faces}/index.html
 ```
 
 ## Estrutura
 ```
-pipeline/    # scripts de bake e batch
-viewer/      # pagina HTML com model-viewer pra inspecionar GLBs
-setup/       # addon do MCP
-out/         # outputs (gitignored)
+pipeline/    # cardboard: bake + batch + viewer
+claydoh/     # Clay 4.Doh (DoubleGum) - 32 combos
+faces/       # VDM Face brushes + deformacao real + Clay Doh
+viewer/      # cardboard viewer (v1 + v2 com modal)
+setup/       # blender-mcp addon
 ```
+
+Cada pasta de experimento tem `out/` gitignored com glb/renders/textures.
