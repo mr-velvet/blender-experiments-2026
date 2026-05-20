@@ -1,4 +1,6 @@
 out/
+.claude/
+extract/__pycache__/
 claydoh/out/
 claydoh/screenshots/
 claydoh/viewer_test.html

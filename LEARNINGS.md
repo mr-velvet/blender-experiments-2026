@@ -311,3 +311,68 @@ Upload via gcloud:
 ```
 
 URL curta: `https://st.did.lu/<path>` (CNAME DNS pro bucket).
+
+## 21. Pegadinhas ao extrair assets de um pack monolitico (.blend gigante com N modelos)
+
+Aplicado em `extract/extract_assets.py` no pack Everything Library (gratuito, ~85 buildings + 178 animals num so .blend cada).
+
+### Setup tipico do pack
+Hierarquia geralmente: `ROOT_EMPTY (BUILDINGS) > Categoria (Empty) > Asset (Empty) > Meshes`. Cada filho direto de uma categoria eh um asset coerente (ex: Bank, Pagoda, Yurt, Elephant). Quando voce quer reusar so o modelo individual em outros projetos, precisa quebrar em N arquivos.
+
+### Bug 1: objetos linkados em multiplas collections → exporter duplica nodes
+Pack original linka cada objeto na collection especializada (`Buildings`) E na **Scene Collection raiz** (provavelmente porque o autor usou drag-drop ou alguma operacao que duplica linkagem). Resultado: `obj.users == 2`. Quando exporta com `use_selection=True`, o glTF exporter expande pra **3 copias do Empty + 6 copias dos meshes** num asset que deveria ter 4 nodes.
+
+**Fix:** ao carregar o .blend, unlink da Scene Collection raiz os objetos que tambem estao em alguma sub-collection:
+```python
+scene_coll = bpy.context.scene.collection
+for o in list(scene_coll.objects):
+    other_colls = [c for c in o.users_collection if c != scene_coll]
+    if other_colls:
+        scene_coll.objects.unlink(o)
+```
+
+### Bug 2: layer_collection.hide_viewport=True → visible_get() retorna False → exporter ignora tudo
+A collection do pack veio com **olhinho desligado no outliner** (layer_collection.hide_viewport=True). Isso faz `obj.visible_get() == False` mesmo com `obj.hide_viewport == False` e `hide_render == False`. O exporter glTF com `use_visible=True` ignora silenciosamente, e voce ganha GLBs de **132 bytes** (so header).
+
+**Fix:** depois de abrir o .blend, walk recursivo na `view_layer.layer_collection` desligando hide_viewport/exclude:
+```python
+def unexclude(lc):
+    if lc.exclude: lc.exclude = False
+    if lc.hide_viewport: lc.hide_viewport = False
+    if lc.collection.hide_viewport: lc.collection.hide_viewport = False
+    for ch in lc.children:
+        unexclude(ch)
+unexclude(bpy.context.view_layer.layer_collection)
+```
+
+### Bug 3: assets vem em coordenadas absolutas do mundo, sem centralizacao
+Meshes do pack tinham vertices em escala 1000+ unidades porque a cena original posicionava tudo num grid grande. Cada GLB exportado tinha bbox enorme e descentralizado — model-viewer enquadra a cena toda e o asset aparece minusculo num canto.
+
+**Fix:** calcular bbox global dos meshes do asset, mover **todos** os descendants (matrix_world.translation) pra origem antes do export, reverter depois:
+```python
+bb_min = Vector((1e18, 1e18, 1e18)); bb_max = Vector((-1e18, -1e18, -1e18))
+for m in mesh_descs:
+    mw = m.matrix_world
+    for v in m.data.vertices:
+        wp = mw @ v.co
+        for k in range(3):
+            bb_min[k] = min(bb_min[k], wp[k]); bb_max[k] = max(bb_max[k], wp[k])
+offset = Vector((-(bb_min.x+bb_max.x)*0.5, -(bb_min.y+bb_max.y)*0.5, -bb_min.z))  # apoia em Y=0 do glTF
+for d in descendants:
+    mw = d.matrix_world.copy(); mw.translation += offset; d.matrix_world = mw
+bpy.context.view_layer.update()
+```
+
+**OBS:** mover so o Empty pai NAO funciona — em Blender, parent compoe matrix_local, mas filho com matrix_world propria nao herda translacao mundial. Precisa mexer em todos.
+
+### Bug 4 (preventivo): exportar animacoes/morph/skin
+Mesmo sem mexer, animacoes do pack viram nodes extras / aumentam GLB. Pra extrair so geometria:
+```python
+bpy.ops.export_scene.gltf(..., export_animations=False, export_morph=False, export_skins=False)
+```
+
+### Pattern reutilizavel
+Script generico: `extract_assets.py --src <blend> --out-dir <dst> --root-name BUILDINGS`. Funciona em qualquer pack que use hierarquia `Empty > Empty > Mesh`. Suporta `--dry-run`, `--only <asset>`, `--skip-existing`. Processo unico de Blender para os N assets — usa scene compartilhada com hide+show dos outros objetos pra isolar selecao.
+
+### Custo
+263 GLBs (~39 MB total) em ~3 minutos de Blender (1 processo, scene shared). Cada GLB tem 0.3-1.2s de export.
