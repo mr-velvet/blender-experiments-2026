@@ -376,3 +376,96 @@ Script generico: `extract_assets.py --src <blend> --out-dir <dst> --root-name BU
 
 ### Custo
 263 GLBs (~39 MB total) em ~3 minutos de Blender (1 processo, scene shared). Cada GLB tem 0.3-1.2s de export.
+
+---
+
+# Sessao 2026-05-20: instancing massivo + scenes infinitas + Three.js fps demo
+
+## 1. Extensions vs addons em Blender 5.x
+
+Blender 5.x **moveu quase tudo pra extensions** (`extensions.blender.org`). Addons classicos como `add_mesh_extra_objects`, `archimesh`, `add_curve_sapling` **nao vem mais built-in**.
+
+### Instalar via Python (headless)
+```python
+import bpy
+bpy.context.preferences.system.use_online_access = True  # obrigatorio
+bpy.ops.extensions.repo_sync_all()  # baixa indice de pacotes
+bpy.ops.extensions.package_install(repo_index=0, pkg_id="archimesh", enable_on_install=True)
+```
+
+### Namespace mudou
+Antes: `addon_utils.enable("archimesh")`. Agora: `addon_utils.enable("bl_ext.blender_org.archimesh")`. O nome curto **nao funciona mais** — `addon_utils.check()` retorna False mesmo apos instalar.
+
+### Listar pacotes disponiveis
+API publica nao precisa auth: `GET https://extensions.blender.org/api/v1/extensions/?type=add-on` retorna JSON com todos os 1100+ pacotes (`id`, `name`, `tagline`, `archive_url`). Permite procurar por keyword antes de tentar instalar.
+
+### Pacotes uteis testados
+- `archimesh`: gera stairs/rooms/doors/windows via `bpy.ops.mesh.archimesh_*`. Escada vem com handrails e proporcoes ok-default.
+- `modern_primitive`: instala mas nao expoe `primitive_steppyramid_add` que o site sugere — pacote eh outra coisa (parametricos nao-destrutivos). Cuidado: nome do pacote nao garante o op.
+- `sapling_tree_gen`: expoe `bpy.ops.curve.tree_add`.
+- `maze_generator`: util pra dungeons proceduras.
+
+## 2. Instancing massivo para GLBs pequenos
+
+Pra cenas com centenas de objetos repetidos (grid de plataformas, andares de torre, zigurats), instanciar via `bpy.data.objects.new(name, shared_mesh_data)` (mesma `.data` compartilhada) gera GLB **dezenas de vezes menor** do que duplicar a mesh.
+
+Ex: torre com 340 objetos (8 petalas × 14 niveis × {plataforma+pillar+spiral}) = 57KB GLB. Cada `Object` no glTF vira um node leve referenciando o mesmo `accessor`/`bufferView` da mesh. glTF 2.0 ja resolve isso automaticamente quando objetos Blender compartilham `data`.
+
+```python
+# template
+plat = make_platform(size=3.5, name="Plat")
+plat.hide_render = True; plat.location.x = -100  # template fora da cena visivel
+
+# instancia (compartilha mesh, NAO duplica)
+for i in range(N):
+    obj = bpy.data.objects.new(f"P_{i}", plat.data)   # <-- plat.data, nao copy
+    bpy.context.collection.objects.link(obj)
+    obj.location = (...)
+```
+
+No export, todos os instances saem como nodes separados mas referenciando os mesmos 1-2 KB de geometria. **NAO precisa fazer make_real / realize / apply** — o exportador glTF lida com instancing nativamente.
+
+### Por que isso bate "Geometry Nodes realize" pra demo Three.js
+- Geometry Nodes com `Instance on Points` -> `Realize Instances` GERA geometria duplicada no export. Pra 300 plataformas = 300x os verts.
+- Object instances (mesma `.data`) preservam compartilhamento ate no GLB. Three.js + GLTFLoader respeita e nao duplica em memoria GPU.
+
+## 3. Escadas via bmesh — patterns
+
+Pra cada tipo de escada, criar funcao que retorna `bpy.types.Object` com mesh ja triangulada/manifold:
+- **Reta**: loop de cubos com `bmesh.ops.create_cube` + scale + translate por degrau
+- **Helicoidal**: 8 verts por degrau (4 base + 4 top em coordenadas polares), faces conectando — sem `array modifier`, controle direto
+- **L (corner)**: gera 2 escadas retas separadas, posiciona, rotaciona 90°, `bpy.ops.object.join()`
+- **Suspensa**: degraus com `gap` entre eles
+- **Step pyramid**: layers de cubo decrescendo (`base - i*step*1.5`)
+- **Archimesh**: `bpy.ops.mesh.archimesh_stairs()` (depois de enable da extension)
+
+Convencao: cada funcao retorna obj com props `obj["stair_height"]` e `obj["stair_top"]` (tuple) — facilita encadear escadas em estruturas maiores.
+
+## 4. Three.js demo pra navegar GLBs
+
+Pattern minimo pra demo navegavel:
+- `PointerLockControls` pra FPS (precisa click do user pra ativar lock)
+- Raycaster pra baixo a cada frame com `intersectObjects(meshes, true)` (true = recursive em scene root)
+- Gravidade simples (`vy -= 25 * dt`), pulo (`vy = 9` quando `onGround && Space`)
+- "Step assist" basico: se o ground subiu ate `eyeHeight + 0.45` no proximo frame, snap pra cima (sobe escada sem precisar pular)
+- Modo `fly` separado com captura manual de mouse drag (sem pointer lock — assim user pode interagir com botoes do HUD sem perder controle)
+
+```js
+// raycast pra ground na proxima posicao
+downRay.set(new Vector3(newPos.x, newPos.y + 0.3, newPos.z), new Vector3(0, -1, 0));
+const hits = downRay.intersectObjects(colliderMeshes, true);
+if (hits.length && newPos.y < hits[0].point.y + eyeHeight) {
+  newPos.y = hits[0].point.y + eyeHeight;  // snap em cima
+  onGround = true; velocity.y = 0;
+}
+```
+
+### Loading
+Pra trocar de cena sem reload da pagina: marcar GLBs adicionados com `userData.fromGLB = true`, e `scene.remove()` antes de carregar nova. Limpar `colliderMeshes[]` tambem.
+
+### CDN
+`https://unpkg.com/three@0.166.0/build/three.module.js` + importmap pra `three/addons/` resolve tudo sem build step. Funciona em GCS estatico.
+
+## 5. Lighting workaround pra torres altas
+
+`DirectionalLight` em y=50 nao cobre torre de 70m de altura — andares superiores ficam pretos. Solucao: aumentar altura da light (`y=120`) ou adicionar 2a directional fill em outra direcao.

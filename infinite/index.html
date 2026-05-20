@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Estruturas Infinitas — Blender x Three.js</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0e1116; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: #e8eaed; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  /* HUD */
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, rgba(14,17,22,.95) 0%, rgba(14,17,22,0) 100%);
+    display: flex; gap: 8px; align-items: center; z-index: 10;
+    pointer-events: none;
+  }
+  #hud > * { pointer-events: auto; }
+  .pill {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    color: #e8eaed; padding: 6px 12px; border-radius: 20px; font-size: 12px;
+    cursor: pointer; transition: background .15s; font-weight: 500;
+    user-select: none;
+  }
+  .pill:hover { background: rgba(255,255,255,.14); }
+  .pill.active { background: #4a7eff; border-color: #4a7eff; color: white; }
+  .label { font-size: 11px; opacity: .55; letter-spacing: .03em; text-transform: uppercase; padding: 0 4px; }
+  .sep { flex: 1; }
+
+  /* footer hints */
+  #hint {
+    position: fixed; bottom: 16px; left: 16px; right: 16px;
+    text-align: center; font-size: 12px; opacity: .55; pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,.7);
+    z-index: 10;
+  }
+  kbd {
+    display: inline-block; padding: 1px 5px; border: 1px solid rgba(255,255,255,.2);
+    border-radius: 3px; font-family: ui-monospace, "SF Mono", monospace; font-size: 11px;
+    background: rgba(255,255,255,.05);
+  }
+
+  /* loading */
+  #loader {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #0e1116; z-index: 20; pointer-events: none; transition: opacity .4s;
+  }
+  #loader.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 32px; height: 32px; border: 2px solid rgba(255,255,255,.15);
+    border-top-color: #4a7eff; border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* fps overlay */
+  #stats {
+    position: fixed; top: 60px; right: 16px;
+    background: rgba(0,0,0,.4); padding: 6px 10px; border-radius: 4px;
+    font-family: ui-monospace, monospace; font-size: 11px; opacity: .65;
+    z-index: 9; pointer-events: none;
+  }
+
+  /* lock overlay */
+  #lock-prompt {
+    position: fixed; inset: 0; background: rgba(14,17,22,.7); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 15;
+    cursor: pointer; transition: opacity .25s;
+  }
+  #lock-prompt.hidden { opacity: 0; pointer-events: none; }
+  .lock-card {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    padding: 32px 48px; border-radius: 12px; text-align: center;
+  }
+  .lock-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .lock-card p { opacity: .65; font-size: 13px; line-height: 1.5; }
+  .lock-card .key-row { margin-top: 16px; display: flex; gap: 16px; justify-content: center; font-size: 11px; opacity: .75; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="hud">
+  <span class="label">Estrutura</span>
+  <button class="pill active" data-scene="escher">Escher</button>
+  <button class="pill" data-scene="tower">Torre</button>
+  <button class="pill" data-scene="ziggurat">Zigurat</button>
+  <button class="pill" data-scene="mix">Mix</button>
+  <div class="sep"></div>
+  <span class="label">Modo</span>
+  <button class="pill active" data-mode="fps">FPS</button>
+  <button class="pill" data-mode="fly">Free-fly</button>
+  <button class="pill" id="reset-btn">Reset pos</button>
+</div>
+
+<div id="stats">— fps</div>
+
+<div id="hint">
+  <span id="hint-fps"><kbd>WASD</kbd> mover  <kbd>Mouse</kbd> olhar  <kbd>Espaço</kbd> pular  <kbd>Shift</kbd> correr  <kbd>Esc</kbd> sair</span>
+  <span id="hint-fly" style="display:none"><kbd>WASD</kbd> mover  <kbd>Q/E</kbd> baixo/cima  <kbd>Mouse arrastar</kbd> olhar  <kbd>Shift</kbd> rápido</span>
+</div>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<div id="lock-prompt">
+  <div class="lock-card">
+    <h2>Clique pra entrar</h2>
+    <p>Modo FPS captura o mouse pra você olhar em volta.<br>Aperte <kbd>Esc</kbd> a qualquer momento pra sair.</p>
+    <div class="key-row">
+      <span><kbd>WASD</kbd> mover</span>
+      <span><kbd>Espaço</kbd> pular</span>
+      <span><kbd>Shift</kbd> correr</span>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.166.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.166.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+const GLB_BASE = window.location.search.includes('local')
+  ? './out/glb/'
+  : 'https://st.did.lu/blender-infinite/v1/glb/';
+
+const SCENES = {
+  escher:   { spawn: [-8, 2.0, -8],   spawnFly: [25, 22, -25],  look: [15, 5, 15] },
+  tower:    { spawn: [16, 2.0, 0],    spawnFly: [28, 30, 28],   look: [0, 30, 0] },
+  ziggurat: { spawn: [-10, 2.0, -10], spawnFly: [30, 25, 30],   look: [16, 5, 16] },
+  mix:      { spawn: [-22, 2.0, -22], spawnFly: [38, 28, 38],   look: [0, 15, 0] },
+};
+
+const loader = new GLTFLoader();
+let scene, camera, renderer, controls, currentMode = 'fps', currentSceneName = 'escher';
+let velocity = new THREE.Vector3();
+let yawObject, pitchObject;  // pra fly mode quando nao tem pointer lock
+let keys = {};
+let isLocked = false;
+let lastTime = performance.now();
+let frameCount = 0; let fpsAccum = 0;
+
+const colliderMeshes = []; // pra raycast de chao
+
+const flyState = { drag: false, dragX: 0, dragY: 0, yaw: 0, pitch: 0 };
+
+init();
+loadScene('escher');
+animate();
+
+function init() {
+  const app = document.getElementById('app');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9bb1c8);
+  scene.fog = new THREE.Fog(0x9bb1c8, 60, 200);
+
+  camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 500);
+  camera.position.set(0, 1.7, 5);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  app.appendChild(renderer.domElement);
+
+  // luz
+  const hemi = new THREE.HemisphereLight(0xc9e0f5, 0x4a3b2a, 1.1);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff4dc, 1.4);
+  sun.position.set(30, 120, 20);
+  scene.add(sun);
+  const sun2 = new THREE.DirectionalLight(0xb8d4ff, 0.5);
+  sun2.position.set(-30, 80, -20);
+  scene.add(sun2);
+
+  // ground infinito (so pra fps nao cair)
+  const groundGeo = new THREE.PlaneGeometry(400, 400);
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x3a4453, roughness: 1.0 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.5;
+  scene.add(ground);
+
+  // controls FPS
+  controls = new PointerLockControls(camera, document.body);
+  controls.addEventListener('lock', () => {
+    isLocked = true;
+    document.getElementById('lock-prompt').classList.add('hidden');
+  });
+  controls.addEventListener('unlock', () => {
+    isLocked = false;
+    if (currentMode === 'fps') {
+      document.getElementById('lock-prompt').classList.remove('hidden');
+    }
+  });
+
+  // inputs
+  document.addEventListener('keydown', e => { keys[e.code] = true; });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  // mouse arraste pra fly mode
+  renderer.domElement.addEventListener('mousedown', e => {
+    if (currentMode !== 'fly') return;
+    flyState.drag = true; flyState.dragX = e.clientX; flyState.dragY = e.clientY;
+  });
+  document.addEventListener('mousemove', e => {
+    if (currentMode !== 'fly' || !flyState.drag) return;
+    const dx = e.clientX - flyState.dragX;
+    const dy = e.clientY - flyState.dragY;
+    flyState.dragX = e.clientX; flyState.dragY = e.clientY;
+    flyState.yaw -= dx * 0.003;
+    flyState.pitch -= dy * 0.003;
+    flyState.pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, flyState.pitch));
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(flyState.pitch, flyState.yaw, 0, 'YXZ'));
+    camera.quaternion.copy(q);
+  });
+  document.addEventListener('mouseup', () => { flyState.drag = false; });
+
+  // lock prompt click
+  document.getElementById('lock-prompt').addEventListener('click', () => {
+    if (currentMode === 'fps') controls.lock();
+  });
+
+  // buttons
+  document.querySelectorAll('[data-scene]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-scene]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadScene(btn.dataset.scene);
+    });
+  });
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setMode(btn.dataset.mode);
+    });
+  });
+  document.getElementById('reset-btn').addEventListener('click', () => resetPosition());
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function clearScene() {
+  // remove objetos GLB anteriores (mantem luzes/ground)
+  const toRemove = scene.children.filter(c => c.userData.fromGLB);
+  toRemove.forEach(c => scene.remove(c));
+  colliderMeshes.length = 0;
+}
+
+function loadScene(name) {
+  currentSceneName = name;
+  document.getElementById('loader').classList.remove('hidden');
+  clearScene();
+  const url = GLB_BASE + name + '.glb';
+  loader.load(url, gltf => {
+    gltf.scene.userData.fromGLB = true;
+    gltf.scene.traverse(o => {
+      if (o.isMesh) {
+        o.castShadow = false;
+        o.receiveShadow = false;
+        colliderMeshes.push(o);
+      }
+    });
+    scene.add(gltf.scene);
+    resetPosition();
+    document.getElementById('loader').classList.add('hidden');
+  }, undefined, err => {
+    console.error('failed to load', url, err);
+    document.getElementById('loader').classList.add('hidden');
+  });
+}
+
+function resetPosition() {
+  const cfg = SCENES[currentSceneName];
+  const p = currentMode === 'fps' ? cfg.spawn : cfg.spawnFly;
+  const look = cfg.look || [0, p[1], 0];
+  camera.position.set(p[0], p[1], p[2]);
+  camera.lookAt(look[0], look[1], look[2]);
+  if (currentMode === 'fly') {
+    const dir = new THREE.Vector3(look[0] - p[0], look[1] - p[1], look[2] - p[2]).normalize();
+    flyState.yaw = Math.atan2(-dir.x, -dir.z);
+    flyState.pitch = Math.asin(dir.y);
+  }
+  velocity.set(0, 0, 0);
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  if (mode === 'fps') {
+    document.getElementById('hint-fps').style.display = '';
+    document.getElementById('hint-fly').style.display = 'none';
+    document.getElementById('lock-prompt').classList.remove('hidden');
+  } else {
+    if (isLocked) controls.unlock();
+    document.getElementById('hint-fps').style.display = 'none';
+    document.getElementById('hint-fly').style.display = '';
+    document.getElementById('lock-prompt').classList.add('hidden');
+  }
+  resetPosition();
+}
+
+const downRaycaster = new THREE.Raycaster();
+let onGround = false;
+
+function updateFPS(dt) {
+  if (!isLocked) return;
+  const speed = (keys['ShiftLeft'] || keys['ShiftRight']) ? 14 : 6;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0));
+
+  const move = new THREE.Vector3();
+  if (keys['KeyW']) move.add(forward);
+  if (keys['KeyS']) move.sub(forward);
+  if (keys['KeyD']) move.add(right);
+  if (keys['KeyA']) move.sub(right);
+  if (move.lengthSq() > 0) move.normalize().multiplyScalar(speed * dt);
+
+  // gravidade simples
+  velocity.y -= 25 * dt;
+  if (keys['Space'] && onGround) {
+    velocity.y = 9;
+    onGround = false;
+  }
+
+  // tentar mover
+  const newPos = camera.position.clone().add(move);
+  newPos.y += velocity.y * dt;
+
+  // raycast pra baixo pra detectar chao
+  downRaycaster.set(new THREE.Vector3(newPos.x, newPos.y + 0.3, newPos.z), new THREE.Vector3(0, -1, 0));
+  downRaycaster.far = 5.0;
+  const hits = downRaycaster.intersectObjects(colliderMeshes, true);
+  let groundY = -0.5; // ground default
+  if (hits.length > 0) {
+    groundY = Math.max(groundY, hits[0].point.y);
+  }
+  // step assist: se chao subiu ate 0.45 a frente, sobe direto
+  const eyeHeight = 1.65;
+  if (newPos.y < groundY + eyeHeight) {
+    newPos.y = groundY + eyeHeight;
+    velocity.y = 0;
+    onGround = true;
+  } else {
+    onGround = false;
+  }
+
+  camera.position.copy(newPos);
+
+  // limite area
+  const LIM = 150;
+  camera.position.x = Math.max(-LIM, Math.min(LIM, camera.position.x));
+  camera.position.z = Math.max(-LIM, Math.min(LIM, camera.position.z));
+  camera.position.y = Math.max(-5, Math.min(120, camera.position.y));
+}
+
+function updateFly(dt) {
+  const speed = (keys['ShiftLeft'] || keys['ShiftRight']) ? 30 : 12;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+  const up = new THREE.Vector3(0, 1, 0);
+
+  const move = new THREE.Vector3();
+  if (keys['KeyW']) move.add(forward);
+  if (keys['KeyS']) move.sub(forward);
+  if (keys['KeyD']) move.add(right);
+  if (keys['KeyA']) move.sub(right);
+  if (keys['KeyE']) move.add(up);
+  if (keys['KeyQ']) move.sub(up);
+  if (move.lengthSq() > 0) move.normalize().multiplyScalar(speed * dt);
+  camera.position.add(move);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = Math.min((now - lastTime) / 1000, 0.1);
+  lastTime = now;
+
+  if (currentMode === 'fps') updateFPS(dt);
+  else updateFly(dt);
+
+  // fps counter
+  frameCount++; fpsAccum += dt;
+  if (fpsAccum >= 0.5) {
+    document.getElementById('stats').textContent = `${(frameCount / fpsAccum).toFixed(0)} fps  ·  ${colliderMeshes.length} meshes`;
+    frameCount = 0; fpsAccum = 0;
+  }
+
+  renderer.render(scene, camera);
+}
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-20
+2026-05-20 (sessao 2 — experimento 6: estruturas infinitas)
 
 ## O que ja foi feito
 
@@ -68,6 +68,25 @@
 - `faces/index.html` — pagina demo com modal, mostra EXR usado em cada card
 - **Hospedado:** https://st.did.lu/blender-claydoh-faces/v1/index.html
 
+### Experimento 6: estruturas infinitas com instancing + demo Three.js navegavel
+- Pasta `infinite/` — 4 cenas 3D com formas geometricas simples + escadas, navegaveis em browser
+- **6a (stair_lib.py):** biblioteca de 6 escadas via bmesh + addon
+  - `stair_straight`, `stair_spiral`, `stair_L`, `stair_suspended`, `step_pyramid` (zigurat) — bmesh puro
+  - `stair_archimesh` — usa addon `archimesh` (extension Blender 5.x)
+- **6b (build_structures.py):** 4 estruturas infinitas via instancing massivo
+  - **Escher**: grid 4x4x4 plataformas em 4 camadas com twist por camada, 5 tipos de escada alternando direcao — 112 objs / 55KB GLB
+  - **Torre**: 14 niveis x 8 plataformas hexagonais petalas + pillars + escadas helicoidais centrais torcidas — 340 objs / 57KB GLB
+  - **Zigurat**: grid 4x4 step pyramids conectados por pontes + escadas em cada lateral — 57 objs / 18KB GLB
+  - **Mix**: 8 zigurats em torno + torre helicoidal central + camada de plataformas suspensas no topo — 52 objs / 41KB GLB
+- **6c (index.html):** demo Three.js completa
+  - Switch entre 4 cenas sem reload (GLTFLoader troca scene root)
+  - 2 modos com toggle: **FPS** (PointerLockControls + WASD + gravidade + pulo + raycast pra detectar chao em escadas) e **Free-fly** (mouse drag + WASD + Q/E up/down)
+  - HUD com pills, contador fps, hints contextuais por modo
+  - Lock prompt animado pra entrada no FPS mode
+- **Addons Blender 5.x instalados** (extension system novo): `archimesh`, `modern_primitive`, `maze_generator`, `sapling_tree_gen` via `bpy.ops.extensions.package_install` headless
+- **Hospedado:** https://st.did.lu/blender-infinite/v1/index.html
+- **Insight tecnico chave:** instancing nativo via `bpy.data.objects.new(name, shared_mesh_data)` (todos os 340 objetos da torre compartilham 4 datas distintas) gera GLBs **dezenas de vezes menores** que duplicar geometria; glTF 2.0 lida com instancing nativamente, Three.js + GLTFLoader respeita
+
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
 - Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
@@ -105,8 +124,18 @@ blender-experiments-2026/
 │   ├── vdm_stamp.py          # 4b: stamping algoritmico de VDM
 │   ├── batch_vdm.py          # 4c: batch combinado
 │   └── index.html            # demo com modal + meta de EXR
+├── infinite/                 # experimento 6 (estruturas infinitas + Three.js)
+│   ├── index.html            # demo Three.js (FPS + free-fly)
+│   ├── scripts/
+│   │   ├── stair_lib.py      # biblioteca de 6 escadas
+│   │   ├── build_structures.py # gera 4 cenas + exporta GLB
+│   │   ├── preview_renders.py # renders de checagem (Eevee)
+│   │   ├── inspect_addons.py
+│   │   └── install_picks.py  # instala addons via extensions repo
+│   └── out/glb/              # GLBs + .blend de cada cena
+├── extract/                  # experimento 5 (extrator de pack monolitico)
 ├── setup/addon.py
-└── out/, claydoh/out/, faces/out/   # gitignored: glb/, renders/, baked_textures/
+└── out/, claydoh/out/, faces/out/, infinite/out/   # gitignored: glb/, renders/, baked_textures/
 ```
 
 ## Hospedado em GCS (st.did.lu)
@@ -116,10 +145,14 @@ blender-experiments-2026/
 | Clay Doh v1 | https://st.did.lu/blender-claydoh/v1/index.html |
 | Clay Doh v2 (modal) | https://st.did.lu/blender-claydoh/v2/index.html |
 | Faces + Clay Doh v1 | https://st.did.lu/blender-claydoh-faces/v1/index.html |
+| Infinite v1 (FPS demo navegavel) | https://st.did.lu/blender-infinite/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 
 ### Curto prazo
+- **Infinite v2**: aplicar materiais Clay Doh nos GLBs (re-usar pipeline do experimento 3 — bake + GLB pra cada subobjeto)
+- **Infinite — Wave Function Collapse**: usar `wfc_3d_generator` addon pra estruturas realmente nao-periodicas
+- **Infinite — sapling_tree_gen**: scatterar arvores procedurais pelas plataformas (variacao organica num cenario geometrico)
 - Pasta `faces/` ainda nao tem v2 com modal hospedado (modal ja existe na pagina, so subir como v2)
 - Resolver "virus com espinhos" pra meshes organicas (suzanne/sphere): decimar anchors por area minima, ou agrupar faces adjacentes em "patches" antes de estampar
 - Combinar 4a (massinha amassada) com 3 (Clay Doh batch) — variante "deformado" do batch existente
