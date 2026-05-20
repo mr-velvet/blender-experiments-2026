@@ -2,6 +2,9 @@ out/
 claydoh/out/
 claydoh/screenshots/
 claydoh/viewer_test.html
+faces/out/
+faces/test_vdm_viewer.html
+faces/test_viewer.html
 *.blend1
 __pycache__/
 .DS_Store

@@ -33,6 +33,33 @@
 - **Hospedado:** https://st.did.lu/blender-claydoh/v1/index.html
 - **Doc do pack:** shader 100% procedural (sem displacement de geometria, so surface) — bake regular basta
 
+### Experimento 3.5: viewer v2 com modal de detalhe
+- `claydoh/index.html` + `viewer/index_v2.html` ganharam modal fullscreen ao clicar num card
+- Deep-link via URL hash (#combo_id) — pode compartilhar link direto
+- Cardboard tambem hospedado pela 1a vez (estava so local) em blender-cardboard/v1/
+- **Hospedado v2:**
+  - https://st.did.lu/blender-claydoh/v2/index.html
+  - https://st.did.lu/blender-cardboard/v2/index.html
+
+### Experimento 4: deformacao real + VDM faces stamping
+- Pasta `faces/` — 3 sub-experimentos combinados
+- **4a (massinha amassada):** `faces/squash_and_export.py` — adiciona Subsurf + Displace(noise/clouds) ANTES do export. GLB tem geometria deformada real (silhouette muda ao rotacionar), nao so normal map.
+- **4b (VDM stamp algoritmico):** `faces/vdm_stamp.py` — implementacao manual de VDM brush stamping SEM `bpy.ops.sculpt.brush_stroke`:
+  - Snapshot do centro/normal/tangentes/area de cada face ANTES da subdivisao
+  - Subdivide mesh densamente (subsurf 4-5, com edge crease preservado pra primitivos quadrangulares: cube/cylinder)
+  - Pra cada anchor, pra cada vertex no disco: sample bilinear do EXR, converte RGB -> deslocamento tangent-space (R=u, G=v, B=n), aplica com falloff radial (suave so na borda 0.85-1.0)
+  - Pack usado: Human Face VDM Brushes (DoubleGum), 30 EXRs 512x512 float Linear Rec.709
+  - **Funciona perfeitamente em formas com poucas faces grandes (cube, cylinder, icosphere subdiv=1)**. Formas organicas (suzanne, sphere com muitos segments) viram "vírus com espinhos" — 1 face minuscula por triangulo
+- **4c (combinado):** batch 3 formas (cube/icosphere/cylinder) x 3 EXRs (Map_1/5/10) x 4 cores Clay Doh = 9 combos OK
+- `faces/index.html` — pagina demo com modal, mostra EXR usado em cada card
+- **Hospedado:** https://st.did.lu/blender-claydoh-faces/v1/index.html
+
+### Learnings tecnicos
+- VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
+- Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
+- Pra preservar quinas do cubo em Subsurf alto: marcar TODAS as edges com crease=1 via bmesh ANTES de aplicar Subsurf modifier
+- Operadores `bpy.ops.sculpt.*` evitados — algoritmo de stamping manual em mathutils.Vector eh muito mais robusto e determinístico
+
 ### Repo
 - GitHub: https://github.com/mr-velvet/blender-experiments-2026
 - Branch: master

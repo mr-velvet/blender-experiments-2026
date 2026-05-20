@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clay Doh + VDM Faces — Geometria Estampada</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
+<style>
+  :root {
+    --bg: #f5e6d3;
+    --bg-alt: #ead2b3;
+    --card: #ffffff;
+    --text: #2a1f1a;
+    --muted: #806b5e;
+    --accent: #d4754a;
+    --accent-dark: #a8542f;
+    --border: #d8c0a8;
+    --shadow: 0 2px 8px rgba(42,31,26,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-alt) 100%);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    padding: 32px 24px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  header {
+    max-width: 1500px;
+    margin: 0 auto 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent-dark);
+  }
+  h1 .tag {
+    display: inline-block;
+    margin-left: 12px;
+    font-size: 13px;
+    background: var(--accent);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    vertical-align: middle;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 720px;
+  }
+  .sub b { color: var(--text); }
+  .controls {
+    max-width: 1500px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+    background: var(--card);
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .controls label {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .controls input[type=range] { width: 120px; }
+  .ctrl-custom {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 28px 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23806b5e' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .ctrl-custom:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .stats {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .stats b { color: var(--text); }
+  .grid {
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(42,31,26,0.12);
+    border-color: var(--accent);
+  }
+  .card .expand-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(168,84,47,0.95);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 5;
+    text-transform: uppercase;
+  }
+  .card:hover .expand-hint { opacity: 1; }
+  .compare { position: relative; }
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,15,12,0.85);
+    backdrop-filter: blur(6px);
+    display: none;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1400px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #fff 0%, #fbf5ec 100%);
+  }
+  .modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+  .modal-title .shape {
+    font-size: 12px;
+    background: var(--bg);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-left: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .modal-close {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+  .modal-close:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .modal-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    min-height: 0;
+  }
+  .modal-pane {
+    background: linear-gradient(180deg, #f5e6d3 0%, #ead2b3 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .modal-pane::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 12px; left: 14px;
+    font-size: 11px;
+    color: var(--muted);
+    z-index: 2;
+    background: rgba(255,255,255,0.9);
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    font-weight: 600;
+  }
+  .modal-pane img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .modal-pane model-viewer { width: 100%; height: 100%; min-height: 500px; background: transparent; }
+  .modal-footer {
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    background: #fbf5ec;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-footer a {
+    color: var(--accent-dark);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    font-weight: 500;
+  }
+  .modal-footer a:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  @media (max-width: 900px) {
+    .modal-body { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  }
+  .card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card h3 .shape {
+    font-size: 11px;
+    background: var(--bg);
+    color: var(--muted);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .compare > div {
+    background: #f5e6d3;
+    position: relative;
+    aspect-ratio: 1;
+  }
+  .compare > div::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 6px; left: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    z-index: 2;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    font-weight: 600;
+  }
+  .compare img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  model-viewer {
+    width: 100%; height: 100%;
+    --poster-color: transparent;
+    background: linear-gradient(180deg, #f5e6d3 0%, #ead2b3 100%);
+  }
+  .meta {
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    background: #fbf5ec;
+  }
+  .meta .ok { color: #5a8a3a; font-weight: 600; }
+  .meta .fail { color: #c44a3a; font-weight: 600; }
+  .status-empty {
+    max-width: 1500px;
+    margin: 80px auto;
+    text-align: center;
+    color: var(--muted);
+  }
+  footer {
+    max-width: 1500px;
+    margin: 40px auto 0;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+  footer a { color: var(--accent-dark); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Clay Doh + VDM Faces<span class="tag">Geometria estampada</span></h1>
+  <div class="sub">
+    Experimento combinando <b>3 tecnicas</b>: (1) subdivisao + displace procedural pra dar volume real,
+    (2) <b>VDM brushes de rostos humanos</b> (<a href="https://superhivemarket.com/products/human-face-vdm-brushes-for-blender" style="color:var(--accent-dark)">pack DoubleGum</a>) estampados algoritmicamente
+    no centro de cada face da mesh (tamanho ∝ √area), (3) material <b>Clay Doh</b> bakeado pra GLB.
+    Stamping eh feito por sample manual dos EXRs em tangent space das faces — sem usar
+    operadores de sculpt do Blender. Click num card pra ver em detalhe.
+  </div>
+</header>
+
+<div class="controls">
+  <label>Ambiente:
+    <select id="env" class="ctrl-custom">
+      <option value="neutral">neutral</option>
+      <option value="legacy">legacy</option>
+      <option value="">none</option>
+    </select>
+  </label>
+  <label>Exposure: <input type="range" id="exp" min="0.3" max="2.5" step="0.1" value="1.0"></label>
+  <label><input type="checkbox" id="autorot" checked> auto-rotate</label>
+  <label><input type="checkbox" id="shadow" checked> shadows</label>
+  <label>Material:
+    <select id="filtermat" class="ctrl-custom"><option value="">todos</option></select>
+  </label>
+  <label>Forma:
+    <select id="filtershape" class="ctrl-custom"><option value="">todas</option></select>
+  </label>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div id="grid" class="grid"></div>
+<div id="empty" class="status-empty" style="display:none">Manifest vazio. Rode <code>python claydoh/batch_claydoh.py</code>.</div>
+
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" id="modalClose" aria-label="Fechar">x</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-pane" data-label="Cycles render">
+        <img id="modalImg" alt="cycles render">
+      </div>
+      <div class="modal-pane" data-label="GLB (model-viewer)">
+        <model-viewer
+          id="modalMv"
+          camera-controls
+          auto-rotate
+          shadow-intensity="0.6"
+          exposure="1.0"
+          environment-image="neutral"
+          tone-mapping="aces"
+          interaction-prompt="none"
+        ></model-viewer>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span id="modalMeta"></span>
+      <a id="modalDownload" href="#" download>baixar .glb</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Pipeline: <a href="https://github.com/mr-velvet/blender-experiments-2026">mr-velvet/blender-experiments-2026</a> ·
+  Materiais: <a href="https://superhivemarket.com/products/claydoh">Clay 4.Doh by DoubleGum</a>
+</footer>
+
+<script>
+let ITEMS = [];
+
+async function loadManifest() {
+  for (const path of ["out/manifest_v2.json", "out/manifest.json"]) {
+    try {
+      const r = await fetch(path + "?t=" + Date.now());
+      if (r.ok) return await r.json();
+    } catch (e) {}
+  }
+  throw new Error("manifest nao encontrado em faces/out/");
+}
+
+function render() {
+  const matF = document.getElementById("filtermat").value;
+  const shapeF = document.getElementById("filtershape").value;
+  const items = ITEMS.filter(it =>
+    (!matF || it.material === matF) && (!shapeF || it.shape === shapeF)
+  );
+
+  const grid = document.getElementById("grid");
+  if (!items.length) {
+    document.getElementById("empty").style.display = "block";
+    grid.innerHTML = "";
+    return;
+  }
+  document.getElementById("empty").style.display = "none";
+  grid.innerHTML = items.map((it, idx) => {
+    if (it.status === "fail") return `
+      <div class="card">
+        <h3>${it.material} <span class="shape">${it.shape}</span></h3>
+        <div class="compare"><div data-label="FAIL"></div><div data-label="FAIL"></div></div>
+        <div class="meta"><span class="fail">fail</span><span>${it.combo_id}</span></div>
+      </div>`;
+    const exrLabel = it.exr ? `<span class="shape" style="margin-left:6px;background:#e8d5b8">${it.exr}</span>` : "";
+    return `
+      <div class="card" data-idx="${idx}">
+        <h3>${it.material} <span class="shape">${it.shape}</span>${exrLabel}</h3>
+        <div class="compare">
+          <div class="expand-hint">ver em detalhe</div>
+          <div data-label="Cycles">
+            <img src="${it.render}" loading="lazy" alt="cycles">
+          </div>
+          <div data-label="GLB">
+            <model-viewer
+              src="${it.glb}"
+              camera-controls
+              auto-rotate
+              shadow-intensity="0.6"
+              exposure="1.0"
+              environment-image="neutral"
+              tone-mapping="aces"
+              interaction-prompt="none"
+            ></model-viewer>
+          </div>
+        </div>
+        <div class="meta"><span class="ok">${it.status}</span><span>${it.combo_id}</span></div>
+      </div>`;
+  }).join("");
+  applyControlsToViewers();
+  hookCardClicks(items);
+}
+
+function hookCardClicks(items) {
+  document.querySelectorAll(".card[data-idx]").forEach(card => {
+    card.addEventListener("click", (e) => {
+      // nao abre modal se user esta interagindo com o model-viewer dentro do card
+      if (e.target.closest("model-viewer")) return;
+      const idx = parseInt(card.dataset.idx, 10);
+      openModal(items[idx]);
+    });
+  });
+}
+
+function openModal(it) {
+  const exrLabel = it.exr ? ` <span class="shape" style="background:#e8d5b8">${it.exr}</span>` : "";
+  document.getElementById("modalTitle").innerHTML =
+    `${it.material} <span class="shape">${it.shape}</span>${exrLabel}`;
+  document.getElementById("modalImg").src = it.render;
+  const mv = document.getElementById("modalMv");
+  mv.setAttribute("src", it.glb);
+  document.getElementById("modalMeta").textContent = it.combo_id;
+  const dl = document.getElementById("modalDownload");
+  dl.href = it.glb;
+  dl.download = it.combo_id + ".glb";
+  document.getElementById("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  history.replaceState(null, "", "#" + it.combo_id);
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+  const mv = document.getElementById("modalMv");
+  mv.removeAttribute("src");
+  document.body.style.overflow = "";
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+}
+
+function openFromHash() {
+  const id = window.location.hash.replace(/^#/, "");
+  if (!id) return;
+  const it = ITEMS.find(x => x.combo_id === id);
+  if (it) openModal(it);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  document.getElementById("modal").addEventListener("click", (e) => {
+    if (e.target.id === "modal") closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+});
+
+function buildFilters() {
+  const mats = [...new Set(ITEMS.map(i => i.material))].sort();
+  const shapes = [...new Set(ITEMS.map(i => i.shape))].sort();
+  const mf = document.getElementById("filtermat");
+  const sf = document.getElementById("filtershape");
+  mats.forEach(m => mf.insertAdjacentHTML("beforeend", `<option value="${m}">${m}</option>`));
+  shapes.forEach(s => sf.insertAdjacentHTML("beforeend", `<option value="${s}">${s}</option>`));
+}
+
+function applyControlsToViewers() {
+  const env = document.getElementById("env").value;
+  const exp = document.getElementById("exp").value;
+  const ar = document.getElementById("autorot").checked;
+  const sh = document.getElementById("shadow").checked;
+  document.querySelectorAll("model-viewer").forEach(m => {
+    if (env) m.setAttribute("environment-image", env);
+    else m.removeAttribute("environment-image");
+    m.setAttribute("exposure", exp);
+    if (ar) m.setAttribute("auto-rotate", ""); else m.removeAttribute("auto-rotate");
+    m.setAttribute("shadow-intensity", sh ? "0.6" : "0");
+  });
+}
+
+function hookControls() {
+  ["env","exp","autorot","shadow"].forEach(id => {
+    const el = document.getElementById(id);
+    const evt = el.type === "range" ? "input" : "change";
+    el.addEventListener(evt, applyControlsToViewers);
+  });
+  ["filtermat","filtershape"].forEach(id => {
+    document.getElementById(id).addEventListener("change", render);
+  });
+}
+
+function updateStats() {
+  const ok = ITEMS.filter(i => i.status === "ok" || i.status === "cached").length;
+  const fail = ITEMS.filter(i => i.status === "fail").length;
+  const totalGlb = ITEMS.filter(i => i.status === "ok" || i.status === "cached").length;
+  document.getElementById("stats").innerHTML =
+    `<b>${ok}</b> OK · <b>${fail}</b> fail · <b>${ITEMS.length}</b> combos`;
+}
+
+loadManifest().then(items => {
+  ITEMS = items;
+  buildFilters();
+  hookControls();
+  updateStats();
+  render();
+  openFromHash();
+  window.addEventListener("hashchange", openFromHash);
+}).catch(e => {
+  document.getElementById("empty").style.display = "block";
+  document.getElementById("empty").innerHTML = "Erro: " + e.message;
+});
+</script>
+</body>
+</html>

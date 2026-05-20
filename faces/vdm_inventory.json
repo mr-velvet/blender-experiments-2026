@@ -1,0 +1,752 @@
+{
+  "blend_file": "C:\\Users\\manu\\Downloads\\BLENDER-FACES-BRUSH\\Face_VDM_Brushes.blend",
+  "brushes_total": 31,
+  "textures_total": 30,
+  "images_total": 31,
+  "brushes": [
+    {
+      "name": "Face_VDMBrush_01",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "NewVDMBrush"
+    },
+    {
+      "name": "Face_VDMBrush_02",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture"
+    },
+    {
+      "name": "Face_VDMBrush_03",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.001"
+    },
+    {
+      "name": "Face_VDMBrush_04",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.002"
+    },
+    {
+      "name": "Face_VDMBrush_05",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.003"
+    },
+    {
+      "name": "Face_VDMBrush_06",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.004"
+    },
+    {
+      "name": "Face_VDMBrush_07",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.005"
+    },
+    {
+      "name": "Face_VDMBrush_08",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.006"
+    },
+    {
+      "name": "Face_VDMBrush_09",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.007"
+    },
+    {
+      "name": "Face_VDMBrush_10",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.008"
+    },
+    {
+      "name": "Face_VDMBrush_11",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.009"
+    },
+    {
+      "name": "Face_VDMBrush_12",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.010"
+    },
+    {
+      "name": "Face_VDMBrush_13",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.011"
+    },
+    {
+      "name": "Face_VDMBrush_14",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.012"
+    },
+    {
+      "name": "Face_VDMBrush_15",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.013"
+    },
+    {
+      "name": "Face_VDMBrush_16",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.014"
+    },
+    {
+      "name": "Face_VDMBrush_17",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.015"
+    },
+    {
+      "name": "Face_VDMBrush_18",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.016"
+    },
+    {
+      "name": "Face_VDMBrush_19",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.017"
+    },
+    {
+      "name": "Face_VDMBrush_20",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.018"
+    },
+    {
+      "name": "Face_VDMBrush_21",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.019"
+    },
+    {
+      "name": "Face_VDMBrush_22",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.020"
+    },
+    {
+      "name": "Face_VDMBrush_23",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.021"
+    },
+    {
+      "name": "Face_VDMBrush_24",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.022"
+    },
+    {
+      "name": "Face_VDMBrush_25",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.023"
+    },
+    {
+      "name": "Face_VDMBrush_26",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.024"
+    },
+    {
+      "name": "Face_VDMBrush_27",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.025"
+    },
+    {
+      "name": "Face_VDMBrush_28",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.026"
+    },
+    {
+      "name": "Face_VDMBrush_29",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.027"
+    },
+    {
+      "name": "Face_VDMBrush_30",
+      "asset": false,
+      "users": 1,
+      "stroke_method": "ANCHORED",
+      "use_color_as_displacement": true,
+      "texture": "Texture.028"
+    },
+    {
+      "name": "Draw",
+      "asset": true,
+      "users": 0,
+      "catalog": "45d61c81-d318-4835-a37f-54af720391e6",
+      "asset_tags": [],
+      "stroke_method": "SPACE",
+      "use_color_as_displacement": false
+    }
+  ],
+  "textures": [
+    {
+      "name": "NewVDMBrush",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.001",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.002",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.003",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.004",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.005",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.006",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.007",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.008",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.009",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.010",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.011",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.012",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.013",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.014",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.015",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.016",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.017",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.018",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.019",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.020",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.021",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.022",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.023",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.024",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.025",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.026",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.027",
+      "type": "IMAGE",
+      "asset": false
+    },
+    {
+      "name": "Texture.028",
+      "type": "IMAGE",
+      "asset": false
+    }
+  ],
+  "images": [
+    {
+      "name": "Map_ (1).exr",
+      "filepath": "//Texture\\Map_ (1).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (10).exr",
+      "filepath": "//Texture\\Map_ (10).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (11).exr",
+      "filepath": "//Texture\\Map_ (11).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (12).exr",
+      "filepath": "//Texture\\Map_ (12).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (13).exr",
+      "filepath": "//Texture\\Map_ (13).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (14).exr",
+      "filepath": "//Texture\\Map_ (14).exr",
+      "size": [
+        1025,
+        1025
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (15).exr",
+      "filepath": "//Texture\\Map_ (15).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (16).exr",
+      "filepath": "//Texture\\Map_ (16).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (17).exr",
+      "filepath": "//Texture\\Map_ (17).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (18).exr",
+      "filepath": "//Texture\\Map_ (18).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (19).exr",
+      "filepath": "//Texture\\Map_ (19).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (2).exr",
+      "filepath": "//Texture\\Map_ (2).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (20).exr",
+      "filepath": "//Texture\\Map_ (20).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (21).exr",
+      "filepath": "//Texture\\Map_ (21).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (22).exr",
+      "filepath": "//Texture\\Map_ (22).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (23).exr",
+      "filepath": "//Texture\\Map_ (23).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (24).exr",
+      "filepath": "//Texture\\Map_ (24).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (25).exr",
+      "filepath": "//Texture\\Map_ (25).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (26).exr",
+      "filepath": "//Texture\\Map_ (26).exr",
+      "size": [
+        257,
+        257
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (27).exr",
+      "filepath": "//Texture\\Map_ (27).exr",
+      "size": [
+        1025,
+        1025
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (28).exr",
+      "filepath": "//Texture\\Map_ (28).exr",
+      "size": [
+        1025,
+        1025
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (29).exr",
+      "filepath": "//Texture\\Map_ (29).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (3).exr",
+      "filepath": "//Texture\\Map_ (3).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (30).exr",
+      "filepath": "//Texture\\Map_ (30).exr",
+      "size": [
+        2049,
+        2049
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (4).exr",
+      "filepath": "//Texture\\Map_ (4).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (5).exr",
+      "filepath": "//Texture\\Map_ (5).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (6).exr",
+      "filepath": "//Texture\\Map_ (6).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (7).exr",
+      "filepath": "//Texture\\Map_ (7).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (8).exr",
+      "filepath": "//Texture\\Map_ (8).exr",
+      "size": [
+        513,
+        513
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Map_ (9).exr",
+      "filepath": "//Texture\\Map_ (9).exr",
+      "size": [
+        512,
+        512
+      ],
+      "file_format": "OPEN_EXR",
+      "is_float": true,
+      "colorspace": "Linear Rec.709"
+    },
+    {
+      "name": "Render Result",
+      "filepath": "",
+      "size": [
+        0,
+        0
+      ],
+      "file_format": "TARGA",
+      "is_float": false,
+      "colorspace": ""
+    }
+  ]
+}
