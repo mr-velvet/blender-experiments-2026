@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-21 (sessao 6 — experimento 10: simulacao de fluido Mantaflow + player web)
+2026-05-21 (sessao 7 — experimento 11: grama alta com esqueleto + wind dinamico)
 
 ## O que ja foi feito
 
@@ -146,6 +146,43 @@
 - v2 reaproveita GLB da v1 via URL absoluta (`location.hostname.includes("did.lu") ? URL_V1 : "./out/glb/..."`) — economiza 360KB de upload
 - **Hospedado:** https://st.did.lu/blender-shatter/v2/index.html
 
+### Experimento 11: grama alta com esqueleto + wind dinamico (2026-05-21 sessao 7)
+- Pasta `grass/` — pipeline 100% autonoma: gera blade com 3 bones, anima wind sway, exporta GLB pequeno (12KB), player Three.js clona em N instances com wind controlavel em runtime
+- **Goal do user:** "vegetacao alta com esqueleto dentro pra balancar... que possa ser dinamicamente influenciado dentro de uma simulacao html/javascript"
+- **Pipeline (`grass/scripts/build_grass.py`):**
+  1. Constroi blade mesh: quad strip 7x2 verts, 12 tris, com curl natural (verga pra frente em rest pose via `y_curl = BLADE_CURL * t²`)
+  2. Vertex color gradient base→tip: verde escuro `(0.06, 0.18, 0.04)` → verde medio `(0.28, 0.42, 0.10)` exportado como `COLOR_0`
+  3. Armature 3 bones em cadeia: B0_base / B1_mid / B2_top, `use_connect=True`
+  4. Skin manual por altura (sem `ARMATURE_AUTO`): peso por bone calculado linearmente por Z do vertice, normalizado pra somar 1
+  5. Wind animation: 60 frames @ 30fps, senoide com phase shifts (-0.15 mid, -0.30 top) gera look "viscoso" de wind propagando da raiz pro topo
+  6. Loop perfeito: `sin(2π·t)` com t = [0..1] retorna a zero no fim do ciclo
+  7. Export GLB com `export_force_sampling=True`, `export_skins=True`, sheen=0 (sheen branco saturava no PBR)
+- **Player Three.js (`grass/index.html`):**
+  - `SkeletonUtils.clone()` (NAO `.clone()` direto — preserva skin+armature corretamente)
+  - **Poisson disk sampling** (Bridson 2D) pra distribuir N blades sem clusters/grids visiveis
+  - 4 densidades: esparso (430) / medio (840) / denso (1600, default) / cheio (2900)
+  - **Decisao tecnica chave:** descartei `AnimationMixer + clipAction` por blade (1500 mixers + LERP eh caro). Substitui por **calculo procedural de bones**:
+    ```js
+    const u = globalTime * FREQ + b.phase;
+    bones.base.rotation.x = AMP_BASE * sin(2π·u) * windAmp + gust0;
+    bones.mid.rotation.x  = AMP_MID  * sin(2π·(u + PHASE_MID)) * windAmp + gust1;
+    bones.top.rotation.x  = AMP_TOP  * sin(2π·(u + PHASE_TOP)) * windAmp + gust2;
+    ```
+  - Mesma formula que o Blender bakeou, agora 100% em JS — ~10x mais rapido que mixer
+  - **Esqueleto realmente influenciavel**: wind strength escala amplitude, wind dir alinha blade.root.rotation.y, gust eh additivo positivo com decay
+  - Slider de vento 0-3x, direcao -180° a 180°, velocidade 0.1-3x, botao gust
+  - Atalhos: Space play/pause, G gust, 1-4 densidade
+- **Performance:** ~22fps em Playwright headless (CPU rasterizer) @ 1600 blades; estimado 60+ em GPU real
+- **Bottleneck identificado:** 1 draw call por blade (SkinnedMesh nao instanceavel via InstancedMesh)
+- **Hospedado:** https://st.did.lu/blender-grass/v1/index.html
+- **Docs completa:** [grass/README.md](grass/README.md)
+- **Insights tecnicos chave:**
+  1. **Shader wind addons (Grassify, GRASS Generator) sao incompativeis** com criterio "animacao vem do Blender" — efeito vive no shader, GLB exporta mesh estatico. Por isso construi pipeline propria com bones reais
+  2. `SkeletonUtils.clone()` eh obrigatorio em Three.js pra clonar skinned meshes — `.clone()` direto compartilha skeleton entre instancias e quebra animacao independente
+  3. **GLB exportar action bakeada + JS sobrescrever bones em runtime** = melhor dos dois mundos: arquivo compativel com outras engines (que usariam baseline) + flexibilidade runtime em Three.js
+  4. Sheen branco (1,1,1) saturava em PBR + Roomenv → vertex colors viravam quase brancas no topo. Sheen=0 resolveu
+  5. Curl natural `y = curl * t²` em rest pose deixa grama parecida com grama real (vergada pra frente) sem precisar de modifier
+
 ### Experimento 10: simulacao de fluido Mantaflow + player web (2026-05-21 sessao 6)
 - Pasta `fluid/` — pipeline 100% automatica do zero: simulacao Mantaflow + bake + extract + player HTML
 - **Goal:** validar se da pra usar motor de fisica do Blender pra gerar animacoes que rodam fora do Blender sem nenhum runtime de fisica no consumidor final
@@ -264,6 +301,7 @@ blender-experiments-2026/
 | Shatter v2 (5 materiais trocaveis em runtime) | https://st.did.lu/blender-shatter/v2/index.html |
 | Rigging v1 (humanoide com walk cycle procedural + 3 refs) | https://st.did.lu/blender-rigging/v1/index.html |
 | Fluid v1 (esfera virando agua + Mantaflow) | https://st.did.lu/blender-fluid/v1/index.html |
+| Grass v1 (grama alta com esqueleto dinamico + wind controlavel) | https://st.did.lu/blender-grass/v1/index.html |
 
 ## Proximos experimentos planejados (sessao 6+)
 

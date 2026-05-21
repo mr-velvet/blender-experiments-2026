@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Grass — esqueleto dinamico + wind animation</title>
+<style>
+  :root {
+    --bg: #0e1410;
+    --bg-2: #161e18;
+    --accent: #7fcc66;
+    --accent-dim: #5d9a4b;
+    --text: #d8e4d4;
+    --text-dim: #8aa386;
+    --panel: rgba(22, 30, 24, 0.86);
+    --border: #2a3a2d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; }
+
+  #hud {
+    position: fixed; top: 16px; left: 16px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 18px; backdrop-filter: blur(8px);
+    font-size: 12.5px; max-width: 360px; z-index: 10;
+  }
+  #hud h1 { margin: 0 0 4px; font-size: 14px; color: var(--accent); font-weight: 600; }
+  #hud .sub { color: var(--text-dim); font-size: 11.5px; }
+  #hud .stat { color: var(--text-dim); margin-top: 8px; font-size: 11px; }
+
+  #controls {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 22px; backdrop-filter: blur(10px);
+    display: flex; gap: 22px; align-items: center; z-index: 10;
+    min-width: 540px;
+  }
+  .ctrl { display: flex; flex-direction: column; gap: 6px; min-width: 130px; }
+  .ctrl label { font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; }
+  .ctrl label span { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ctrl input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; background: #2a3a2d; border-radius: 2px; outline: none;
+    cursor: pointer;
+  }
+  .ctrl input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; background: var(--accent);
+    border-radius: 50%; cursor: pointer; transition: transform .15s ease;
+  }
+  .ctrl input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .ctrl input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; background: var(--accent);
+    border: none; border-radius: 50%; cursor: pointer;
+  }
+
+  .btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+    transition: all .15s ease;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: var(--accent); color: #0e1410; border-color: var(--accent); }
+
+  #legend {
+    position: fixed; top: 16px; right: 16px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 14px; font-size: 11px; color: var(--text-dim);
+    z-index: 10; line-height: 1.7;
+  }
+  #legend b { color: var(--accent); font-weight: 600; }
+  #legend kbd {
+    background: #2a3a2d; padding: 1px 5px; border-radius: 4px;
+    font-size: 10.5px; color: var(--text); font-family: ui-monospace, monospace;
+    border: 1px solid #354839;
+  }
+
+  #loader {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: var(--accent); font-size: 14px; z-index: 100;
+  }
+</style>
+</head>
+<body>
+  <div id="hud">
+    <h1>grass · esqueleto dinamico</h1>
+    <div class="sub">grama alta com 3 bones por blade · wind animation bakeada no glb · controlavel em runtime</div>
+    <div class="stat" id="stats">carregando...</div>
+  </div>
+
+  <div id="legend">
+    <b>controles</b><br />
+    <kbd>mouse drag</kbd> orbitar<br />
+    <kbd>scroll</kbd> zoom<br />
+    <kbd>space</kbd> play/pause<br />
+    <kbd>g</kbd> rajada de vento<br />
+    <kbd>1-4</kbd> densidade
+  </div>
+
+  <div id="controls">
+    <div class="ctrl">
+      <label>vento <span id="windVal">1.0</span></label>
+      <input type="range" id="windSlider" min="0" max="3" step="0.05" value="1.0" />
+    </div>
+    <div class="ctrl">
+      <label>direcao <span id="dirVal">0°</span></label>
+      <input type="range" id="dirSlider" min="-180" max="180" step="5" value="0" />
+    </div>
+    <div class="ctrl">
+      <label>velocidade <span id="speedVal">1.0x</span></label>
+      <input type="range" id="speedSlider" min="0.1" max="3" step="0.05" value="1.0" />
+    </div>
+    <button class="btn" id="gustBtn">rajada (g)</button>
+    <button class="btn active" id="playBtn">pause</button>
+  </div>
+
+  <div id="loader">carregando blades...</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.166.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.166.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
+
+// ============================================================
+// SCENE SETUP
+// ============================================================
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e1410);
+scene.fog = new THREE.Fog(0x0e1410, 8, 22);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(4.5, 2.2, 4.5);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, 0.4, 0);
+controls.minDistance = 1.0;
+controls.maxDistance = 14;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.update();
+
+// Sun light
+const sun = new THREE.DirectionalLight(0xfff4d8, 2.3);
+sun.position.set(5, 8, 3);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -8;
+sun.shadow.camera.right = 8;
+sun.shadow.camera.top = 8;
+sun.shadow.camera.bottom = -8;
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+const ambient = new THREE.HemisphereLight(0x88a877, 0x1a2218, 0.6);
+scene.add(ambient);
+
+// ============================================================
+// LOAD ASSETS
+// ============================================================
+const loader = new GLTFLoader();
+let bladeProto = null;     // gltf.scene do blade.glb
+let bladeAnim = null;      // gltf.animations[0]
+let groundProto = null;
+
+const blades = [];  // { root, mixer, action, bones, basePhase, baseRot }
+
+async function loadAssets() {
+  const [bladeGltf, groundGltf] = await Promise.all([
+    loader.loadAsync("./out/glb/blade.glb"),
+    loader.loadAsync("./out/glb/ground.glb"),
+  ]);
+  bladeProto = bladeGltf.scene;
+  bladeAnim = bladeGltf.animations[0];
+  groundProto = groundGltf.scene;
+  console.log("loaded", { anim: bladeAnim, animDuration: bladeAnim?.duration });
+}
+
+// ============================================================
+// SPAWN GRASS FIELD
+// ============================================================
+function spawnGround() {
+  const g = groundProto.clone(true);
+  g.traverse(o => {
+    if (o.isMesh) { o.receiveShadow = true; }
+  });
+  scene.add(g);
+}
+
+function findBones(root) {
+  const bones = { base: null, mid: null, top: null };
+  root.traverse(o => {
+    if (o.isBone) {
+      if (o.name.includes("B0") || o.name === "B0_base") bones.base = o;
+      else if (o.name.includes("B1") || o.name === "B1_mid") bones.mid = o;
+      else if (o.name.includes("B2") || o.name === "B2_top") bones.top = o;
+    }
+  });
+  return bones;
+}
+
+function spawnBlade(x, z, rotY, scaleVar, phase) {
+  // SkeletonUtils.clone preserva skin+armature corretamente
+  const clone = SkeletonUtils.clone(bladeProto);
+  clone.position.set(x, 0, z);
+  clone.rotation.y = rotY;
+  clone.scale.setScalar(scaleVar);
+
+  // Pequena variacao de cor (multiplicador no material)
+  clone.traverse(o => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      o.receiveShadow = false;
+      // Material vertex color ja vem do GLB. Garantir doubleSide
+      if (o.material) {
+        const m = o.material.clone();
+        m.side = THREE.DoubleSide;
+        m.vertexColors = true;
+        // tint neutro — vertex color do GLB ja faz o gradiente base->topo
+        // pequena variacao de brilho/hue pra evitar uniformidade
+        const lum = 0.9 + Math.random() * 0.15;
+        const r = lum * (0.9 + Math.random() * 0.2);
+        const g = lum * (0.95 + Math.random() * 0.1);
+        const b = lum * (0.7 + Math.random() * 0.25);
+        m.color = new THREE.Color(r, g, b);
+        o.material = m;
+      }
+      // skinned mesh frustum culling — pode sumir blades nas bordas se bone box pequeno
+      o.frustumCulled = false;
+    }
+  });
+
+  const bones = findBones(clone);
+  // NO MIXER — calculamos rotacao dos bones direto no loop principal.
+  // 1500 mixers + actions custaria caro; sin/cos manual eh ~10x mais rapido.
+  scene.add(clone);
+  blades.push({
+    root: clone,
+    bones,
+    phase,         // 0..1 — offset no ciclo
+    rotY,          // rotacao Y inicial random (orientacao da blade)
+    sizeJitter: 0.8 + Math.random() * 0.4,  // variacao de amplitude (algumas blades reagem mais)
+  });
+}
+
+function poissonDiskSample(width, depth, minDist, maxAttempts = 30) {
+  // Bridson's algorithm 2D — distribuicao natural sem clusters
+  const cell = minDist / Math.SQRT2;
+  const cols = Math.ceil(width / cell);
+  const rows = Math.ceil(depth / cell);
+  const grid = new Array(cols * rows).fill(-1);
+  const samples = [];
+  const active = [];
+
+  function gridIdx(x, y) {
+    const c = Math.floor((x + width / 2) / cell);
+    const r = Math.floor((y + depth / 2) / cell);
+    return r * cols + c;
+  }
+  function inBounds(x, y) {
+    return x > -width / 2 && x < width / 2 && y > -depth / 2 && y < depth / 2;
+  }
+  function nearOther(x, y) {
+    const c = Math.floor((x + width / 2) / cell);
+    const r = Math.floor((y + depth / 2) / cell);
+    for (let i = Math.max(0, c - 2); i <= Math.min(cols - 1, c + 2); i++) {
+      for (let j = Math.max(0, r - 2); j <= Math.min(rows - 1, r + 2); j++) {
+        const idx = grid[j * cols + i];
+        if (idx >= 0) {
+          const dx = samples[idx][0] - x;
+          const dy = samples[idx][1] - y;
+          if (dx * dx + dy * dy < minDist * minDist) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // semente inicial
+  const p0 = [0, 0];
+  samples.push(p0);
+  active.push(0);
+  grid[gridIdx(0, 0)] = 0;
+
+  while (active.length) {
+    const i = Math.floor(Math.random() * active.length);
+    const idx = active[i];
+    const [px, py] = samples[idx];
+    let found = false;
+    for (let k = 0; k < maxAttempts; k++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = minDist + Math.random() * minDist;
+      const nx = px + Math.cos(angle) * dist;
+      const ny = py + Math.sin(angle) * dist;
+      if (inBounds(nx, ny) && !nearOther(nx, ny)) {
+        samples.push([nx, ny]);
+        active.push(samples.length - 1);
+        grid[gridIdx(nx, ny)] = samples.length - 1;
+        found = true;
+        break;
+      }
+    }
+    if (!found) active.splice(i, 1);
+  }
+  return samples;
+}
+
+function clearBlades() {
+  for (const b of blades) scene.remove(b.root);
+  blades.length = 0;
+}
+
+function spawnField(density) {
+  clearBlades();
+  // densidade: distancia minima entre blades
+  // 1=esparso(0.5m), 2=medio(0.30m), 3=denso(0.20m), 4=cheio(0.14m)
+  const minDistMap = { 1: 0.32, 2: 0.22, 3: 0.15, 4: 0.11 };
+  const minDist = minDistMap[density] || 0.22;
+  const fieldSize = 7.5;
+  const pts = poissonDiskSample(fieldSize, fieldSize, minDist);
+  console.log(`spawning ${pts.length} blades at density ${density}`);
+  for (const [x, z] of pts) {
+    const rotY = Math.random() * Math.PI * 2;
+    const scale = 0.8 + Math.random() * 0.5;
+    const phase = Math.random();  // 0..1 offset no loop
+    spawnBlade(x, z, rotY, scale, phase);
+  }
+  updateStats();
+}
+
+// ============================================================
+// WIND CONTROL — runtime influence on bones
+// ============================================================
+let windStrength = 1.0;
+let windDir = 0;          // radianos (rotacao Y no mundo)
+let speedMul = 1.0;
+let isPlaying = true;
+let gustEnergy = 0;       // 0..1, decai com tempo
+let globalTime = 0;       // segundos desde inicio (alimenta o sin)
+
+// Sway baseline em radianos — espelha os valores da action exportada do Blender
+// (ver build_grass.py make_wind_animation: 3°/8°/15°)
+const AMP_BASE = THREE.MathUtils.degToRad(3);
+const AMP_MID = THREE.MathUtils.degToRad(8);
+const AMP_TOP = THREE.MathUtils.degToRad(15);
+// phase shift entre bones — base lidera, mid atrasa, top atrasa mais
+// (look de wind viscoso descendo a blade)
+const PHASE_MID = -0.15;
+const PHASE_TOP = -0.30;
+// Frequencia base (Hz) — 1 ciclo / 2s = 0.5Hz
+const FREQ = 0.5;
+
+// Wind direction afeta como cada blade reage:
+// blade.rotY eh a orientacao Y inicial random. O vento vem de windDir.
+// A componente do sway ao longo do vento = cos(rotY - windDir).
+// Quando blade aponta na direcao do vento, ela balanca total.
+// Quando blade transversal, balanca menos (eh torcida lateral).
+
+function applyWind(dt) {
+  if (gustEnergy > 0) {
+    gustEnergy = Math.max(0, gustEnergy - dt * 1.0);
+  }
+  globalTime += dt * speedMul;
+
+  const w = windStrength;
+  const twoPiFreq = 2 * Math.PI * FREQ;
+
+  for (const b of blades) {
+    // Direcao: align suave entre rotY random e windDir (proporcional ao vento)
+    const alignWeight = 0.3 * Math.min(1, w);
+    b.root.rotation.y = b.rotY * (1 - alignWeight) + windDir * alignWeight;
+
+    // Fase total = globalTime * freq + offset random per blade
+    const t = globalTime * FREQ + b.phase;
+    // sway base
+    const swayBase = Math.sin(twoPiFreq * (t / FREQ));  // = sin(2*pi*freq*t)
+    // Simplifico: t agora em ciclos
+    const u = (globalTime * FREQ) + b.phase;  // ciclos
+    const s0 = Math.sin(2 * Math.PI * u);
+    const s1 = Math.sin(2 * Math.PI * (u + PHASE_MID));
+    const s2 = Math.sin(2 * Math.PI * (u + PHASE_TOP));
+
+    // amplitude * vento * jitter por blade
+    const amp = w * b.sizeJitter;
+    // gust empurra positivo (na direcao do vento) sem oscilar
+    const gust0 = gustEnergy * 0.05;
+    const gust1 = gustEnergy * 0.20;
+    const gust2 = gustEnergy * 0.45;
+
+    if (b.bones.base) b.bones.base.rotation.x = AMP_BASE * s0 * amp + gust0;
+    if (b.bones.mid)  b.bones.mid.rotation.x  = AMP_MID  * s1 * amp + gust1;
+    if (b.bones.top)  b.bones.top.rotation.x  = AMP_TOP  * s2 * amp + gust2;
+  }
+}
+
+function triggerGust() {
+  gustEnergy = 1.0;
+}
+
+// ============================================================
+// UI WIRING
+// ============================================================
+const windSlider = document.getElementById("windSlider");
+const windVal = document.getElementById("windVal");
+const dirSlider = document.getElementById("dirSlider");
+const dirVal = document.getElementById("dirVal");
+const speedSlider = document.getElementById("speedSlider");
+const speedVal = document.getElementById("speedVal");
+const gustBtn = document.getElementById("gustBtn");
+const playBtn = document.getElementById("playBtn");
+
+windSlider.addEventListener("input", () => {
+  windStrength = parseFloat(windSlider.value);
+  windVal.textContent = windStrength.toFixed(2);
+});
+dirSlider.addEventListener("input", () => {
+  const deg = parseFloat(dirSlider.value);
+  windDir = THREE.MathUtils.degToRad(deg);
+  dirVal.textContent = `${Math.round(deg)}°`;
+});
+speedSlider.addEventListener("input", () => {
+  speedMul = parseFloat(speedSlider.value);
+  speedVal.textContent = `${speedMul.toFixed(2)}x`;
+});
+gustBtn.addEventListener("click", triggerGust);
+playBtn.addEventListener("click", () => {
+  isPlaying = !isPlaying;
+  playBtn.textContent = isPlaying ? "pause" : "play";
+  playBtn.classList.toggle("active", isPlaying);
+});
+
+window.addEventListener("keydown", e => {
+  if (e.code === "Space") {
+    e.preventDefault();
+    playBtn.click();
+  } else if (e.key === "g" || e.key === "G") {
+    triggerGust();
+  } else if (e.key >= "1" && e.key <= "4") {
+    spawnField(parseInt(e.key));
+  }
+});
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ============================================================
+// STATS
+// ============================================================
+const statsEl = document.getElementById("stats");
+function updateStats() {
+  statsEl.innerHTML =
+    `<b style="color: var(--accent)">${blades.length}</b> blades · 3 bones cada<br />` +
+    `<span style="color: var(--text-dim)">duracao loop: ${bladeAnim ? bladeAnim.duration.toFixed(2) : "?"}s</span>`;
+}
+
+// ============================================================
+// RENDER LOOP
+// ============================================================
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+
+  if (isPlaying) {
+    applyWind(dt);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// ============================================================
+// MAIN
+// ============================================================
+(async function main() {
+  try {
+    await loadAssets();
+    spawnGround();
+    spawnField(3);  // densidade densa inicial
+    document.getElementById("loader").style.display = "none";
+    animate();
+  } catch (e) {
+    console.error(e);
+    document.getElementById("loader").textContent = "erro ao carregar: " + e.message;
+  }
+})();
+
+</script>
+</body>
+</html>

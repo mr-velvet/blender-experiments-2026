@@ -15,6 +15,7 @@ Experimentos de automacao do Blender via Python headless e MCP.
 - **Shatter v2 (cubo quebrando + player + materiais):** https://st.did.lu/blender-shatter/v2/index.html
 - **Rigging (walk cycle procedural):** https://st.did.lu/blender-rigging/v1/index.html
 - **Fluid (Mantaflow + player):** https://st.did.lu/blender-fluid/v1/index.html ← [docs detalhada](./fluid/README.md)
+- **Grass (esqueleto dinamico + wind influenciavel):** https://st.did.lu/blender-grass/v1/index.html ← [docs detalhada](./grass/README.md)
 
 ## Relatorios tecnicos
 - **Geometry addons v2 (90+ plugins, recalibrado):** https://st.did.lu/reports/blender-geometry-addons/v2/index.html

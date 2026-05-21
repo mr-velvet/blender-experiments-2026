@@ -24,3 +24,5 @@ rigging/assets/*.glb
 rigging/assets/*.fbx
 fluid/out/
 fluid/cache/
+grass/out/
+grass/*.png
