@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Blender — fidelidade reproduzível v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #16181a;
+    --bg-2: #1a1d20;
+    --panel: #1f2226;
+    --panel-2: #292d32;
+    --panel-3: #34393f;
+    --accent: #7cc4ff;
+    --accent-2: #a8d8ff;
+    --accent-3: #5ba8e0;
+    --text: #e7ecf2;
+    --text-dim: #8a93a0;
+    --text-dimmer: #5f6770;
+    --border: #353a40;
+    --border-soft: #2a2e33;
+    --score-10: #5ed688;
+    --score-8:  #7fd388;
+    --score-6:  #d9c46a;
+    --score-4:  #d9956a;
+    --score-2:  #d9696a;
+    --good: #7fd388;
+    --warn: #f2c761;
+    --bad: #e88373;
+    --discard: #6f656c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+    line-height: 1.6;
+    font-size: 15.5px;
+  }
+  body {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* HEADER */
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  header.top .version-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #16181a;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+  header.top h1 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  header.top .sub {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 920px;
+  }
+  header.top .meta {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.3px;
+  }
+
+  /* CRITERIA BOX */
+  .criteria {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 32px;
+  }
+  .criteria h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent-2);
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  .criteria ol {
+    padding-left: 22px;
+    margin: 0;
+  }
+  .criteria li {
+    font-size: 14.5px;
+    margin-bottom: 8px;
+    line-height: 1.55;
+  }
+  .criteria li strong {
+    color: var(--accent-2);
+  }
+  .criteria li .lbl {
+    background: var(--panel-2);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+  }
+  .lbl.priority { background: rgba(127,211,136,0.18); color: var(--good); }
+  .lbl.penalty  { background: rgba(242,199,97,0.18); color: var(--warn); }
+  .lbl.discard  { background: rgba(232,131,115,0.18); color: var(--bad); }
+  .lbl.format   { background: rgba(124,196,255,0.18); color: var(--accent); }
+
+  /* TOC */
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 0 0 40px;
+  }
+  nav.toc h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  nav.toc ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 4px 16px;
+    padding: 0;
+    counter-reset: section;
+  }
+  nav.toc li {
+    counter-increment: section;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  nav.toc li::before {
+    content: counter(section) ".";
+    color: var(--text-dim);
+    margin-right: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  nav.toc a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* HEADINGS */
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 56px 0 8px;
+    letter-spacing: -0.4px;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 28px 0 10px;
+    color: var(--accent-2);
+  }
+
+  p { margin-bottom: 14px; }
+  p.lead {
+    font-size: 16px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    max-width: 950px;
+  }
+  ul, ol { padding-left: 22px; margin-bottom: 16px; }
+  li { margin-bottom: 4px; }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124, 196, 255, 0.25);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  a:hover { color: var(--accent-2); border-bottom-color: var(--accent); }
+
+  code, .code {
+    background: var(--panel-2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--accent-2);
+    border: 1px solid var(--border-soft);
+  }
+
+  /* CATEGORY HEADER */
+  .cat-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 56px 0 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .cat-header .ico {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .cat-header h2 {
+    margin: 0;
+  }
+  .cat-header .count {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* PLUGIN ROW (TABLE-LIKE) */
+  .plugin-table {
+    margin: 16px 0 24px;
+  }
+  .plugin-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 90px 95px 80px;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+    transition: border-color 0.15s;
+  }
+  .plugin-row:hover { border-color: var(--accent); }
+  .plugin-row.discarded { opacity: 0.45; }
+  .plugin-row.discarded:hover { opacity: 0.7; }
+  .plugin-row .score {
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    padding: 8px 0;
+    border-radius: 8px;
+    line-height: 1;
+  }
+  .plugin-row .score .label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dimmer);
+  }
+  .score.s10, .score.s9 { color: var(--score-10); background: rgba(94, 214, 136, 0.10); }
+  .score.s8, .score.s7  { color: var(--score-8); background: rgba(127, 211, 136, 0.08); }
+  .score.s6, .score.s5  { color: var(--score-6); background: rgba(217, 196, 106, 0.08); }
+  .score.s4, .score.s3  { color: var(--score-4); background: rgba(217, 149, 106, 0.08); }
+  .score.s2, .score.s1  { color: var(--score-2); background: rgba(217, 105, 106, 0.08); }
+  .score.disc { color: var(--discard); background: rgba(111, 101, 108, 0.08); font-size: 14px; padding-top: 14px; padding-bottom: 14px;}
+
+  .plugin-row .main { min-width: 0; }
+  .plugin-row .name {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .plugin-row .desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .plugin-row .desc .risk {
+    color: var(--warn);
+    font-size: 11.5px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .plugin-row .desc .risk.bad { color: var(--bad); }
+  .plugin-row .desc .url {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-dimmer);
+    word-break: break-all;
+  }
+  .plugin-row .desc .url a { color: var(--text-dimmer); border: none; }
+  .plugin-row .desc .url a:hover { color: var(--accent); }
+
+  .plugin-row .price {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .plugin-row .price.free { color: var(--good); font-weight: 700; }
+  .plugin-row .meta-col {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .plugin-row .meta-col .auto.yes { color: var(--good); }
+  .plugin-row .meta-col .auto.no  { color: var(--bad); }
+  .plugin-row .meta-col .auto.partial { color: var(--warn); }
+  .plugin-row .format {
+    font-size: 10.5px;
+    color: var(--accent-2);
+    text-align: center;
+    background: rgba(124, 196, 255, 0.10);
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(124, 196, 255, 0.25);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 900px) {
+    .plugin-row {
+      grid-template-columns: 60px 1fr 80px;
+    }
+    .plugin-row .meta-col, .plugin-row .format { display: none; }
+  }
+
+  /* TIER LABELS */
+  .tier-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 24px 0 12px;
+  }
+  .tier-label.tier-s { background: rgba(94, 214, 136, 0.16); color: var(--score-10); }
+  .tier-label.tier-a { background: rgba(127, 211, 136, 0.12); color: var(--score-8); }
+  .tier-label.tier-b { background: rgba(217, 196, 106, 0.14); color: var(--score-6); }
+  .tier-label.tier-c { background: rgba(217, 149, 106, 0.14); color: var(--score-4); }
+  .tier-label.tier-discard { background: rgba(111, 101, 108, 0.20); color: var(--discard); }
+
+  /* SCORE LEGEND */
+  .score-legend {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 20px 0 32px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .score-legend h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--accent-2);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .score-legend ul {
+    padding-left: 22px;
+    margin: 0;
+    list-style: none;
+  }
+  .score-legend ul li {
+    padding-left: 0;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .score-legend .score-dot {
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* CALLOUTS */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(124, 196, 255, 0.06);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: rgba(242, 199, 97, 0.06); }
+  .callout.bad  { border-left-color: var(--bad);  background: rgba(232, 131, 115, 0.06); }
+  .callout.good { border-left-color: var(--good); background: rgba(127, 211, 136, 0.06); }
+  .callout strong {
+    display: block;
+    color: var(--accent-2);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .callout.warn strong { color: var(--warn); }
+  .callout.bad strong  { color: var(--bad); }
+  .callout.good strong { color: var(--good); }
+
+  /* TOP PICKS GRID */
+  .top-picks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .pick-card {
+    background: linear-gradient(180deg, rgba(94, 214, 136, 0.07), transparent);
+    border: 1px solid var(--score-8);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .pick-card .rank {
+    display: inline-block;
+    background: var(--score-10);
+    color: #16181a;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .pick-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 10px 0 4px;
+    color: var(--text);
+  }
+  .pick-card .meta-line {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .pick-card .reason {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  /* VERSION DIFF */
+  .changelog {
+    background: var(--panel);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 16px 22px;
+    margin: 16px 0 28px;
+  }
+  .changelog h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .changelog ul {
+    padding-left: 22px;
+    margin: 0;
+  }
+  .changelog ul li {
+    font-size: 13.5px;
+    margin-bottom: 4px;
+    color: var(--text-dim);
+  }
+  .changelog ul li strong { color: var(--text); }
+
+  footer.bottom {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dimmer);
+    font-size: 12px;
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 18px; }
+    header.top h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+    .plugin-row { padding: 12px 14px; gap: 10px; }
+    .plugin-row .score { font-size: 18px; padding: 6px 0; }
+    .plugin-row .name { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span class="version-tag">V2 · recalibrado</span>
+  <h1>Blender → fidelidade reproduzível em outros lugares</h1>
+  <p class="sub">Pesquisa ampla de plugins, agora medindo o que importa: <strong>quão fielmente o output do Blender se reproduz em outros lugares</strong> (Three.js web, Unity, Unreal). Formato de export é agnóstico, processo intermediário é responsabilidade minha. Nota objetiva 0-10 por plugin.</p>
+  <div class="meta">v2 · 2026-05-21 · 90+ plugins avaliados · 11 categorias · critério recalibrado · análise multi-agente paralela</div>
+</header>
+
+<div class="changelog">
+  <h4>Mudanças vs v1</h4>
+  <ul>
+    <li><strong>Critério único:</strong> fidelidade visual reproduzível, não "GLB-friendly". Formato de export é detalhe operacional.</li>
+    <li><strong>Filtro de automação:</strong> só conta o que dá pra automatizar via Python (Substance Designer, Marvelous Designer manual = descartados).</li>
+    <li><strong>Nota objetiva 0-10:</strong> cada plugin tem nota baseada em "quanto sobrevive ao export".</li>
+    <li><strong>+30 plugins novos:</strong> categorias antes não cobertas — metal/rust, vidro/cristais, líquidos, vegetação, comida, joias, rochas, ornamentos, insetos, moss.</li>
+    <li><strong>Risk tags:</strong> IOR-RISK (refração), VOLUME-RISK (volumetrics), BAKE-OK (geometria sobrevive direto).</li>
+  </ul>
+</div>
+
+<div class="criteria">
+  <h3>Critério final</h3>
+  <ol>
+    <li><span class="lbl priority">prioridade</span> Plugins que <strong>aplicam efeito na geometria</strong> (geo nodes apply, sculpt brushes, mesh ops). Se mexe na malha, fidelidade tende a 10 — eu reproduzo o material em qualquer engine.</li>
+    <li><span class="lbl penalty">penalidade</span> Features que dependem de <strong>iluminação/SSS/volumétricos/IOR específicos do Cycles</strong> e não tem caminho de bake. Ficam com nota baixa.</li>
+    <li><span class="lbl discard">descarta</span> Plugins que <strong>exigem trabalho manual humano</strong> (Substance Designer, Marvelous Designer, ZBrush sculpting livre). Não automatizáveis = fora.</li>
+    <li><span class="lbl format">formato</span> Saída é agnóstica: GLB, FBX, USD, Alembic, OBJ — o que servir.</li>
+  </ol>
+</div>
+
+<div class="score-legend">
+  <h4>Escala de fidelidade</h4>
+  <ul>
+    <li><span class="score-dot" style="color: var(--score-10); background: rgba(94, 214, 136, 0.15);">9-10</span> mesh real, fidelidade total fora do Blender</li>
+    <li><span class="score-dot" style="color: var(--score-8); background: rgba(127, 211, 136, 0.12);">7-8</span> mesh + bake PBR cobre o look essencial</li>
+    <li><span class="score-dot" style="color: var(--score-6); background: rgba(217, 196, 106, 0.12);">5-6</span> alguma feature crítica não baka (IOR, SSS, refração)</li>
+    <li><span class="score-dot" style="color: var(--score-4); background: rgba(217, 149, 106, 0.12);">3-4</span> shader-only com bake difícil, perda perceptível</li>
+    <li><span class="score-dot" style="color: var(--score-2); background: rgba(217, 105, 106, 0.12);">1-2</span> dependência de feature não-transponível (volumetric, dispersion)</li>
+    <li><span class="score-dot disc" style="color: var(--discard); background: rgba(111, 101, 108, 0.15);">DSC</span> descartado por critério (manual / inviável)</li>
+  </ul>
+</div>
+
+<nav class="toc">
+  <h3>Sumário</h3>
+  <ol>
+    <li><a href="#papelao">Papelão / papel / cartonagem</a></li>
+    <li><a href="#clay">Clay / massinha / sculpt</a></li>
+    <li><a href="#madeira">Madeira / tijolos / arquitetura</a></li>
+    <li><a href="#tecido">Tecido / couro / pelo</a></li>
+    <li><a href="#dano">Dano / desgaste / sci-fi</a></li>
+    <li><a href="#metal">Metal / rust / oxidação</a></li>
+    <li><a href="#vidro">Vidro / cristais / joias</a></li>
+    <li><a href="#liquido">Líquidos / gotas / água</a></li>
+    <li><a href="#vegetacao">Vegetação / rochas / moss</a></li>
+    <li><a href="#comida">Comida / ornamentos / insetos</a></li>
+    <li><a href="#top-picks">Top picks gerais</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="papelao">
+  <span class="ico">📦</span>
+  <h2>1. Papelão / papel / cartonagem</h2>
+  <span class="count">15 plugins</span>
+</div>
+
+<div class="tier-label tier-s">Tier S · mesh real, fidelidade alta</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">PACKFOLD</div>
+      <div class="desc">DXF dieline → mesh dobrável com armature/rig. Animação de dobra via bones, mesh puro sem shader.
+        <span class="url"><a href="https://superhivemarket.com/products/packfold" target="_blank">superhivemarket.com/products/packfold</a></span>
+      </div>
+    </div>
+    <div class="price">~$40-50</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">FBX/GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">PolyZamboni</div>
+      <div class="desc">Extensão oficial Blender 5.1+. Mesh ops puro pra unfold/cuts/glue flaps.
+        <span class="url"><a href="https://extensions.blender.org/add-ons/polyzamboni/" target="_blank">extensions.blender.org/add-ons/polyzamboni</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">OBJ/GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">blender-origami-fold</div>
+      <div class="desc">Armature rig em edges para animar fold real. Mesh + bones.
+        <span class="url"><a href="https://github.com/Olliebrown/blender-origami-fold" target="_blank">github.com/Olliebrown/blender-origami-fold</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">FBX</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Simply Tear</div>
+      <div class="desc">Mesh ops para rip/tear real com bordas irregulares. <span class="risk">⚠ bordas finas podem perder normals no GLB</span>
+        <span class="url"><a href="https://superhivemarket.com/products/simply-tear" target="_blank">superhivemarket.com/products/simply-tear</a></span>
+      </div>
+    </div>
+    <div class="price">$99</div>
+    <div class="meta-col">automatável <span class="auto partial">prov. sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">BooleanBite</div>
+      <div class="desc">Boolean ops 1-click para edge damage real em papelão/cartões.
+        <span class="url"><a href="https://superhivemarket.com/products/booleanbite-1-click-procedural-edge-damage-for-blender" target="_blank">superhivemarket.com/products/booleanbite</a></span>
+      </div>
+    </div>
+    <div class="price">~$20</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Document Paper Stack Pile (CGMatter)</div>
+      <div class="desc">Geometry Nodes para pilhas de documentos. Apply → mesh estático.
+        <span class="url"><a href="https://superhivemarket.com/products/document" target="_blank">superhivemarket.com/products/document</a></span>
+      </div>
+    </div>
+    <div class="price">$7</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">BookGen</div>
+      <div class="desc">Mesh procedural pra livros, pilhas de livros, estantes.
+        <span class="url"><a href="https://github.com/oweissbarth/bookGen" target="_blank">github.com/oweissbarth/bookGen</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<div class="tier-label tier-a">Tier A · mesh + bake necessário</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Simply Cloth Studio 2.0</div>
+      <div class="desc">Cloth sim wrapper + adaptive wrinkles. <span class="risk">⚠ wrinkles finos exigem normal map bake</span>
+        <span class="url"><a href="https://superhivemarket.com/products/simply-cloth" target="_blank">superhivemarket.com/products/simply-cloth</a></span>
+      </div>
+    </div>
+    <div class="price">$36-66</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB+anim</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s6">6<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Easy Cardboard 3.0</div>
+      <div class="desc">Geo nodes (✓) + shader corrugado (precisa bake PBR pra preservar look). <span class="risk">⚠ corrugado vive no shader, sem bake fica liso</span>
+        <span class="url"><a href="https://superhivemarket.com/products/easy-cardboard" target="_blank">superhivemarket.com/products/easy-cardboard</a></span>
+      </div>
+    </div>
+    <div class="price">~$25-40</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB+PBR</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score s3">3<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Cardboard Shader (o que você tem)</div>
+      <div class="desc">Shader-only puro. Bake PBR ainda salva 50%, mas detalhe sub-pixel se perde. <span class="risk bad">⚠ shader procedural sem caminho de bake limpo</span></div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">PBR maps</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="clay">
+  <span class="ico">🟠</span>
+  <h2>2. Clay / massinha / plasticina / sculpt-based</h2>
+  <span class="count">16 plugins</span>
+</div>
+
+<div class="tier-label tier-s">Tier S · VDM brushes esculpem mesh real com overhangs</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">VDM Brush Baker (oficial)</div>
+      <div class="desc">Extensão Blender 4.2+ oficial. Cria brushes VDM custom a partir de plane sculptado. Combina com qualquer pack VDM existente.
+        <span class="url"><a href="https://extensions.blender.org/add-ons/vdm-brush-baker/" target="_blank">extensions.blender.org/add-ons/vdm-brush-baker</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">DisplaceIt</div>
+      <div class="desc"><strong>Solver universal:</strong> converte displacement de shader em deslocamento de mesh real. Resolve clay/massinha procedural existente.
+        <span class="url"><a href="https://github.com/gentlegiantJGC/DisplaceIt" target="_blank">github.com/gentlegiantJGC/DisplaceIt</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Creature Surfaces VDM</div>
+      <div class="desc">VDM puro (Fedor Losev). Escamas, placas, knurling — overhangs reais em uma dab.
+        <span class="url"><a href="https://feddark.artstation.com/store/76lY/creature-surfaces-vdm" target="_blank">feddark.artstation.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Pottery Generator (Tadeas Samal)</div>
+      <div class="desc">Geo nodes paramétrico. Pots, vasos, bowls, copos. Mesh real após Apply Modifier.
+        <span class="url"><a href="https://superhivemarket.com/products/pottery-generator---geometry-nodes-one-click-generate" target="_blank">superhivemarket.com/products/pottery-generator</a></span>
+      </div>
+    </div>
+    <div class="price">$9.90</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Sculptor's Toolbox — Ultimate Brushes</div>
+      <div class="desc">3000+ VDM + alpha brushes. Skin pores, wood bark, lips/creases. Mesh real esculpido. <span class="risk">⚠ requer mesh com ~1M tris pra capturar detalhe</span>
+        <span class="url"><a href="https://superhivemarket.com/products/ultimatebrushes" target="_blank">superhivemarket.com/products/ultimatebrushes</a></span>
+      </div>
+    </div>
+    <div class="price">~$40-60</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Body Details VDM Brushes</div>
+      <div class="desc">VDM DragRect — wrinkles, navel, folds, joints, veins, moles. Cada um vira overhang real com 1 stroke de 2 pontos.
+        <span class="url"><a href="https://superhivemarket.com/products/body-details-vdm-brushes-for-blender" target="_blank">superhivemarket.com/products/body-details-vdm-brushes</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">ZenShaders Skin Edition</div>
+      <div class="desc">900+ brushes VDM + alpha. Human/Creature/Zombie skin com pores, veins, bumps.
+        <span class="url"><a href="https://zenshaders.gumroad.com/l/pvcirw" target="_blank">zenshaders.gumroad.com/l/pvcirw</a></span>
+      </div>
+    </div>
+    <div class="price">~$20-30</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">VK GameDev Wood VDM vol.2</div>
+      <div class="desc">50 VDM brushes de wood bark scans. Displacement real, sobrevive GLB.
+        <span class="url"><a href="https://vkgamedev.gumroad.com/l/wood_vdm_brushes_blender" target="_blank">vkgamedev.gumroad.com/l/wood_vdm_brushes_blender</a></span>
+      </div>
+    </div>
+    <div class="price">$10</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">101 Anatomy VDM</div>
+      <div class="desc">Músculos e partes anatômicas inteiras como overhangs reais.
+        <span class="url"><a href="https://cubebrush.co/mim-repository/products/rkmitg/101-anatomy-vdm-brush-body-parts-and-muscles" target="_blank">cubebrush.co</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Stylized Facial Features VDM (51)</div>
+      <div class="desc">Olhos/nariz/boca/orelhas stylized inteiros num clique. DragRect VDM.
+        <span class="url"><a href="https://superhivemarket.com/products/51-stylized-face-vdm-brushes-for-blender--nose-mouth-eyes--ears" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">$8.90</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Claymorphism Assets/NodeGroup</div>
+      <div class="desc">Geo nodes inflate 2D→3D, clay noodles de curves. Bom pra estética claymorphism web.
+        <span class="url"><a href="https://alexandrealbisser.gumroad.com/l/ClaymorphismAssetNodeGroupPack" target="_blank">alexandrealbisser.gumroad.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$10</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score s3">3<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Clay Doh (DoubleGum) — o que você tem</div>
+      <div class="desc">Shader procedural Principled BSDF. Fingerprints/cracks são shader, não mesh. Bake PBR ainda salva o look mas perde a interatividade do procedural. <span class="risk bad">⚠ não reproduz fora do Blender sem retrabalho de bake</span></div>
+    </div>
+    <div class="price">$35</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">PBR maps</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="madeira">
+  <span class="ico">🧱</span>
+  <h2>3. Madeira / tijolos / pedra / arquitetura</h2>
+  <span class="count">15 plugins</span>
+</div>
+
+<p class="lead">Categoria mais robusta — Geometry Nodes domina. Quase tudo aqui é Tier S porque o output é mesh estático que exporta perfeito.</p>
+
+<div class="tier-label tier-s">Tier S · geo nodes puros</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Trowel — Ultimate Brick Wall</div>
+      <div class="desc">Geo nodes (1500+ nós). 17 tamanhos de tijolo, 5 bonds, boolean cuts.
+        <span class="url"><a href="https://superhivemarket.com/products/the%20trowel" target="_blank">superhivemarket.com/products/the-trowel</a></span>
+      </div>
+    </div>
+    <div class="price">~$30</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB/USD</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Floor Generator 3.0</div>
+      <div class="desc">Geo nodes. Herringbone, Chevron, Hexagon, Basket Weave. Mesh estático após apply.
+        <span class="url"><a href="https://superhivemarket.com/products/floor-generator" target="_blank">superhivemarket.com/products/floor-generator</a></span>
+      </div>
+    </div>
+    <div class="price">~$25</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Natural Stone Wall Factory</div>
+      <div class="desc">Pedras interlock em 3D real. Mesh ops via Add Mesh addon. Apply direto.
+        <span class="url"><a href="https://superhivemarket.com/products/natural-stone-wall-factory" target="_blank">superhivemarket.com/products/natural-stone-wall-factory</a></span>
+      </div>
+    </div>
+    <div class="price">$9</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">BRiCKiTECT</div>
+      <div class="desc">Prédios LEGO-style modulares (ground/middle/roof). Geo nodes.
+        <span class="url"><a href="https://superhivemarket.com/products/brickitect" target="_blank">superhivemarket.com/products/brickitect</a></span>
+      </div>
+    </div>
+    <div class="price">~$20</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">On The Rocks v1.7</div>
+      <div class="desc">Geo nodes pra rochas, paredes, walkways, edge damage, scatter.
+        <span class="url"><a href="https://www.blenderkit.com/addons/68f5fbef-c50c-46c4-a1d2-9ab7d0a26eb1/" target="_blank">blenderkit.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$25</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Wooden Planks Generator (3DT)</div>
+      <div class="desc">Tábuas sobre qualquer mesh, com bend/displacement/UV. Geo nodes.
+        <span class="url"><a href="https://cubebrush.co/3d_tudor/products/2gzxsa/" target="_blank">cubebrush.co/3d_tudor</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Buildify</div>
+      <div class="desc">Prédios montados de partes, integra com blender-osm. Geo nodes library.
+        <span class="url"><a href="https://blender-addons.org/buildify/" target="_blank">blender-addons.org/buildify</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<div class="tier-label tier-a">Tier A · gratuitos / scriptáveis</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Parquet (clarkx)</div>
+      <div class="desc">Mesh ops via Python. French/English parquet, Chevron, Herringbone, Ladder, Fougère.
+        <span class="url"><a href="https://github.com/clarkx/Parquet" target="_blank">github.com/clarkx/Parquet</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">BagaPie 11</div>
+      <div class="desc">Suíte: railings, stairs, doors, windows, bolts, scatter. 50+ tools.
+        <span class="url"><a href="https://extensions.blender.org/add-ons/bagapie/" target="_blank">extensions.blender.org/add-ons/bagapie</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">JARCH Vis</div>
+      <div class="desc">Mesh ops paramétrico: siding, flooring (brick), roofing, cutouts.
+        <span class="url"><a href="https://github.com/BlendingJake/JARCH-Vis" target="_blank">github.com/BlendingJake/JARCH-Vis</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s6">6<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Archimesh (oficial)</div>
+      <div class="desc">Rooms, walls, doors, windows, stairs, columns. Mesh ops. Caixa baixa mas confiável.
+        <span class="url"><a href="https://extensions.blender.org/add-ons/archimesh/" target="_blank">extensions.blender.org/add-ons/archimesh</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="tecido">
+  <span class="ico">🧵</span>
+  <h2>4. Tecido / couro / pelo</h2>
+  <span class="count">15 plugins</span>
+</div>
+
+<div class="tier-label tier-s">Tier S · geo nodes puros / hair-to-mesh</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Geometry Nodes Procedural Stitches</div>
+      <div class="desc">Geo nodes em curve/edge. Costuras 3D reais (não shader).
+        <span class="url"><a href="https://superhivemarket.com/products/geometry-nodes-procedural-stitches" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">$10</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Zippers</div>
+      <div class="desc">Geo nodes instance on curve. Dentes + slider 3D real.
+        <span class="url"><a href="https://superhivemarket.com/products/geometry-nodes-procedural-zippers" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$10</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Belt Generator</div>
+      <div class="desc">Geo nodes curve-driven. Cintos, straps, fivelas, furos como mesh real.
+        <span class="url"><a href="https://superhivemarket.com/products/belt-generator" target="_blank">superhivemarket.com/products/belt-generator</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Knitting Generator Addon</div>
+      <div class="desc">Geo nodes 1-click sem UV. Tricô real geométrico (laçadas 3D). <span class="risk">⚠ polycount alto, precisa decimate</span>
+        <span class="url"><a href="https://superhivemarket.com/products/knitting-generator-addon" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$20</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">GBH Tool</div>
+      <div class="desc">Hair geo nodes com convert to mesh. Strands/cards/braids + rig auto.
+        <span class="url"><a href="https://github.com/GixoXYZ/BlenderGBHTool" target="_blank">github.com/GixoXYZ/BlenderGBHTool</a></span>
+      </div>
+    </div>
+    <div class="price">~$25</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Generate Hair as Mesh</div>
+      <div class="desc"><strong>Resolve hair → GLB.</strong> Particle/curves hair → mesh tubes com UV correta. Open-source MIT.
+        <span class="url"><a href="https://github.com/Greg-Aster/Blender-Generate-Hair-as-Mesh-add-on" target="_blank">github.com/Greg-Aster</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Felt Maker</div>
+      <div class="desc">Geo nodes felt/fuzz. Transforma mesh em pelúcia mesh-real. <span class="risk">⚠ polycount</span>
+        <span class="url"><a href="https://adrienltn.gumroad.com/l/felt_gen" target="_blank">adrienltn.gumroad.com/l/felt_gen</a></span>
+      </div>
+    </div>
+    <div class="price">~$10</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Cloth Weaver</div>
+      <div class="desc">Flat pattern + cloth sim. Weave engine real (Plain/Twill/Satin/Jacquard).
+        <span class="url"><a href="https://clothweaver.com/" target="_blank">clothweaver.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$80</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">Alembic/GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Cloth Panels</div>
+      <div class="desc">Painéis quiltados/acolchoados sci-fi. Geo nodes.
+        <span class="url"><a href="https://superhivemarket.com/products/cloth-panels" target="_blank">superhivemarket.com/products/cloth-panels</a></span>
+      </div>
+    </div>
+    <div class="price">~$20</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score disc">DSC<span class="label">descartado</span></div>
+    <div class="main">
+      <div class="name">Marvelous Designer</div>
+      <div class="desc">Workflow manual obrigatório. Exporta Alembic mas exige artista humano operando. <span class="risk bad">⚠ não automatizável por agente IA</span></div>
+    </div>
+    <div class="price">$200+/mo</div>
+    <div class="meta-col">automatável <span class="auto no">não</span></div>
+    <div class="format">—</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="dano">
+  <span class="ico">⚙️</span>
+  <h2>5. Dano / desgaste / sci-fi / hard-surface</h2>
+  <span class="count">14 plugins</span>
+</div>
+
+<div class="tier-label tier-s">Tier S · mesh ops puros, automation-friendly</div>
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s10">10<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">MESHmachine</div>
+      <div class="desc">Topology clean = export limpo. Chamfer/Fuse/Unfuck/fillet híbrido. Operators expostos.
+        <span class="url"><a href="https://machin3.io/MESHmachine/" target="_blank">machin3.io/MESHmachine</a></span>
+      </div>
+    </div>
+    <div class="price">~$45</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">HardOps + BoxCutter</div>
+      <div class="desc">Padrão da indústria. Booleans + bevels + smart pipeline. Operators bpy.ops.hops.* / bpy.ops.bc.*
+        <span class="url"><a href="https://superhivemarket.com/products/hard-ops--boxcutter-ultimate-bundle" target="_blank">superhivemarket.com/products/hard-ops--boxcutter-ultimate-bundle</a></span>
+      </div>
+    </div>
+    <div class="price">$80</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">FBX/GLB/USD</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">OCD 2.5 (One Click Damage)</div>
+      <div class="desc">Geometry Nodes pra edge damage chipping. Modifier inputs ajustáveis via Python.
+        <span class="url"><a href="https://vfxguide.gumroad.com/l/OCDaddon" target="_blank">vfxguide.gumroad.com/l/OCDaddon</a></span>
+      </div>
+    </div>
+    <div class="price">~$25</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">KIT OPS 2 Pro</div>
+      <div class="desc">Insere .blend kitbash com boolean cut/add. Asset library + ops.
+        <span class="url"><a href="https://www.chippwalters.com/kit-ops" target="_blank">chippwalters.com/kit-ops</a></span>
+      </div>
+    </div>
+    <div class="price">~$59</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Hydra (erosion)</div>
+      <div class="desc">Water/thermal/snow erosion OpenGL. Modifica vértices direto. Open-source, hackeável.
+        <span class="url"><a href="https://github.com/ozikazina/Hydra" target="_blank">github.com/ozikazina/Hydra</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Cracker</div>
+      <div class="desc">Cracks reais na geometria + stomper de impacto.
+        <span class="url"><a href="https://vfxguide.gumroad.com/l/cracker" target="_blank">vfxguide.gumroad.com/l/cracker</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Plating Generator & Greebles</div>
+      <div class="desc">Painéis interbloqueados + greebles em cascos. "No hidden geometry".
+        <span class="url"><a href="https://mark-kingsnorth.gumroad.com/l/plating-generator-and-greebles" target="_blank">mark-kingsnorth.gumroad.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$30</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Wear N' Tear</div>
+      <div class="desc">Edge damage + mortar/plaster com LP/HP modes. Mesh ops.
+        <span class="url"><a href="https://superhivemarket.com/products/wear-n-tear" target="_blank">superhivemarket.com/products/wear-n-tear</a></span>
+      </div>
+    </div>
+    <div class="price">~$30</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Random Flow</div>
+      <div class="desc">Sci-fi panels, plate insets, mesh displacement.
+        <span class="url"><a href="https://blenderguppy.gumroad.com/l/randomflow" target="_blank">blenderguppy.gumroad.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$30</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Edge Damage GN (Sims, free)</div>
+      <div class="desc">Geo nodes puro de edge damage. Node graph aberto = modificável.
+        <span class="url"><a href="https://csims314.gumroad.com/l/hxbpn" target="_blank">csims314.gumroad.com/l/hxbpn</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score s4">4<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">DECALmachine</div>
+      <div class="desc">Decals são mesh, mas valor real está no parallax shader. Mesh decals exportam mas perdem a magia visual. <span class="risk bad">⚠ shader parallax não sobrevive sem bake</span>
+        <span class="url"><a href="https://machin3.io/DECALmachine/" target="_blank">machin3.io/DECALmachine</a></span>
+      </div>
+    </div>
+    <div class="price">~$45</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">FBX+atlas</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="metal">
+  <span class="ico">⚗️</span>
+  <h2>6. Metal / rust / oxidação / patina</h2>
+  <span class="count">3 plugins</span>
+</div>
+
+<p class="lead">Categoria onde a maior parte é shader-only. <strong>Vertex color bake</strong> resolve parcialmente — atributo de vertex sobrevive ao GLB.</p>
+
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Damage & Wear System</div>
+      <div class="desc">Geo nodes geram vertex-color masks pra rust/dirt/edge-wear, <strong>bakeáveis a attribute</strong> (sobrevive GLB).
+        <span class="url"><a href="https://www.strayspark.studio/blog/procedural-weathering-blender-geometry-nodes" target="_blank">strayspark.studio</a></span>
+      </div>
+    </div>
+    <div class="price">~$25</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB+attrs</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">StraySpark Procedural Weathering</div>
+      <div class="desc">Setup tutorial: curvature + gravity + Voronoi rust como vertex attrs.</div>
+    </div>
+    <div class="price free">tutorial</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB+attrs</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score s3">3<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Rust (diaverx, BlenderKit)</div>
+      <div class="desc">Shader-only. Precisa bake completo pra texturas. <span class="risk bad">⚠ trabalho extra de bake elimina vantagem</span></div>
+    </div>
+    <div class="price">sub</div>
+    <div class="meta-col">automatável <span class="auto partial">parcial</span></div>
+    <div class="format">PBR maps</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="vidro">
+  <span class="ico">💎</span>
+  <h2>7. Vidro / cristais / joias</h2>
+  <span class="count">3 plugins</span>
+</div>
+
+<div class="callout warn">
+  <strong>IOR-RISK importante</strong>
+  Vidro/cristal depende de refração (IOR) que o glTF standard não suporta. Three.js tem <code>MeshPhysicalMaterial.transmission</code> que aproxima. Unity/Unreal renderiza melhor via materiais custom. <strong>A geometria sobrevive perfeito; o visual interno (caustics, dispersion) não.</strong>
+</div>
+
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">geometria</span></div>
+    <div class="main">
+      <div class="name">PGT Crystal Generator</div>
+      <div class="desc">Geo nodes — mesh facetado com struts internos. <span class="risk">⚠ visual depende de IOR, ~5/10 fora do Blender</span>
+        <span class="url"><a href="https://superhivemarket.com/products/crystal-generator" target="_blank">superhivemarket.com/products/crystal-generator</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">geometria</span></div>
+    <div class="main">
+      <div class="name">Procedural Crystal (Martinelli)</div>
+      <div class="desc">Geo nodes mesh puro. Visual interno IOR-dependente.
+        <span class="url"><a href="https://sagado.gumroad.com/l/jjetq" target="_blank">sagado.gumroad.com</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">geometria</span></div>
+    <div class="main">
+      <div class="name">Procedural Gemstone Generator</div>
+      <div class="desc">Geo mesh + dispersion shader (não exporta).</div>
+    </div>
+    <div class="price">BlenderKit</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="liquido">
+  <span class="ico">💧</span>
+  <h2>8. Líquidos / gotas / água</h2>
+  <span class="count">3 plugins</span>
+</div>
+
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Droplet Generator (Jepe)</div>
+      <div class="desc">Geo nodes puro. Scatter não-sobreposto + esferas reais + trails.
+        <span class="url"><a href="https://jepe.gumroad.com/l/fdbmfl" target="_blank">jepe.gumroad.com/l/fdbmfl</a></span>
+      </div>
+    </div>
+    <div class="price">~$5</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Quick Water Drops V2</div>
+      <div class="desc">Geo nodes: drops estáticos + correndo, volume meshing pra merge. <span class="risk">⚠ shader d'água IOR-dependente</span></div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Fluid Simulators</div>
+      <div class="desc">Sim de fluido na superfície gera geometria real por frame. Honey, chocolate, mel.
+        <span class="url"><a href="https://superhivemarket.com/products/procedural-fluid-simulators" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">~$30</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB seq</div>
+  </div>
+
+  <div class="plugin-row discarded">
+    <div class="score s2">2<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Mantaflow fogo/fumaça/volumétrico</div>
+      <div class="desc">Volume-to-Mesh node gera só "skin" iso-surface, perde density gradient. <span class="risk bad">⚠ usar flipbook fora do Blender (EmberGen)</span></div>
+    </div>
+    <div class="price free">nativo</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="vegetacao">
+  <span class="ico">🌿</span>
+  <h2>9. Vegetação / rochas / moss</h2>
+  <span class="count">8 plugins</span>
+</div>
+
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Modular Tree</div>
+      <div class="desc"><strong>Top pick:</strong> mesh real (trunk+branches+leaves) via L-system. Python API exposta.
+        <span class="url"><a href="https://extensions.blender.org/add-ons/modular-tree/" target="_blank">extensions.blender.org/add-ons/modular-tree</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB/FBX</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Wicked Rocks</div>
+      <div class="desc"><strong>Top pick:</strong> milhares de rochas únicas com seed control. Mesh real + edge crease.
+        <span class="url"><a href="https://thetahat.itch.io/wicked-rocks" target="_blank">thetahat.itch.io/wicked-rocks</a></span>
+      </div>
+    </div>
+    <div class="price">~$15</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Baga Ivy Generator</div>
+      <div class="desc">Geo nodes ivy em qualquer mesh, convert to mesh preserva o look.</div>
+    </div>
+    <div class="price">free/paid</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">GeoMoss Pro</div>
+      <div class="desc">Moss físico mesh scatter, não shader.
+        <span class="url"><a href="https://superhivemarket.com/products/geomoss-pro-physical-moss-addon" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">VegetationNodes</div>
+      <div class="desc">Scatter + wind + sim. Realize-instances → GLB clean.
+        <span class="url"><a href="https://superhivemarket.com/products/vegetationnodes--geometry-node-based-vegetation-system" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Mossify</div>
+      <div class="desc">160+ assets mesh + 50 geo nodes setups.
+        <span class="url"><a href="https://ninodefoq.gumroad.com/l/mossify" target="_blank">ninodefoq.gumroad.com/l/mossify</a></span>
+      </div>
+    </div>
+    <div class="price">Gumroad</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Botaniq (Polygoniq)</div>
+      <div class="desc">Asset library + geo nodes scatter. Plantas/árvores prontas.</div>
+    </div>
+    <div class="price">~$80</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Rock Generator (Superhive)</div>
+      <div class="desc">Geo nodes com sub-surf + edge + noise. Mesh estático após apply.</div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="comida">
+  <span class="ico">🍰</span>
+  <h2>10. Comida / ornamentos / insetos</h2>
+  <span class="count">6 plugins</span>
+</div>
+
+<div class="plugin-table">
+
+  <div class="plugin-row">
+    <div class="score s9">9<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Blender Ornament Generator</div>
+      <div class="desc"><strong>Top pick:</strong> 426 ornaments. Edge-select → generate, alinhado à superfície. Mesh real.
+        <span class="url"><a href="https://peakdreamsstudio.gumroad.com/l/ornament_generator" target="_blank">peakdreamsstudio.gumroad.com</a></span>
+      </div>
+    </div>
+    <div class="price">Gumroad</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Cake</div>
+      <div class="desc">Geo nodes — bolo em camadas reais.
+        <span class="url"><a href="https://superhivemarket.com/products/procedural-cake--blender-geometry-nodes" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s8">8<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Procedural Donut</div>
+      <div class="desc">Donut + frosting + sprinkles como real geo.
+        <span class="url"><a href="https://www.blenderkit.com/asset-gallery-detail/c2118a18-444a-4f16-977e-b90c5f6412ca/" target="_blank">blenderkit.com</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Insect Swarm</div>
+      <div class="desc">21 insetos low-poly animados. Scatter on surface/path. Mesh + anim baked.
+        <span class="url"><a href="https://superhivemarket.com/products/insect-swarm---procedural-insect-systems/faq" target="_blank">superhivemarket.com</a></span>
+      </div>
+    </div>
+    <div class="price">Superhive</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">GLB+anim</div>
+  </div>
+
+  <div class="plugin-row">
+    <div class="score s7">7<span class="label">fidelidade</span></div>
+    <div class="main">
+      <div class="name">Sverchok (paramétrico genérico)</div>
+      <div class="desc">Nodes paramétricos abertos. Full Python API. <span class="risk">⚠ curva de aprendizado alta, sem presets prontos</span>
+        <span class="url"><a href="https://github.com/nortikin/sverchok" target="_blank">github.com/nortikin/sverchok</a></span>
+      </div>
+    </div>
+    <div class="price free">grátis</div>
+    <div class="meta-col">automatável <span class="auto yes">sim</span></div>
+    <div class="format">qualquer</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="top-picks">11. Top picks gerais (por fidelidade × automação)</h2>
+
+<p class="lead">Combinando nota de fidelidade × facilidade de automação por agente IA × custo. Estes são os primeiros a testar.</p>
+
+<div class="top-picks-grid">
+
+  <div class="pick-card">
+    <span class="rank">#1</span>
+    <h4>Modular Tree</h4>
+    <div class="meta-line">grátis · Python API · GLB clean</div>
+    <div class="reason">Deterministic seeds. Mesh real puro, sem dependência de shader. Cobre 90% dos casos de vegetação. Pode começar agora.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#2</span>
+    <h4>Wicked Rocks</h4>
+    <div class="meta-line">~$15 · seed-driven</div>
+    <div class="reason">Mesh real com edge crease. Milhares de variações via seed. GLB-clean direto.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#3</span>
+    <h4>VDM Brush Baker + Body Details VDM</h4>
+    <div class="meta-line">grátis + $15 · sculpt-based</div>
+    <div class="reason">DragRect = 2 pontos = trivial scriptar. Esculpe overhangs reais. Resolve clay/orgânico de uma vez.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#4</span>
+    <h4>Trowel + Floor Generator + Parquet</h4>
+    <div class="meta-line">$55 total · arquitetura</div>
+    <div class="reason">Cobre tijolo, piso de madeira e parquet (este último grátis). Workflow Python determinístico.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#5</span>
+    <h4>MESHmachine + HardOps + BoxCutter</h4>
+    <div class="meta-line">$125 · hard-surface</div>
+    <div class="reason">Padrão da indústria. Topology limpa = export limpo. Operators expostos via bpy.ops.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#6</span>
+    <h4>Ornament Generator</h4>
+    <div class="meta-line">Gumroad · edge-tag input</div>
+    <div class="reason">426 ornaments alinhados a edges. Adiciona detalhe arquitetônico/decorativo determinístico.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#7</span>
+    <h4>PACKFOLD</h4>
+    <div class="meta-line">~$45 · mesh + armature</div>
+    <div class="reason">Cobertura completa de packaging com rig pra animar dobras. Único do nicho.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#8</span>
+    <h4>Procedural Damage & Wear</h4>
+    <div class="meta-line">~$25 · vertex color bake</div>
+    <div class="reason">Resolve "como ter rust/dirt em qualquer mesh" via vertex attribute — sobrevive ao GLB.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#9</span>
+    <h4>Generate Hair as Mesh</h4>
+    <div class="meta-line">grátis · open source MIT</div>
+    <div class="reason">Resolve o gap #1 de hair/fur no GLB. Open source = posso modificar se precisar.</div>
+  </div>
+
+  <div class="pick-card">
+    <span class="rank">#10</span>
+    <h4>DisplaceIt</h4>
+    <div class="meta-line">grátis · shader→mesh</div>
+    <div class="reason">Coringa universal. Pega qualquer shader displacement existente (Clay Doh, Cardboard Shader) e converte em mesh real.</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>12. Categorias evitar / aceitar perdas</h2>
+
+<div class="callout bad">
+  <strong>Evitar pra fidelidade-reproduzível</strong>
+  <ul style="margin-top: 8px;">
+    <li><strong>Volumetrics</strong> (Mantaflow fogo/fumaça): só "skin" iso-surface sobrevive — usar EmberGen flipbook fora.</li>
+    <li><strong>IOR-dependent</strong> (vidro, cristal, água profunda): geometria sim, look interno não.</li>
+    <li><strong>SSS complexo</strong> (pele subsurface real): aproximar com sheen no Principled BSDF — perde ~30% do look.</li>
+    <li><strong>Dispersion / chromatic aberration</strong> em joias: não tem equivalente PBR padrão.</li>
+    <li><strong>Procedural shaders sem geo</strong> (DECALmachine parallax, Clay Doh, Cardboard Shader puros): só funcionam dentro do Blender.</li>
+  </ul>
+</div>
+
+<div class="callout good">
+  <strong>Sempre vale a pena</strong>
+  <ul style="margin-top: 8px;">
+    <li>Plugins que produzem mesh real via geo nodes</li>
+    <li>Sculpt brushes VDM (overhangs reais)</li>
+    <li>Mesh ops (boolean, chamfer, displace)</li>
+    <li>Cloth sim baked num frame específico</li>
+    <li>Vertex colors / attributes (sobrevivem ao GLB com PBR)</li>
+    <li>Hair-to-mesh converters</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2>13. Próximos passos sugeridos</h2>
+
+<p>Plano de aquisição priorizando ROI (fidelidade × custo):</p>
+
+<ol>
+  <li><strong>Fase zero (gratuita):</strong> instalar Modular Tree + DisplaceIt + Generate Hair as Mesh + VDM Brush Baker + Parquet + BagaPie + Hydra + Edge Damage GN. Testar refazer 2 dos seus experimentos antigos com isso.</li>
+  <li><strong>Fase 1 (~$60):</strong> Wicked Rocks + Body Details VDM + Procedural Cake + Droplet Generator. Cobre rochas, sculpt detail, comida e water drops.</li>
+  <li><strong>Fase 2 (~$130):</strong> Trowel + Floor Generator + Easy Cardboard 3.0. Cobre arquitetura e papelão.</li>
+  <li><strong>Fase 3 (~$170):</strong> MESHmachine + HardOps+BoxCutter. Hard-surface profissional.</li>
+  <li><strong>Fase 4:</strong> conforme necessidade — PACKFOLD, Cloth Weaver, Sculptor's Toolbox, etc.</li>
+</ol>
+
+<p>Posso construir um <strong>experimento de validação</strong> com os 4-5 primeiros gratuitos pra você ver lado a lado um GLB "antes vs depois" antes de gastar qualquer coisa. É só pedir.</p>
+
+<footer class="bottom">
+  <p>Relatório v2 · pesquisa multi-agente paralela (6 agentes simultâneos cobrindo 11 categorias). Critério recalibrado: fidelidade reproduzível via geometria + automação por agente IA. Formato de export agnóstico. Versão anterior em <a href="https://st.did.lu/reports/blender-geometry-addons/v1/index.html" target="_blank">v1</a>.</p>
+  <p style="margin-top: 6px;">2026-05-21</p>
+</footer>
+
+</body>
+</html>

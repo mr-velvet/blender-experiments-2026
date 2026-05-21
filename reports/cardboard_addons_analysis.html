@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Analise — 3 addons de papelao pra Blender</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #1a1816;
+    --panel: #25221f;
+    --panel-2: #2f2b28;
+    --accent: #f4a380;
+    --accent-2: #f6c5a8;
+    --text: #f0ebe5;
+    --text-dim: #998c80;
+    --text-dimmer: #6f655c;
+    --border: #3a342f;
+    --good: #7fd388;
+    --warn: #f2c761;
+    --bad: #e88373;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  body {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  header .sub {
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+  header .meta {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-dimmer);
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 56px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: -0.3px;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 28px 0 10px;
+    color: var(--accent-2);
+  }
+  h2:first-child, h2:first-of-type { margin-top: 0; }
+
+  p, ul, ol { margin-bottom: 14px; color: var(--text); }
+  ul, ol { padding-left: 22px; }
+  li { margin-bottom: 4px; }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  a:hover { border-bottom-color: var(--accent); }
+
+  code, .code {
+    background: var(--panel);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 13px;
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+  }
+
+  /* TABELA COMPARATIVA */
+  .compare-wrap {
+    overflow-x: auto;
+    margin: 16px 0 32px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 880px;
+  }
+  table.compare thead th {
+    background: var(--panel-2);
+    text-align: left;
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.compare thead th.attr {
+    width: 200px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  table.compare tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  table.compare tbody tr:last-child td { border-bottom: none; }
+  table.compare tbody td.attr {
+    color: var(--text-dim);
+    font-weight: 500;
+    background: rgba(47, 43, 40, 0.4);
+  }
+  table.compare .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-right: 4px;
+  }
+  .pill.good { background: rgba(127, 211, 136, 0.18); color: var(--good); }
+  .pill.warn { background: rgba(242, 199, 97, 0.18); color: var(--warn); }
+  .pill.bad  { background: rgba(232, 131, 115, 0.18); color: var(--bad); }
+  .pill.muted{ background: var(--panel); color: var(--text-dim); }
+
+  /* CARDS */
+  .product-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .product-card .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .product-card .title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .product-card .price {
+    background: rgba(244, 163, 128, 0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .product-card .url {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    word-break: break-all;
+  }
+  .product-card .url a { color: var(--text-dim); }
+  .product-card .url a:hover { color: var(--accent); }
+
+  .product-card .summary {
+    padding: 14px 16px;
+    background: rgba(244, 163, 128, 0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 20px 0;
+  }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .block {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .block h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .block ul { padding-left: 18px; margin-bottom: 0; }
+
+  /* RECOMENDACAO */
+  .verdict {
+    background: linear-gradient(135deg, rgba(244, 163, 128, 0.12), rgba(244, 163, 128, 0.04));
+    border: 1px solid rgba(244, 163, 128, 0.4);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 32px 0;
+  }
+  .verdict .stamp {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background: var(--accent);
+    color: #1a1816;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* TIMELINE FLUXO */
+  .flow {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-step .num {
+    background: var(--accent);
+    color: #1a1816;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .flow-step .text { font-size: 14px; }
+  .flow-step .text strong { color: var(--accent-2); }
+
+  /* CALLOUTS */
+  .callout {
+    border-left: 3px solid var(--warn);
+    background: rgba(242, 199, 97, 0.06);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .callout.danger {
+    border-left-color: var(--bad);
+    background: rgba(232, 131, 115, 0.06);
+  }
+  .callout.good {
+    border-left-color: var(--good);
+    background: rgba(127, 211, 136, 0.06);
+  }
+  .callout strong { color: var(--accent-2); display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dimmer);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>3 addons de papelao pra Blender</h1>
+  <div class="sub">Analise comparativa: Cardboard Shader (tem) vs Easy Cardboard 3.0 (considerando) vs Cardboard Builder</div>
+  <div class="meta">relatorio gerado 2026-05-20 · contexto: experimentos blender + export GLB pra demos web</div>
+</header>
+
+<h2>Resumo executivo</h2>
+
+<p>
+Os tres produtos parecem similares no nome mas resolvem problemas <strong>completamente diferentes</strong>.
+Pegar dois pode fazer sentido; pegar so um depende muito do que voce quer fazer com papelao a curto/medio prazo.
+</p>
+
+<div class="grid-2">
+  <div class="block">
+    <h4>O que cada um realmente eh</h4>
+    <ul>
+      <li><strong>Cardboard Shader</strong> — pack de materiais procedurais (pintura)</li>
+      <li><strong>Easy Cardboard 3.0</strong> — gerador de papelao 1-click + 5 layers + acessorios (caixa, fita)</li>
+      <li><strong>Cardboard Builder</strong> — fatiador de objeto em planos paralelos (estilo escultura empilhada)</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Verdict resumido</h4>
+    <ul>
+      <li><strong>Easy Cardboard 3.0</strong> — provavelmente o melhor custo-beneficio pro seu caso ($18.75)</li>
+      <li><strong>Cardboard Builder</strong> — comprar so se voce ja sabe que quer o look de escultura fatiada</li>
+      <li><strong>Cardboard Shader</strong> — voce ja tem, continua util pra reaplicar material em coisas existentes</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Tabela comparativa</h2>
+
+<div class="compare-wrap">
+<table class="compare">
+  <thead>
+    <tr>
+      <th class="attr">Atributo</th>
+      <th>Cardboard Shader<br><span style="font-weight:400;font-size:12px;color:var(--text-dim)">(o que voce tem)</span></th>
+      <th>Easy Cardboard 3.0<br><span style="font-weight:400;font-size:12px;color:var(--text-dim)">(considerando)</span></th>
+      <th>Cardboard Builder<br><span style="font-weight:400;font-size:12px;color:var(--text-dim)">(orwilliam)</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="attr">Tipo</td>
+      <td><span class="pill muted">shader only</span></td>
+      <td><span class="pill good">addon · geo nodes + shader</span></td>
+      <td><span class="pill warn">addon · geo nodes (slicer)</span></td>
+    </tr>
+    <tr>
+      <td class="attr">Gera geometria?</td>
+      <td>Nao — so material</td>
+      <td>Sim — corrugacao, espessura, dobras, fita</td>
+      <td>Sim — mas no formato "fatias paralelas empilhadas"</td>
+    </tr>
+    <tr>
+      <td class="attr">Look final</td>
+      <td>Papelao "pintado" — silhueta lisa, ondulado por bump map</td>
+      <td>Papelao "real" — silhueta com detalhe 3D, espessura, abas</td>
+      <td>Escultura de papelao art-craft — modelo cortado em N fatias visiveis</td>
+    </tr>
+    <tr>
+      <td class="attr">Funciona em GLB?</td>
+      <td><span class="pill bad">precisa bake</span> shader procedural nao exporta</td>
+      <td><span class="pill warn">precisa apply</span> modifiers viram mesh estatico</td>
+      <td><span class="pill warn">precisa apply</span> modifiers viram mesh estatico</td>
+    </tr>
+    <tr>
+      <td class="attr">Sobrevive em export</td>
+      <td>Detalhe vira textura raster 2K/4K (perde resolucao infinita)</td>
+      <td>Geometria 3D real preservada — espessura, dobras, corrugacao</td>
+      <td>Geometria das fatias preservada</td>
+    </tr>
+    <tr>
+      <td class="attr">Workflow</td>
+      <td>Selecionar obj > aplicar material > render</td>
+      <td>Selecionar obj > 1 click "tornar papelao" > ajustar layers/wear</td>
+      <td>Selecionar obj > definir N fatias + espacamento > gerar</td>
+    </tr>
+    <tr>
+      <td class="attr">Features extras</td>
+      <td>5+ variacoes de material (kraft, papelao branco, ondulado)</td>
+      <td>Easy Tape (fita adesiva), Simple Box Creator (caixas), Wear, Fuzz, Print add</td>
+      <td>Multi-material por fatia, controle de largura</td>
+    </tr>
+    <tr>
+      <td class="attr">Cycles + EEVEE</td>
+      <td><span class="pill good">sim</span></td>
+      <td><span class="pill good">sim · EEVEE Next otimizado</span></td>
+      <td>Geometria-agnostico</td>
+    </tr>
+    <tr>
+      <td class="attr">Preco</td>
+      <td>~$15 (ja gastou)</td>
+      <td><strong>$18.75</strong> (com desconto, de $25)</td>
+      <td><strong>~$15</strong> (pay-what-you-want, min varia)</td>
+    </tr>
+    <tr>
+      <td class="attr">Update / suporte</td>
+      <td>Estavel, v atual</td>
+      <td>Versao 3.0 ativa, autor adicionando features</td>
+      <td>v1.0 (jan/2025), pouca info, autor solo</td>
+    </tr>
+    <tr>
+      <td class="attr">Ideal pra</td>
+      <td>Reaplicar look papelao em coisa pronta sem mexer no obj</td>
+      <td>Criar papelao "de verdade" — embalagens, props, demos GLB ricas</td>
+      <td>Arte conceitual, sculptures decorativas, look "feito a mao"</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Analise individual</h2>
+
+<div class="product-card">
+  <div class="head">
+    <div>
+      <div class="title">Cardboard Shader</div>
+      <div class="url"><a href="https://superhivemarket.com/products/cardboard" target="_blank">superhivemarket.com/products/cardboard</a></div>
+    </div>
+    <div class="price">~$15 · ja tenho</div>
+  </div>
+
+  <div class="summary">
+    Pack de shaders procedurais. Aplica em qualquer objeto e ele <em>parece</em> de papelao. Mas a malha continua sendo o que era. Sem profundidade fisica.
+  </div>
+
+  <div class="grid-2">
+    <div class="block">
+      <h4>Pontos fortes</h4>
+      <ul>
+        <li>1 click no material slot → pronto</li>
+        <li>Material limpo, sem dependencia de addon</li>
+        <li>Rende bem em Cycles e EEVEE</li>
+        <li>Resoluciao infinita no render direto</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h4>Limitacoes (que voce ja sentiu)</h4>
+      <ul>
+        <li>Cubo continua sendo cubo liso — silhueta nao muda</li>
+        <li>Nao tem espessura — papelao real tem ~3-5mm</li>
+        <li>Sem dobras / abas / corrugacao 3D</li>
+        <li>Wear so via shader = nao "arranca" pedacos da malha</li>
+        <li>GLB fica fraco — bake transforma procedural em raster finito</li>
+      </ul>
+    </div>
+  </div>
+
+  <p><strong>Continuar usando?</strong> Sim, pra casos onde o look chapado <em>basta</em> (background, props pequenos, mockup rapido). Nao expandir investimento aqui.</p>
+</div>
+
+<div class="product-card" style="border-color: var(--accent);">
+  <div class="head">
+    <div>
+      <div class="title">Easy Cardboard 3.0 <span class="pill good" style="font-size:10px;margin-left:6px">recomendado</span></div>
+      <div class="url"><a href="https://superhivemarket.com/products/easy-cardboard" target="_blank">superhivemarket.com/products/easy-cardboard</a></div>
+    </div>
+    <div class="price">$18.75 (de $25)</div>
+  </div>
+
+  <div class="summary">
+    Addon completo com Geometry Nodes + Shader. Pega qualquer objeto e <strong>gera papelao real</strong>: corrugacao 3D, espessura, dobras, fita adesiva, caixas modulares. Tem 5 camadas de material configuravel.
+  </div>
+
+  <div class="grid-2">
+    <div class="block">
+      <h4>Por que vale</h4>
+      <ul>
+        <li>Geometria real — silhueta densa de detalhe</li>
+        <li>Easy Tape — gera fita adesiva em curvas/bordas</li>
+        <li>Simple Box Creator — caixas modulares procedurais</li>
+        <li>Wear "dramatico" — afeta visual de canto/dobra</li>
+        <li>Fuzz — fibras saindo do papelao (close-ups)</li>
+        <li>5 camadas (kraft, ondulado, prints) sobrepostas</li>
+        <li>Grease Pencil to Cardboard — desenha contorno → vira mesh recortado de papelao</li>
+        <li>Roadmap ativo (corrugation variations chegando)</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h4>Limitacoes</h4>
+      <ul>
+        <li>Geometry Nodes nao exporta nativamente — precisa "apply modifiers" antes de GLB</li>
+        <li>Pode gerar mesh pesado (500k+ tris facilmente) — vai precisar decimate</li>
+        <li>Curva de aprendizado um pouco maior (5 camadas, multiplos sliders)</li>
+        <li>Pra Unity/runtime, vai virar "snapshot" de papelao, nao mais parametrico</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Resolve seu incomodo direto</strong>
+    Voce reclamou que seus experimentos com papelao "nao tem dinamica geometrica nem complexidade de forma" no GLB. Isso eh exatamente porque ate hoje usamos so shader. Easy Cardboard inverte isso: gera mesh detalhado que sobrevive ao export.
+  </div>
+</div>
+
+<div class="product-card">
+  <div class="head">
+    <div>
+      <div class="title">Cardboard Builder <span class="pill warn" style="font-size:10px;margin-left:6px">caso especifico</span></div>
+      <div class="url"><a href="https://orwilliam.gumroad.com/l/cardboard_builder_blender" target="_blank">orwilliam.gumroad.com/l/cardboard_builder_blender</a></div>
+    </div>
+    <div class="price">~$15 (PWYW)</div>
+  </div>
+
+  <div class="summary">
+    Addon que <strong>fatia o objeto em N planos paralelos</strong> simulando aquelas esculturas de papelao recortadas a laser e empilhadas (escultura layered). NAO eh papelao "convencional" — eh um estilo artistico especifico.
+  </div>
+
+  <div class="grid-2">
+    <div class="block">
+      <h4>Quando vale</h4>
+      <ul>
+        <li>Criar mascotes / esculturas decorativas estilo "art-craft"</li>
+        <li>Visual claramente "feito a mao" — bordas das fatias visiveis</li>
+        <li>Modelos baixados que voce quer estilizar pra parecer artesanato</li>
+        <li>Conceitos / mood boards onde papelao eh metafora</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h4>Quando NAO vale</h4>
+      <ul>
+        <li>Caixas de papelao realistas (use Easy Cardboard)</li>
+        <li>Embalagens / props onde voce quer corrugacao convencional</li>
+        <li>Personagens animados (fatias quebram skinning facil)</li>
+        <li>GLBs leves (cada fatia = duplicacao de geometria)</li>
+      </ul>
+    </div>
+  </div>
+
+  <p><strong>Sobre o autor (orwilliam):</strong> dev solo na Gumroad, v1.0 publicada jan/2025. Pouco suporte / documentacao em comparacao com Superhive. Util pra um experimento divertido, nao apostaria como ferramenta principal.</p>
+</div>
+
+<h2>Por que seus experimentos sairam fracos no GLB</h2>
+
+<p>Diagnostico tecnico do que aconteceu:</p>
+
+<div class="flow">
+  <div class="flow-step">
+    <div class="num">1</div>
+    <div class="text"><strong>Shader procedural nao exporta pra GLB.</strong> O glTF 2.0 so aceita Principled BSDF com texturas raster. Qualquer node procedural (Voronoi, Noise, Object Coord) eh descartado silenciosamente. Voce viu lindo no Blender, branco translucido no browser.</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">2</div>
+    <div class="text"><strong>Workaround foi bake de PBR.</strong> Geramos baseColor.png + roughness.png + normal.png a partir do shader, reconstruimos material como Principled BSDF apontando pras texturas. Mas isso transforma o procedural em raster com resolucao finita (2K, 4K). Perde detalhe fino, vira "uma foto" do material.</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">3</div>
+    <div class="text"><strong>Geometria nunca foi atacada.</strong> Em todos os experimentos com papelao, os objetos eram primitivos lisos (cubo, esfera, cilindro) com no maximo Subsurf. A complexidade fisica do papelao real — espessura, camadas, corrugacao, bordas dobradas, abas levantadas — nunca foi gerada. So o shader fingia.</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">4</div>
+    <div class="text"><strong>Pack atual (Cardboard Shader) eh shader-only por design.</strong> Ele nao tem como te dar geometria. Nao importa quantas variacoes voce tente, vai sempre ser um cubo liso pintado de papelao.</div>
+  </div>
+</div>
+
+<h2>Plano de ataque com Easy Cardboard 3.0</h2>
+
+<p>Pipeline que eu rodaria pra resolver o que te incomodou:</p>
+
+<div class="flow">
+  <div class="flow-step">
+    <div class="num">1</div>
+    <div class="text"><strong>Modelar / importar objeto base</strong> — pode ser primitivo, mesh comprado, scan, ate Suzanne</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">2</div>
+    <div class="text"><strong>Aplicar Easy Cardboard via 1-click</strong> — Geometry Nodes adiciona corrugacao, espessura, layers, wear</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">3</div>
+    <div class="text"><strong>Variar layers e wear</strong> — gerar 5-10 versoes do mesmo objeto com aging diferente</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">4</div>
+    <div class="text"><strong>Apply all modifiers</strong> — congelar o procedural em mesh estatico (geometry nodes nao exporta)</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">5</div>
+    <div class="text"><strong>Decimate inteligente</strong> — provavelmente vai ter 500k+ tris, reduzir pra 50-150k preservando silhueta</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">6</div>
+    <div class="text"><strong>Bake material PBR</strong> — pipeline ja temos (<span class="code">pipeline/bake_and_export.py</span>) — gera baseColor/roughness/normal</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">7</div>
+    <div class="text"><strong>Export GLB</strong> — sai com geometria real + textura baked → no browser fica <em>visivelmente</em> rico</div>
+  </div>
+  <div class="flow-step">
+    <div class="num">8</div>
+    <div class="text"><strong>Demo HTML</strong> — viewer Three.js mostrando variacoes lado a lado, OU integrar nos experimentos existentes (claydoh + cardboard fica autentico)</div>
+  </div>
+</div>
+
+<div class="verdict">
+  <span class="stamp">Recomendacao</span>
+  <p style="font-size:16px;margin-bottom:12px"><strong>Comprar Easy Cardboard 3.0 ($18.75)</strong> — eh o que vai destravar o visual que voce esta procurando.</p>
+  <p>O Cardboard Shader sozinho nunca vai te dar dinamica geometrica porque ele eh shader, e shader nao mexe na malha. Easy Cardboard <em>gera mesh</em> com a complexidade fisica que voce ve nas fotos do marketing. Sobrevive ao export GLB porque eh geometria real, nao node tree procedural.</p>
+  <p style="margin-top:12px"><strong>Cardboard Builder:</strong> bonito mas resolve um problema diferente (escultura layered, nao papelao convencional). Comprar so se aquele estilo especifico te interessar. Adiar.</p>
+  <p style="margin-top:12px"><strong>Cardboard Shader:</strong> manter, usa em props menores onde shader basta. Nao expandir.</p>
+</div>
+
+<h2>Estimativa de output esperado</h2>
+
+<div class="grid-2">
+  <div class="block">
+    <h4>Com pipeline atual (shader-only)</h4>
+    <ul>
+      <li>GLB ~1-3 MB com textura 2K baked</li>
+      <li>Mesh: 100-1000 tris (primitivo)</li>
+      <li>Silhueta lisa — papelao "pintado"</li>
+      <li>Funciona, mas nao impressiona</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Com Easy Cardboard 3.0</h4>
+    <ul>
+      <li>GLB ~3-8 MB com textura 2K baked + geometria detalhada</li>
+      <li>Mesh: 50-150k tris pos-decimate</li>
+      <li>Silhueta densa — corrugacao, dobras, espessura visiveis</li>
+      <li>Wear / aging cria variacoes unicas</li>
+      <li>Look "fotografico" mesmo em browser web</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Caminho alternativo: AI 3D generation</h2>
+
+<p>
+Pra contextualizar — existe um caminho mais novo que voce conhece (Meshy, Hyper3D, Hunyuan3D, etc): gerar diretamente um modelo 3D detalhado de papelao via prompt de texto ou imagem, ja com textura baked. Sai pesado, com qualidade variavel, mas pode dar resultados surpreendentes sem precisar de addon.
+</p>
+
+<p>
+A diferenca pratica:
+</p>
+
+<ul>
+  <li><strong>Easy Cardboard:</strong> controle deterministico, paramerico, voce decide cada objeto. Util pra packs, variacoes do mesmo asset.</li>
+  <li><strong>AI 3D gen:</strong> output unico por geracao, baixo controle, mas pode produzir formas que voce nao modelaria manualmente. Util pra hero asset isolado, prop unico.</li>
+</ul>
+
+<p>
+Os dois sao complementares. Se a meta eh "demo visualmente impressionante", uma combinacao da bons resultados: AI gera hero piece, Easy Cardboard gera os secundarios e variacoes.
+</p>
+
+<footer>
+  <p>Fontes consultadas: superhivemarket.com/products/easy-cardboard · superhivemarket.com/products/cardboard · orwilliam.gumroad.com/l/cardboard_builder_blender · search blendermarket / community reviews</p>
+  <p style="margin-top:6px">Relatorio para uso interno · 2026-05-20</p>
+</footer>
+
+</body>
+</html>

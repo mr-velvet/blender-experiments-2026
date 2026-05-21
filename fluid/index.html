@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fluid sim — esfera virando agua</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0e1419;
+    --panel: #161d24;
+    --panel-2: #1f262f;
+    --accent: #4ad6ff;
+    --accent-2: #88e8ff;
+    --text: #e7f0f7;
+    --text-dim: #8090a0;
+    --border: #2a323c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+    overflow: hidden;
+  }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  #header {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 14px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(14,20,25,0.92), transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
+  #header h1 {
+    font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  #header .sub {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 2px;
+  }
+  #header .badge {
+    pointer-events: auto;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 11px; color: var(--text-dim);
+    text-decoration: none; transition: all 0.15s;
+  }
+  #header .badge:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Player */
+  #player {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(14,20,25,0.95) 60%, transparent);
+    padding: 18px 22px 16px;
+    z-index: 20;
+  }
+  #timeline-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px;
+  }
+  #time-cur, #time-tot {
+    font-size: 12px; color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 56px;
+  }
+  #time-cur { color: var(--text); }
+  #time-tot { text-align: right; }
+  #timeline-wrap {
+    flex: 1; position: relative; height: 22px;
+    display: flex; align-items: center;
+    cursor: pointer;
+  }
+  #timeline-bg {
+    width: 100%; height: 4px;
+    background: var(--border); border-radius: 2px;
+    overflow: hidden;
+    transition: height 0.15s;
+  }
+  #timeline-wrap:hover #timeline-bg { height: 6px; }
+  #timeline-fill {
+    height: 100%; width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.05s linear;
+  }
+  #timeline-knob {
+    position: absolute;
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, 0);
+    pointer-events: none;
+    transition: transform 0.15s;
+  }
+  #timeline-wrap:hover #timeline-knob { transform: translate(-50%, 0) scale(1.4); }
+
+  #controls-row {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--panel-2); border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0a1318; font-weight: 600; min-width: 92px; }
+  .btn.primary:hover { background: var(--accent-2); }
+  .btn.active { background: rgba(74, 214, 255, 0.18); border-color: var(--accent); color: var(--accent); }
+  .btn.small { padding: 4px 10px; font-size: 11px; }
+  .sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+  .label { font-size: 11px; color: var(--text-dim); margin: 0 4px 0 8px; }
+
+  /* Loading */
+  #loading {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 100;
+    transition: opacity 0.4s;
+  }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading-text {
+    font-size: 12px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  #loading-progress {
+    font-size: 11px; color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tooltip */
+  #tooltip {
+    position: absolute;
+    bottom: 28px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #tooltip.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="loading-text">Carregando simulacao</div>
+  <div id="loading-progress">0 / 80</div>
+</div>
+
+<div id="stage"></div>
+
+<div id="header">
+  <div>
+    <h1>Fluid Sim — esfera viraagua</h1>
+    <div class="sub">Mantaflow liquid · 80 frames @ 30fps · 96 voxel resolution · ~2.7s loop</div>
+  </div>
+  <a class="badge" href="https://github.com/mr-velvet/blender-experiments-2026" target="_blank">github</a>
+</div>
+
+<div id="player">
+  <div id="timeline-row">
+    <span id="time-cur">00:00.00</span>
+    <div id="timeline-wrap">
+      <div id="timeline-bg"><div id="timeline-fill"></div></div>
+      <div id="timeline-knob" style="left: 0%"></div>
+      <div id="tooltip"></div>
+    </div>
+    <span id="time-tot">00:00.00</span>
+  </div>
+  <div id="controls-row">
+    <button class="btn primary" id="play-pause">Play</button>
+    <button class="btn small" id="restart" title="Voltar (Home)">⏮</button>
+    <span class="sep"></span>
+    <span class="label">velocidade</span>
+    <button class="btn small speed-btn" data-speed="0.25">0.25x</button>
+    <button class="btn small speed-btn" data-speed="0.5">0.5x</button>
+    <button class="btn small speed-btn active" data-speed="1">1x</button>
+    <button class="btn small speed-btn" data-speed="2">2x</button>
+    <span class="sep"></span>
+    <button class="btn small active" id="loop-btn" title="Loop (L)">⟲ loop</button>
+    <button class="btn small" id="autoturn-btn" title="Auto-rotate (R)">girar</button>
+    <span class="sep"></span>
+    <span class="label">frame</span>
+    <span id="frame-counter" style="font-size:12px; color:var(--text); font-variant-numeric:tabular-nums; min-width:50px;">1 / 80</span>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const isProd = location.hostname.includes("did.lu") || location.hostname.includes("storage.googleapis.com");
+const BASE = isProd
+  ? "https://st.did.lu/blender-fluid/v1"
+  : ".";
+
+// Scene setup
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e1419);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.7;
+
+// Ground
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a242d, roughness: 0.85 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.05;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const grid = new THREE.GridHelper(20, 40, 0x2a323c, 0x1a242d);
+grid.position.y = 0;
+scene.add(grid);
+
+// Lights
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+keyLight.position.set(4, 8, 4);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.left = -5;
+keyLight.shadow.camera.right = 5;
+keyLight.shadow.camera.top = 8;
+keyLight.shadow.camera.bottom = -2;
+keyLight.shadow.bias = -0.0001;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0x88c8ff, 0.4);
+fillLight.position.set(-3, 4, -3);
+scene.add(fillLight);
+
+// Camera
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(7, 5, 7);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.5, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minPolarAngle = 0.2;
+controls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+// === LOAD FRAMES ===
+const loader = new GLTFLoader();
+let manifest = null;
+let frameMeshes = [];  // array of {frame, mesh|null}
+let currentFrameIndex = 0;
+let currentMeshInScene = null;
+
+const liquidMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x2d96e8,
+  roughness: 0.08,
+  transmission: 0.85,
+  thickness: 0.5,
+  ior: 1.33,
+  metalness: 0.0,
+  attenuationColor: 0x88c8e8,
+  attenuationDistance: 1.2,
+  envMapIntensity: 1.2,
+  clearcoat: 0.3,
+  clearcoatRoughness: 0.05,
+});
+
+async function loadManifest() {
+  const url = `${BASE}/out/glb/manifest.json`;
+  const r = await fetch(url);
+  manifest = await r.json();
+  document.getElementById("time-tot").textContent = fmtTime(manifest.total_frames / manifest.fps);
+  document.getElementById("frame-counter").textContent = `1 / ${manifest.total_frames}`;
+}
+
+async function loadFrame(frameInfo) {
+  if (frameInfo.skipped || !frameInfo.file) return null;
+  const url = `${BASE}/out/glb/frames/${frameInfo.file}`;
+  const gltf = await loader.loadAsync(url);
+  // pega o primeiro mesh
+  let mesh = null;
+  gltf.scene.traverse(o => {
+    if (o.isMesh && !mesh) {
+      mesh = o;
+      mesh.material = liquidMaterial;
+      mesh.castShadow = true;
+      mesh.receiveShadow = false;
+    }
+  });
+  return mesh;
+}
+
+async function loadAllFrames() {
+  await loadManifest();
+  const loadingProgress = document.getElementById("loading-progress");
+
+  const promises = manifest.frames.map(async (fi, idx) => {
+    const mesh = await loadFrame(fi);
+    frameMeshes[idx] = { frame: fi.frame, mesh };
+    loadingProgress.textContent = `${frameMeshes.filter(f => f).length} / ${manifest.total_frames}`;
+  });
+
+  await Promise.all(promises);
+  document.getElementById("loading").classList.add("hidden");
+  showFrame(0);
+}
+
+function showFrame(idx) {
+  if (currentMeshInScene) {
+    scene.remove(currentMeshInScene);
+    currentMeshInScene = null;
+  }
+  const fm = frameMeshes[idx];
+  if (fm && fm.mesh) {
+    scene.add(fm.mesh);
+    currentMeshInScene = fm.mesh;
+  }
+  currentFrameIndex = idx;
+  // update HUD
+  const t = idx / manifest.fps;
+  document.getElementById("time-cur").textContent = fmtTime(t);
+  document.getElementById("frame-counter").textContent = `${idx + 1} / ${manifest.total_frames}`;
+  const pct = (idx / (manifest.total_frames - 1)) * 100;
+  document.getElementById("timeline-fill").style.width = pct + "%";
+  document.getElementById("timeline-knob").style.left = pct + "%";
+}
+
+function fmtTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds - m * 60;
+  return `${String(m).padStart(2, "0")}:${s.toFixed(2).padStart(5, "0")}`;
+}
+
+// === PLAYBACK ===
+let isPlaying = false;
+let isLooping = true;
+let playbackSpeed = 1.0;
+let autoTurn = false;
+let lastFrameTime = 0;
+let isScrubbing = false;
+let wasPlayingBeforeScrub = false;
+
+const playPauseBtn = document.getElementById("play-pause");
+const restartBtn = document.getElementById("restart");
+const loopBtn = document.getElementById("loop-btn");
+const autoturnBtn = document.getElementById("autoturn-btn");
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  playPauseBtn.textContent = isPlaying ? "Pause" : "Play";
+  lastFrameTime = performance.now();
+}
+
+playPauseBtn.addEventListener("click", togglePlay);
+restartBtn.addEventListener("click", () => showFrame(0));
+loopBtn.addEventListener("click", () => {
+  isLooping = !isLooping;
+  loopBtn.classList.toggle("active", isLooping);
+});
+autoturnBtn.addEventListener("click", () => {
+  autoTurn = !autoTurn;
+  autoturnBtn.classList.toggle("active", autoTurn);
+});
+
+document.querySelectorAll(".speed-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    playbackSpeed = parseFloat(btn.dataset.speed);
+    document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+
+// Timeline scrub
+const timelineWrap = document.getElementById("timeline-wrap");
+const tooltip = document.getElementById("tooltip");
+
+function seekTo(pct) {
+  if (!manifest) return;
+  const idx = Math.round(pct * (manifest.total_frames - 1));
+  showFrame(Math.max(0, Math.min(idx, manifest.total_frames - 1)));
+}
+
+timelineWrap.addEventListener("mousedown", (e) => {
+  if (!manifest) return;
+  isScrubbing = true;
+  wasPlayingBeforeScrub = isPlaying;
+  if (isPlaying) togglePlay();
+  const rect = timelineWrap.getBoundingClientRect();
+  seekTo((e.clientX - rect.left) / rect.width);
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!isScrubbing) return;
+  const rect = timelineWrap.getBoundingClientRect();
+  const pct = Math.max(0, Math.min((e.clientX - rect.left) / rect.width, 1));
+  seekTo(pct);
+});
+
+window.addEventListener("mouseup", () => {
+  if (!isScrubbing) return;
+  isScrubbing = false;
+  if (wasPlayingBeforeScrub) togglePlay();
+});
+
+timelineWrap.addEventListener("mousemove", (e) => {
+  if (!manifest) return;
+  const rect = timelineWrap.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const t = pct * (manifest.total_frames / manifest.fps);
+  tooltip.textContent = fmtTime(t);
+  tooltip.style.left = (pct * 100) + "%";
+  tooltip.style.transform = "translateX(-50%)";
+  tooltip.classList.add("visible");
+});
+timelineWrap.addEventListener("mouseleave", () => tooltip.classList.remove("visible"));
+
+// Keyboard
+window.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
+  switch (e.code) {
+    case "Space": e.preventDefault(); togglePlay(); break;
+    case "KeyL": loopBtn.click(); break;
+    case "KeyR": autoturnBtn.click(); break;
+    case "Home": restartBtn.click(); break;
+    case "ArrowLeft":
+      e.preventDefault();
+      if (manifest) showFrame(Math.max(0, currentFrameIndex - 1));
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      if (manifest) showFrame(Math.min(manifest.total_frames - 1, currentFrameIndex + 1));
+      break;
+  }
+});
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// === ANIMATE LOOP ===
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (isPlaying && manifest) {
+    const now = performance.now();
+    const dt = now - lastFrameTime;
+    const targetFrameDuration = 1000 / (manifest.fps * playbackSpeed);
+    if (dt >= targetFrameDuration) {
+      let next = currentFrameIndex + 1;
+      if (next >= manifest.total_frames) {
+        if (isLooping) {
+          next = 0;
+        } else {
+          next = manifest.total_frames - 1;
+          isPlaying = false;
+          playPauseBtn.textContent = "Play";
+        }
+      }
+      showFrame(next);
+      lastFrameTime = now;
+    }
+  }
+
+  if (autoTurn) {
+    const angle = performance.now() * 0.0003;
+    camera.position.x = Math.cos(angle) * 7;
+    camera.position.z = Math.sin(angle) * 7;
+    camera.lookAt(0, 1.2, 0);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+loadAllFrames();
+
+// Expor pra debug
+window.scene = scene;
+window.frameMeshes = frameMeshes;
+window.showFrame = showFrame;
+window.THREE = THREE;
+</script>
+</body>
+</html>

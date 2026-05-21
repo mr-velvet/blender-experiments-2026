@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-20 (sessao 5 — experimento 9: rigging automatico + walk cycle procedural)
+2026-05-21 (sessao 6 — experimento 10: simulacao de fluido Mantaflow + player web)
 
 ## O que ja foi feito
 
@@ -242,6 +242,7 @@ blender-experiments-2026/
 | Shatter v1 (cubo quebrando + player tipo YouTube) | https://st.did.lu/blender-shatter/v1/index.html |
 | Shatter v2 (5 materiais trocaveis em runtime) | https://st.did.lu/blender-shatter/v2/index.html |
 | Rigging v1 (humanoide com walk cycle procedural + 3 refs) | https://st.did.lu/blender-rigging/v1/index.html |
+| Fluid v1 (esfera virando agua + Mantaflow) | https://st.did.lu/blender-fluid/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 

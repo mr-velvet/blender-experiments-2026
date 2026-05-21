@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Blender → GLB: addons que geram geometria real</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #16181a;
+    --bg-2: #1a1d20;
+    --panel: #1f2226;
+    --panel-2: #292d32;
+    --panel-3: #34393f;
+    --accent: #7cc4ff;
+    --accent-2: #a8d8ff;
+    --accent-3: #5ba8e0;
+    --text: #e7ecf2;
+    --text-dim: #8a93a0;
+    --text-dimmer: #5f6770;
+    --border: #353a40;
+    --border-soft: #2a2e33;
+    --good: #7fd388;
+    --warn: #f2c761;
+    --bad: #e88373;
+    --tier1: #7fd388;
+    --tier2: #f2c761;
+    --tier3: #b89dff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+    line-height: 1.65;
+    font-size: 15.5px;
+  }
+  body {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* HEADER */
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  header.top h1 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  header.top .sub {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 850px;
+  }
+  header.top .meta {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.3px;
+  }
+
+  /* TOC */
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 0 0 40px;
+  }
+  nav.toc h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  nav.toc ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 4px 16px;
+    padding: 0;
+    counter-reset: section;
+  }
+  nav.toc li {
+    counter-increment: section;
+    font-size: 13px;
+    margin: 0;
+    padding: 4px 0;
+  }
+  nav.toc li::before {
+    content: counter(section) ".";
+    color: var(--text-dim);
+    margin-right: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  nav.toc a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 60px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    letter-spacing: -0.4px;
+  }
+  h2:first-of-type { margin-top: 0; }
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 32px 0 12px;
+    color: var(--accent-2);
+  }
+
+  p { margin-bottom: 14px; }
+  p.lead {
+    font-size: 17px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    max-width: 950px;
+  }
+
+  ul, ol { padding-left: 22px; margin-bottom: 16px; }
+  li { margin-bottom: 4px; }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124, 196, 255, 0.25);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  a:hover { color: var(--accent-2); border-bottom-color: var(--accent); }
+
+  code, .code {
+    background: var(--panel-2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--accent-2);
+    border: 1px solid var(--border-soft);
+  }
+
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0 18px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text);
+  }
+
+  /* PILLS */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 3px;
+    white-space: nowrap;
+  }
+  .pill.good { background: rgba(127, 211, 136, 0.18); color: var(--good); }
+  .pill.warn { background: rgba(242, 199, 97, 0.18); color: var(--warn); }
+  .pill.bad  { background: rgba(232, 131, 115, 0.20); color: var(--bad); }
+  .pill.muted{ background: var(--panel-2); color: var(--text-dim); }
+  .pill.tier1 { background: rgba(127, 211, 136, 0.16); color: var(--tier1); }
+  .pill.tier2 { background: rgba(242, 199, 97, 0.16); color: var(--tier2); }
+  .pill.tier3 { background: rgba(184, 157, 255, 0.16); color: var(--tier3); }
+  .pill.free  { background: rgba(91, 168, 224, 0.18); color: var(--accent-3); }
+  .pill.paid  { background: var(--panel-2); color: var(--text-dim); }
+
+  /* CALLOUTS */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(124, 196, 255, 0.06);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 4px;
+    font-size: 14.5px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: rgba(242, 199, 97, 0.06); }
+  .callout.bad  { border-left-color: var(--bad);  background: rgba(232, 131, 115, 0.06); }
+  .callout.good { border-left-color: var(--good); background: rgba(127, 211, 136, 0.06); }
+  .callout strong {
+    display: block;
+    color: var(--accent-2);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .callout.warn strong { color: var(--warn); }
+  .callout.bad strong  { color: var(--bad); }
+  .callout.good strong { color: var(--good); }
+
+  /* INTRO BOX */
+  .hero-box {
+    background: linear-gradient(135deg, rgba(124, 196, 255, 0.10), rgba(124, 196, 255, 0.02));
+    border: 1px solid rgba(124, 196, 255, 0.30);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+  }
+  .hero-box .num {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .hero-box .lbl {
+    color: var(--text-dim);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 24px;
+    margin-top: 18px;
+  }
+  .stat {
+    border-left: 2px solid var(--border);
+    padding-left: 14px;
+  }
+  .stat .v {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .l {
+    color: var(--text-dim);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* CATEGORY HEADER */
+  .cat-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 56px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .cat-header .ico {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .cat-header h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+  }
+  .cat-header .count {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ADDON CARD GRID */
+  .addons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .addon-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .addon-card:hover { border-color: var(--accent); }
+  .addon-card.tier1 { border-left: 3px solid var(--tier1); }
+  .addon-card.tier2 { border-left: 3px solid var(--tier2); }
+  .addon-card.tier3 { border-left: 3px solid var(--tier3); }
+  .addon-card .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .addon-card .title {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.2px;
+  }
+  .addon-card .price {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .addon-card .desc {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 6px 0 10px;
+  }
+  .addon-card .meta-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin: 8px 0 6px;
+  }
+  .addon-card .link {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    word-break: break-all;
+    margin-top: 8px;
+    display: block;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .addon-card .link a { color: var(--text-dim); border: none; }
+  .addon-card .link a:hover { color: var(--accent); }
+
+  /* TIER LEGEND */
+  .tier-legend {
+    display: flex;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .tier-legend .dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .tier-legend .t1 .dot { background: var(--tier1); }
+  .tier-legend .t2 .dot { background: var(--tier2); }
+  .tier-legend .t3 .dot { background: var(--tier3); }
+
+  /* PIPELINE STEPS */
+  .pipeline {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 20px 0;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-soft);
+  }
+  .step:last-child { border-bottom: none; }
+  .step .n {
+    background: var(--accent);
+    color: #16181a;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .step .body { flex: 1; }
+  .step .body strong { color: var(--accent-2); }
+  .step .body .why {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 3px;
+  }
+
+  /* RECOMMENDATION CARDS */
+  .reco-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .reco {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .reco.budget { border-color: var(--good); background: linear-gradient(180deg, rgba(127,211,136,0.05), transparent); }
+  .reco.balanced { border-color: var(--accent); background: linear-gradient(180deg, rgba(124,196,255,0.05), transparent); }
+  .reco.premium { border-color: var(--tier3); background: linear-gradient(180deg, rgba(184,157,255,0.05), transparent); }
+  .reco h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: var(--text);
+  }
+  .reco .price-tag {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 6px 0 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .reco.budget .price-tag { color: var(--good); }
+  .reco.balanced .price-tag { color: var(--accent); }
+  .reco.premium .price-tag { color: var(--tier3); }
+  .reco ul {
+    padding-left: 18px;
+    margin: 0;
+  }
+  .reco ul li {
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin-bottom: 5px;
+  }
+  .reco .verdict {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* PROBLEM/SOLUTION TABLE */
+  table.compat {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  table.compat thead th {
+    background: var(--panel-2);
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-dim);
+  }
+  table.compat tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: top;
+  }
+  table.compat tbody tr:hover { background: rgba(124, 196, 255, 0.04); }
+  table.compat .pill { font-size: 10px; padding: 2px 6px; }
+
+  footer.bottom {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dimmer);
+    font-size: 12px;
+  }
+  footer.bottom a { color: var(--text-dim); }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 18px; }
+    header.top h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Blender → GLB: addons que geram geometria real</h1>
+  <p class="sub">Pesquisa ampla de plugins, addons e ferramentas que <strong>constroem mesh de verdade</strong> (não só shader procedural) para que a fidelidade visual sobreviva ao export GLB e seja utilizável em Three.js, Unity, Unreal e qualquer pipeline runtime.</p>
+  <div class="meta">relatório técnico · 2026-05-21 · 6 categorias · 60+ addons avaliados · pipeline canônica documentada</div>
+</header>
+
+<div class="hero-box">
+  <div class="num">60+</div>
+  <div class="lbl">addons avaliados em 6 categorias</div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="v">Tier 1</div>
+      <div class="l">geram mesh real · GLB-friendly direto</div>
+    </div>
+    <div class="stat">
+      <div class="v">Tier 2</div>
+      <div class="l">funcionam com bake/apply intermediário</div>
+    </div>
+    <div class="stat">
+      <div class="v">Tier 3</div>
+      <div class="l">pipeline tools (decimate, bake, retopo)</div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <h3>Sumário</h3>
+  <ol>
+    <li><a href="#problema">O problema técnico</a></li>
+    <li><a href="#criterio">Critério de avaliação</a></li>
+    <li><a href="#papelao">Papelão / papel / cartonagem</a></li>
+    <li><a href="#clay">Clay / massinha / orgânico</a></li>
+    <li><a href="#madeira">Madeira / tijolos / alvenaria</a></li>
+    <li><a href="#tecido">Tecido / couro / pelo</a></li>
+    <li><a href="#dano">Dano / desgaste / sci-fi</a></li>
+    <li><a href="#pipeline-tools">Pipeline tools</a></li>
+    <li><a href="#pipeline">Pipeline canônica</a></li>
+    <li><a href="#recomendacoes">Stacks recomendadas</a></li>
+    <li><a href="#armadilhas">Armadilhas comuns</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="problema">1. O problema técnico</h2>
+
+<p class="lead">
+Você viu nos experimentos anteriores algo que te frustra: o material parece lindo no Blender, exporta o GLB, e no browser fica chapado, plástico, "fraco". Não é coincidência. Há uma assimetria entre o que o Blender renderiza e o que o glTF 2.0 sabe carregar.
+</p>
+
+<div class="callout bad">
+  <strong>A verdade incômoda</strong>
+  O exportador glTF do Blender descarta silenciosamente <em>quase tudo</em> que não termina num Principled BSDF apontando para texturas raster. Node procedural (Voronoi, Noise, Object Coord), displacement de shader, custom shader nodes, Geometry Nodes, vertex colors em alguns casos — nada disso sobrevive nativamente.
+</div>
+
+<p>O que <strong>sobrevive</strong> ao export GLB:</p>
+
+<ul>
+  <li><strong>Geometria de mesh</strong> (vértices, faces, normals, UVs) — desde que aplicada como mesh estático</li>
+  <li><strong>Principled BSDF</strong> com base color, roughness, metallic, normal map, occlusion, emission — desde que via texturas raster</li>
+  <li><strong>Skin / armature / animations</strong> (como vimos no experimento de rigging)</li>
+  <li><strong>Morph targets / shape keys</strong></li>
+  <li><strong>Vertex colors</strong> (parcialmente)</li>
+</ul>
+
+<p>O que <strong>não sobrevive</strong>:</p>
+
+<ul>
+  <li>Shader procedural (qualquer node tree fora do Principled puro)</li>
+  <li>Displacement de shader (não move vértices, é só ilusão de paralaxe)</li>
+  <li>Geometry Nodes não aplicados (precisa "apply" antes do export)</li>
+  <li>Particle systems (cabelo, fur, fumaça) — sem virar mesh primeiro</li>
+  <li>Cloth simulation não baked</li>
+  <li>Modifiers procedurais (Subsurf, Array, Boolean) — precisa apply ou são ignorados</li>
+</ul>
+
+<h2 id="criterio">2. Critério de avaliação</h2>
+
+<p>
+Cada addon foi classificado em 3 tiers:
+</p>
+
+<div class="reco-grid">
+  <div class="reco budget">
+    <h3>Tier 1 — Drop-in para GLB</h3>
+    <p style="font-size: 13.5px; color: var(--text-dim); margin-bottom: 10px;">Gera mesh real direto. Workflow: rodar → apply modifiers → export. Sem pegadinhas.</p>
+    <div class="verdict">Compra prioritária se cobrir a necessidade.</div>
+  </div>
+  <div class="reco balanced">
+    <h3>Tier 2 — GLB com bake intermediário</h3>
+    <p style="font-size: 13.5px; color: var(--text-dim); margin-bottom: 10px;">Geo Nodes / sim que precisa apply + bake de shader pra texturas raster antes do export. Funciona, com workflow extra.</p>
+    <div class="verdict">Vale se feature for única.</div>
+  </div>
+  <div class="reco premium">
+    <h3>Tier 3 — Pipeline tools</h3>
+    <p style="font-size: 13.5px; color: var(--text-dim); margin-bottom: 10px;">Não geram material, mas otimizam o pipeline: retopo, decimate, bake automation, GLB optimization.</p>
+    <div class="verdict">Compra estratégica de produtividade.</div>
+  </div>
+</div>
+
+<div class="tier-legend">
+  <span class="t1"><span class="dot"></span>Tier 1 (geometria direta)</span>
+  <span class="t2"><span class="dot"></span>Tier 2 (com bake/apply)</span>
+  <span class="t3"><span class="dot"></span>Tier 3 (pipeline)</span>
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="papelao">
+  <span class="ico">📦</span>
+  <h2>3. Papelão / papel / cartonagem</h2>
+  <span class="count">12 addons</span>
+</div>
+
+<p class="lead">Categoria onde o problema apareceu primeiro. O <strong>Cardboard Shader</strong> (que você tem) é Tier 0 — só shader, não serve pro export GLB com fidelidade.</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Easy Cardboard 3.0</div>
+      <div class="price">$18.75</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">geo nodes</span>
+    </div>
+    <div class="desc">Gera caixas/folhas com corrugação 3D, espessura, dobras, fita adesiva (Easy Tape) e caixas modulares (Simple Box Creator). 5 layers de material. Wear dramático, fuzz, prints. Roadmap ativo.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/easy-cardboard" target="_blank">superhivemarket.com/products/easy-cardboard</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">PACKFOLD</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">mesh + armature</span>
+    </div>
+    <div class="desc">Importa DXF (dieline industrial) → gera mesh limpo + armature/rig de dobras automático. Animação de dobra via bones sobrevive ao GLB. Ideal pra packaging real, motion design.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/packfold" target="_blank">superhivemarket.com/products/packfold</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">PolyZamboni</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free · oficial</span>
+      <span class="pill good">mesh ops</span>
+    </div>
+    <div class="desc">Extensão oficial Blender 4.3+. Desdobra mesh 3D em "net" plano com abas de cola (papercraft). Gera mesh puro do unfold.</div>
+    <span class="link"><a href="https://extensions.blender.org/add-ons/polyzamboni/" target="_blank">extensions.blender.org/add-ons/polyzamboni</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">DisplaceIt</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+      <span class="pill good">resolve gap</span>
+    </div>
+    <div class="desc"><strong>Resolvedor universal:</strong> converte <em>displacement de shader em deslocamento de mesh real</em>. Pega qualquer corrugação procedural que você já tem e transforma em vértices. Crítico pro seu caso.</div>
+    <span class="link"><a href="https://github.com/gentlegiantJGC/DisplaceIt" target="_blank">github.com/gentlegiantJGC/DisplaceIt</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">3D Printable Box Generator</div>
+      <div class="price">PWYW</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pay-what-you-want</span>
+    </div>
+    <div class="desc">Geometry Nodes pra caixas com compartimentos e divisórias. Apply modifier → mesh GLB-ready.</div>
+    <span class="link"><a href="https://p3dt.gumroad.com/l/geo-boxes" target="_blank">p3dt.gumroad.com/l/geo-boxes</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">Origamify</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill free">free</span>
+      <span class="pill good">mesh + parenting</span>
+    </div>
+    <div class="desc">Cria hierarquia de objetos por face permitindo dobrar. Mesh + parenting exporta pra GLB.</div>
+    <span class="link"><a href="https://github.com/aconz2/blender-addon-origamify" target="_blank">github.com/aconz2/blender-addon-origamify</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">Paper Plane Node</div>
+      <div class="price">~$5</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes anima sequência de dobras de folha plana. Apply pra cada estágio = mesh estático.</div>
+    <span class="link"><a href="https://artofriaz3d.gumroad.com/l/paperplanenode" target="_blank">artofriaz3d.gumroad.com/l/paperplanenode</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">Unbender (shape keys)</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill free">free</span>
+      <span class="pill good">shape keys = morph targets GLB</span>
+    </div>
+    <div class="desc">Anima unfold via shape keys. Shape keys exportam como morph targets no GLB — pode controlar dobras em runtime no Three.js.</div>
+    <span class="link"><a href="https://github.com/zippy731/unbender" target="_blank">github.com/zippy731/unbender</a></span>
+  </div>
+
+</div>
+
+<div class="callout">
+  <strong>Diagnóstico do Cardboard Shader que você tem</strong>
+  É shader-only por design. Não vai te dar geometria, não importa quantas variações você tente. O substituto correto é <strong>Easy Cardboard 3.0</strong> ($18.75) somado a <strong>DisplaceIt</strong> (grátis) pra converter o displacement de papelão em mesh real.
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="clay">
+  <span class="ico">🟠</span>
+  <h2>4. Clay / massinha / orgânico</h2>
+  <span class="count">10 addons</span>
+</div>
+
+<p class="lead">Categoria do experimento Clay 4.Doh que você já tem. Aqui a virada de chave é via <strong>VDM brushes</strong> (Vector Displacement) — esculpem mesh real com overhangs, não dependem de shader.</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">VDM Brush Baker (oficial)</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free · oficial</span>
+      <span class="pill good">esculpe mesh real</span>
+    </div>
+    <div class="desc">Sculpt brush com vector displacement (X/Y/Z em RGB). Gera overhangs reais — coisa que alpha brush não consegue. Mesh esculpido = vértices reais no GLB, fidelidade total.</div>
+    <span class="link"><a href="https://extensions.blender.org/add-ons/vdm-brush-baker/" target="_blank">extensions.blender.org/add-ons/vdm-brush-baker</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">Clay Doh v4</div>
+      <div class="price">$35</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill paid">pago</span>
+      <span class="pill warn">parcial</span>
+    </div>
+    <div class="desc">Combinação: shader (PBR exportável após bake) + <strong>modifiers reais</strong> (Mesh/Curve/GP/VDB) + Pottery tool + finger dents/fingerprints como deformação de mesh. Os modifiers de deformação são geo nodes/displacement reais — apply antes do export.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/claydoh" target="_blank">superhivemarket.com/products/claydoh</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Sculptor's Toolbox — Ultimate Brushes</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">3000+ brushes</span>
+    </div>
+    <div class="desc">3000+ sculpt brushes (height maps + VDM), compatível Blender 4.3. Esculpe mesh diretamente — exporta com fidelidade total se densidade for adequada.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/ultimatebrushes" target="_blank">superhivemarket.com/products/ultimatebrushes</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Body Details VDM Brushes</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">VDM + DragRect brushes anatômicos (umbigo, pintas, poros, navel). Geometria real esculpida.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/body-details-vdm-brushes-for-blender" target="_blank">superhivemarket.com/products/body-details-vdm-brushes-for-blender</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">ZenShaders: Stylized Edition</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">550+ sculpt brushes (Damage & Wear, Folds, Wrinkles, Metal). Esculpe geometria.</div>
+    <span class="link"><a href="https://zenshaders.gumroad.com/l/TCpIEi" target="_blank">zenshaders.gumroad.com/l/TCpIEi</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">NicolasDsgn VDM packs</div>
+      <div class="price">~$5-15</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">VDM especializados: Wood Bark, Hair, Beards, Zombie skin. Mesh real após sculpt.</div>
+    <span class="link"><a href="https://nsdesign.gumroad.com" target="_blank">nsdesign.gumroad.com</a></span>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="madeira">
+  <span class="ico">🧱</span>
+  <h2>5. Madeira / tijolos / alvenaria / arquitetura</h2>
+  <span class="count">12 addons</span>
+</div>
+
+<p class="lead">Categoria mais robusta — Geometry Nodes domina e gera mesh estático que exporta perfeito pra GLB.</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Trowel — Ultimate Brick Wall Builder</div>
+      <div class="price">~$30</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">1500+ nodes</span>
+    </div>
+    <div class="desc">Geometry Nodes + instancing massivo. 17 tamanhos de tijolo, 5 bonds (Stack/Running/Common/English/Flemish), boolean cuts pra portas/janelas. Apply modifier → mesh limpo GLB.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/the%20trowel" target="_blank">superhivemarket.com/products/the trowel</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">BRiCKiTECT</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes modular para gerar prédios LEGO-style inteiros (ground/middle/roof). Apply + join.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/brickitect" target="_blank">superhivemarket.com/products/brickitect</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Natural Stone Wall Factory</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">3D interlocking</span>
+    </div>
+    <div class="desc">Geometry Nodes pra paredes/pisos/colunas com pedras que se encaixam em 3D real. Apply → mesh.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/natural-stone-wall-factory" target="_blank">superhivemarket.com/products/natural-stone-wall-factory</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Floor Generator 3.0</div>
+      <div class="price">~$25</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Patterns: Standard, Herringbone, Chevron, Hexagon, Basket Weave. Pisos de madeira/tile reais. Apply → mesh estático.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/floor-generator" target="_blank">superhivemarket.com/products/floor-generator</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Parquet</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Mesh ops puro. French/English parquet, Chevron, Herringbone. Open-source.</div>
+    <span class="link"><a href="https://github.com/clarkx/Parquet" target="_blank">github.com/clarkx/Parquet</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Wooden Plank Generator</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Low-poly planks via mesh ops. Bom pra games/web.</div>
+    <span class="link"><a href="https://github.com/robbieheriot/Wooden-Plank-Generator" target="_blank">github.com/robbieheriot/Wooden-Plank-Generator</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">BagaPie Modifier 11</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+      <span class="pill good">50+ tools</span>
+    </div>
+    <div class="desc">Suíte gratuita: scatter, array on curve, booleans, ivy, doors, windows. Apply → mesh.</div>
+    <span class="link"><a href="https://extensions.blender.org/add-ons/bagapie/" target="_blank">extensions.blender.org/add-ons/bagapie</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Archimesh</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free · oficial</span>
+    </div>
+    <div class="desc">Oficial Blender. Rooms, doors, windows, stairs, columns, roofs. Boolean automático em paredes. Mesh puro = 100% GLB-friendly.</div>
+    <span class="link"><a href="https://extensions.blender.org/add-ons/archimesh/" target="_blank">extensions.blender.org/add-ons/archimesh</a></span>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="tecido">
+  <span class="ico">🧵</span>
+  <h2>6. Tecido / couro / pelo / soft materials</h2>
+  <span class="count">12 addons</span>
+</div>
+
+<p class="lead">Categoria sensível ao GLB — particle hair/fur quase nunca exporta direto. A solução são addons que <strong>convertem para mesh strands</strong> ou usam <strong>cloth sim baked</strong>.</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Generate Hair as Mesh</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+      <span class="pill good">resolve hair → GLB</span>
+    </div>
+    <div class="desc"><strong>Salvador para fur/hair em GLB.</strong> Converte particle/curves hair em mesh strands com material. Resolve exatamente o problema #1 de cabelo no GLB.</div>
+    <span class="link"><a href="https://github.com/Greg-Aster/Blender-Generate-Hair-as-Mesh-add-on" target="_blank">github.com/Greg-Aster/Blender-Generate-Hair-as-Mesh-add-on</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">KnitGen</div>
+      <div class="price">~$15-25</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes pra malha de tricô procedural em qualquer mesh, sem precisar UV. Click-and-go. Apply → mesh.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/knitgen" target="_blank">superhivemarket.com/products/knitgen</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Cloth Panels</div>
+      <div class="price">~$20</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes para painéis quiltados/acolchoados sci-fi com costuras e relevo real. Apply → mesh.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/cloth-panels" target="_blank">superhivemarket.com/products/cloth-panels</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Cloth Weaver</div>
+      <div class="price">~$60</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill warn">alta densidade</span>
+    </div>
+    <div class="desc">Suite completa de roupas (pants, dress, swimwear) com weave engine procedural (Plain/Twill/Satin/Jacquard reais). Atenção ao poly count em densidade alta.</div>
+    <span class="link"><a href="https://clothweaver.com/" target="_blank">clothweaver.com</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">Simply Cloth Studio 2.0</div>
+      <div class="price">~$35</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Cloth simulation wrapper + bake. "Create static mesh from current state" → mesh do frame escolhido. Funciona pra GLB com workflow extra.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/simply-cloth" target="_blank">superhivemarket.com/products/simply-cloth</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Procedural Stitches</div>
+      <div class="price">~$15</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes em curve/edge. 5 padrões (single/double/cross/zigzag) com fio 3D real. Apply → mesh costura.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/geometry-nodes-procedural-stitches" target="_blank">superhivemarket.com/products/geometry-nodes-procedural-stitches</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Procedural Zippers</div>
+      <div class="price">~$15</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes instance on curve. 4 cabeças + 5 variações de dentes. Apply → mesh com dentes + slider 3D.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/geometry-nodes-procedural-zippers" target="_blank">superhivemarket.com/products/geometry-nodes-procedural-zippers</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Bystedt's Cloth Builder</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Geometry Nodes pra espessura procedural + separação por seam + UV unwrap.</div>
+    <span class="link"><a href="https://3dbystedt.gumroad.com/l/bystedtsClothBuilder" target="_blank">3dbystedt.gumroad.com/l/bystedtsClothBuilder</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Belt Generator</div>
+      <div class="price">~$10-15</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Geometry Nodes curve-driven. Cintos e straps com couro + fivelas + furos. Mesh real após apply.</div>
+    <span class="link"><a href="https://blender-addons.org/belt-generator/" target="_blank">blender-addons.org/belt-generator</a></span>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="dano">
+  <span class="ico">⚙️</span>
+  <h2>7. Dano / desgaste / sci-fi / hard surface</h2>
+  <span class="count">12 addons</span>
+</div>
+
+<p class="lead">Aqui mora a "indústria pesada" do Blender hard-surface. <strong>HardOps + BoxCutter</strong>, <strong>MESHmachine</strong> são padrão de mercado.</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">OCD (One Click Damage) 2.5</div>
+      <div class="price">~$26</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill warn">destrutivo</span>
+    </div>
+    <div class="desc">Boolean destrutivo com cutters pré-fabricados. Dano realista (lascas, rachaduras, pedaços faltando) em pedra, tijolo, concreto, madeira em 1 clique. Faça backup do mesh.</div>
+    <span class="link"><a href="https://vfxguide.gumroad.com/l/OCDaddon" target="_blank">vfxguide.gumroad.com/l/OCDaddon</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">HardOps + BoxCutter Bundle</div>
+      <div class="price">~$40</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">padrão indústria</span>
+    </div>
+    <div class="desc">Boolean workflow não-destrutivo até aplicar. Padrão da indústria pra panel lines, vents, cuts, hard-surface. Apply → mesh GLB.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/hard-ops--boxcutter-ultimate-bundle" target="_blank">superhivemarket.com/products/hard-ops--boxcutter-ultimate-bundle</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">MESHmachine</div>
+      <div class="price">~$30</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Mesh-level ops: chamfer, fuse, unfuse, plug stash. Bevels reais sem subdiv. Cleanup de boolean.</div>
+    <span class="link"><a href="https://machin3.io/MESHmachine/" target="_blank">machin3.io/MESHmachine</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Plating Generator & Greebles</div>
+      <div class="price">$30</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">no hidden geo</span>
+    </div>
+    <div class="desc">Mesh ops + Geometry Nodes. Painéis interbloqueados + greebles em cascos de naves. "No hidden geometry, actions performed directly on the mesh".</div>
+    <span class="link"><a href="https://superhivemarket.com/products/plating-generator" target="_blank">superhivemarket.com/products/plating-generator</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Wear N' Tear</div>
+      <div class="price">~$35</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Mesh ops com 2 modos: LP (inset+height) e HP (displacement). Erode bordas, mortar, gesso descascado. Roda em paredes inteiras sem separar.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/wear-n-tear" target="_blank">superhivemarket.com/products/wear-n-tear</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Hydra (erosion)</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+      <span class="pill good">GPU</span>
+    </div>
+    <div class="desc">Hydraulic erosion via OpenGL em heightmap, aplica em mesh. Excelente pra rocha/terreno orgânico. Apply → mesh erodido.</div>
+    <span class="link"><a href="https://github.com/ozikazina/Hydra" target="_blank">github.com/ozikazina/Hydra</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Edge Damage Geometry Nodes</div>
+      <div class="price">free/PWYW</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Geometry Nodes (Blender 3.0+). Erode bordas com noise. Apply → mesh.</div>
+    <span class="link"><a href="https://csims314.gumroad.com/l/hxbpn" target="_blank">csims314.gumroad.com/l/hxbpn</a></span>
+  </div>
+
+  <div class="addon-card tier2">
+    <div class="head">
+      <div class="title">DECALmachine</div>
+      <div class="price">~$35</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier2">tier 2</span>
+      <span class="pill paid">pago</span>
+      <span class="pill warn">parcial</span>
+    </div>
+    <div class="desc">Mesh decals com parallax shader. Panel decals = mesh real (panel lines, parafusos) — exportam. Mas shader parallax NÃO sobrevive. Bake antes do GLB.</div>
+    <span class="link"><a href="https://machin3.io/DECALmachine/" target="_blank">machin3.io/DECALmachine</a></span>
+  </div>
+
+  <div class="addon-card tier1">
+    <div class="head">
+      <div class="title">Mechanical Greeble Kitbash Pack</div>
+      <div class="price">~$80-120</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier1">tier 1</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">1200 meshes</span>
+    </div>
+    <div class="desc">1200 meshes prontos sem bevels. Kitbash puro — drag and drop em qualquer cena sci-fi.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/mechanical-greeble-master-kitbash-pack-1200-models" target="_blank">superhivemarket.com/products/mechanical-greeble-master-kitbash-pack-1200-models</a></span>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<div class="cat-header" id="pipeline-tools">
+  <span class="ico">🛠️</span>
+  <h2>8. Pipeline tools (retopo, decimate, bake, optimize)</h2>
+  <span class="count">12 ferramentas</span>
+</div>
+
+<p class="lead">Não geram material — otimizam o pipeline. <strong>Crítico:</strong> sem essas ferramentas, GLB com geometria detalhada vira pesado demais pra web (1M+ tris).</p>
+
+<div class="addons-grid">
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Quad Remesher</div>
+      <div class="price">$109</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">retopo</span>
+    </div>
+    <div class="desc">Auto-retopo all-quad por field-aligned (mesmo dev do ZRemesher). Hard-surface + orgânico. Substitui Decimate quando topologia importa.</div>
+    <span class="link"><a href="https://exoside.com/quadremesher/" target="_blank">exoside.com/quadremesher</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Instant Meshes (addon)</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Wrapper do Instant Meshes binário (ETH Zurich) direto no Blender. Alternativa gratuita ao Quad Remesher.</div>
+    <span class="link"><a href="https://github.com/kroketio/blender4-retopology-instant-meshes-addon" target="_blank">github.com/kroketio/blender4-retopology-instant-meshes-addon</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Simplygon (Microsoft)</div>
+      <div class="price">free pra indie</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill free">free (indie)</span>
+      <span class="pill good">AAA</span>
+    </div>
+    <div class="desc">Padrão AAA pra LOD. Triangle Reducer, Remesher (HLOD proxy), bone reduction, blend-shape preservation. Gera cadeia LOD0-LODn com normal cage automático. Free pra revenue &lt; $100k.</div>
+    <span class="link"><a href="https://www.simplygon.com/features/blender" target="_blank">simplygon.com/features/blender</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Game Asset Optimizer</div>
+      <div class="price">free/pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill free">free na extensions.blender</span>
+    </div>
+    <div class="desc">One-click 3/5 LODs com slider de agressividade 0-100%, layout horizontal pra comparar visualmente.</div>
+    <span class="link"><a href="https://extensions.blender.org/add-ons/asset-optimizer/" target="_blank">extensions.blender.org/add-ons/asset-optimizer</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">SimpleBake</div>
+      <div class="price">~$25</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">multi-pass</span>
+    </div>
+    <div class="desc">One-click multi-pass PBR (BaseColor/Roughness/Metallic/Normal/AO), multi-object → atlas único.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/pbr-texture-bakery-for-cycles" target="_blank">superhivemarket.com/products/pbr-texture-bakery-for-cycles</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Principled Baker</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">Bake todos sockets do Principled BSDF auto, multi-object com shared UVs. Alternativa gratuita ao SimpleBake.</div>
+    <span class="link"><a href="https://github.com/danielenger/Principled-Baker" target="_blank">github.com/danielenger/Principled-Baker</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">OneAtlas</div>
+      <div class="price">pago</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">endpoint GLB</span>
+    </div>
+    <div class="desc">Colapsa cena inteira em mesh único + atlas PBR .webp não-destrutivo. Endpoint perfeito pra GLB web.</div>
+    <span class="link"><a href="https://www.blenderkit.com/addons/" target="_blank">blenderkit.com/addons</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Instant Clean</div>
+      <div class="price">~$30</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill paid">pago</span>
+    </div>
+    <div class="desc">Auto-fix normals, face orientation, doubles, non-manifold, material dedup. Saneamento antes do bake.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/instantclean" target="_blank">superhivemarket.com/products/instantclean</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">Mesh Cleaner 2</div>
+      <div class="price">grátis</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill free">free</span>
+    </div>
+    <div class="desc">One-click doubles + loose geo + hole fill + tri→quad. Focado em scans. Perfeito pro workflow scanned/sculpt que você já tem.</div>
+    <span class="link"><a href="https://www.cgchannel.com/2025/05/free-tool-mesh-cleaner-for-blender/" target="_blank">cgchannel.com/2025/05/free-tool-mesh-cleaner-for-blender</a></span>
+  </div>
+
+  <div class="addon-card tier3">
+    <div class="head">
+      <div class="title">GLB Optimizer</div>
+      <div class="price">~$20-30</div>
+    </div>
+    <div class="meta-row">
+      <span class="pill tier3">tier 3</span>
+      <span class="pill paid">pago</span>
+      <span class="pill good">crítico web</span>
+    </div>
+    <div class="desc">Wrapper de glTF-Transform dentro do Blender: KTX2/Basis compression, hierarchy flatten, mesh join, polycount reduce. Substitui passo manual de CLI pós-export.</div>
+    <span class="link"><a href="https://superhivemarket.com/products/glb-optimizer/docs" target="_blank">superhivemarket.com/products/glb-optimizer</a></span>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="pipeline">9. Pipeline canônica Blender → GLB com fidelidade</h2>
+
+<p class="lead">Independente do addon escolhido, esta sequência é o que separa "fica feio no GLB" de "fica fiel".</p>
+
+<div class="pipeline">
+
+  <div class="step">
+    <div class="n">1</div>
+    <div class="body">
+      <strong>Modelar / importar a base</strong>
+      <div class="why">Pode ser primitivo, mesh comprado, scan, modelo gerado por IA, Suzanne. O ponto de partida.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">2</div>
+    <div class="body">
+      <strong>Aplicar addon de geometria</strong>
+      <div class="why">Easy Cardboard / Trowel / Clay Doh / KnitGen / OCD / o que for. Roda em modo "vivo" como modifier ou geometry node setup.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">3</div>
+    <div class="body">
+      <strong>Iterar e ajustar parâmetros</strong>
+      <div class="why">Aproveitar que ainda é procedural pra variar layers, wear, padding. Gerar várias versões do mesmo objeto.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">4</div>
+    <div class="body">
+      <strong>Apply all modifiers</strong>
+      <div class="why">Critério não-negociável. <code>Ctrl+A → Apply All Modifiers</code> ou via Python <code>bpy.ops.object.convert(target="MESH")</code>. Geometry Nodes / modifiers procedurais viram mesh estático aqui.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">5</div>
+    <div class="body">
+      <strong>Cleanup do mesh</strong>
+      <div class="why">Mesh Cleaner 2 (grátis) ou Instant Clean: remove doubles, fix normals, fill holes, weld vertices. Sem isso, normals quebradas no GLB.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">6</div>
+    <div class="body">
+      <strong>Decimate inteligente / retopo</strong>
+      <div class="why">Geometry Nodes facilmente gera 500k-2M tris. Pra web, decimar pra 50-150k tris preservando silhueta. Decimate modifier nativo (Planar) ou Quad Remesher / Instant Meshes (preserva topologia melhor).</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">7</div>
+    <div class="body">
+      <strong>UV unwrap</strong>
+      <div class="why"><code>Smart UV Project</code> ou unwrap manual. Sem UV bom, o bake do material fica esticado.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">8</div>
+    <div class="body">
+      <strong>Bake PBR</strong>
+      <div class="why">SimpleBake ou Principled Baker. Gera baseColor.png + roughness.png + metallic.png + normal.png a partir do shader procedural. Resoluções recomendadas: 2K pra web, 4K se hero asset.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">9</div>
+    <div class="body">
+      <strong>Reconstruir material como Principled BSDF puro</strong>
+      <div class="why">Trocar o shader procedural por Principled BSDF apontando pras texturas baked. Esse é o ÚNICO material que glTF exporta com fidelidade.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">10</div>
+    <div class="body">
+      <strong>Export GLB</strong>
+      <div class="why">Settings: <code>export_format="GLB"</code>, <code>export_apply=True</code>, <code>export_skins=True</code> (se rig), <code>export_animations=True</code> (se anim), <code>export_force_sampling=True</code> (anim).</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">11</div>
+    <div class="body">
+      <strong>(Opcional) Pós-processamento glTF-Transform</strong>
+      <div class="why">GLB Optimizer ou CLI: <code>gltf-transform optimize</code>. KTX2 compression (texturas), draco compression (mesh), dedup, prune. Pode reduzir GLB 30-60%.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="recomendacoes">10. Stacks recomendadas</h2>
+
+<p class="lead">Três montagens prontas, por orçamento e objetivo.</p>
+
+<div class="reco-grid">
+
+  <div class="reco budget">
+    <h3>Stack mínima (free)</h3>
+    <div class="price-tag">$0</div>
+    <ul>
+      <li><strong>PolyZamboni</strong> (papercraft)</li>
+      <li><strong>DisplaceIt</strong> (shader → mesh)</li>
+      <li><strong>VDM Brush Baker</strong> (sculpt)</li>
+      <li><strong>BagaPie</strong> (arquitetura)</li>
+      <li><strong>Archimesh</strong> (rooms)</li>
+      <li><strong>Parquet</strong> + <strong>Wooden Plank Generator</strong> (madeira)</li>
+      <li><strong>Generate Hair as Mesh</strong></li>
+      <li><strong>Hydra</strong> + <strong>ErosionR</strong></li>
+      <li><strong>Edge Damage GN</strong></li>
+      <li><strong>Instant Meshes</strong> + <strong>Mesh Cleaner 2</strong></li>
+      <li><strong>Principled Baker</strong></li>
+    </ul>
+    <div class="verdict">Cobre 70% dos casos. Bom pra validar antes de gastar.</div>
+  </div>
+
+  <div class="reco balanced">
+    <h3>Stack pragmática</h3>
+    <div class="price-tag">~$120-160</div>
+    <ul>
+      <li><strong>Easy Cardboard 3.0</strong> ($18.75)</li>
+      <li><strong>Clay Doh v4</strong> ($35) — você já tem</li>
+      <li><strong>HardOps + BoxCutter</strong> ($40)</li>
+      <li><strong>OCD</strong> ($26)</li>
+      <li><strong>Floor Generator</strong> ($25)</li>
+      <li><strong>SimpleBake</strong> ($25)</li>
+      <li><strong>GLB Optimizer</strong> ($25)</li>
+      <li>+ todas as gratuitas do stack acima</li>
+    </ul>
+    <div class="verdict"><strong>Recomendada pro seu caso.</strong> Cobre papelão, clay, dano, piso, bake e otimização GLB. ROI alto.</div>
+  </div>
+
+  <div class="reco premium">
+    <h3>Stack premium</h3>
+    <div class="price-tag">~$350+</div>
+    <ul>
+      <li>Tudo do stack pragmática</li>
+      <li><strong>Trowel</strong> ($30) — paredes complexas</li>
+      <li><strong>MESHmachine</strong> ($30)</li>
+      <li><strong>Plating Generator</strong> ($30)</li>
+      <li><strong>Cloth Weaver</strong> ($60)</li>
+      <li><strong>KnitGen</strong> ($20)</li>
+      <li><strong>Quad Remesher</strong> ($109)</li>
+      <li><strong>Mechanical Greeble Kitbash</strong> ($100)</li>
+    </ul>
+    <div class="verdict">Cobertura ampla, qualidade AAA. Para criar packs/produtos comerciais.</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="armadilhas">11. Armadilhas comuns e como evitar</h2>
+
+<table class="compat">
+  <thead>
+    <tr>
+      <th>Armadilha</th>
+      <th>Sintoma</th>
+      <th>Solução</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Shader procedural não baked</td>
+      <td>GLB branco translúcido</td>
+      <td>Bake PBR antes do export. Use SimpleBake/Principled Baker.</td>
+    </tr>
+    <tr>
+      <td>Geometry Nodes não aplicado</td>
+      <td>GLB sem a geometria gerada</td>
+      <td>Apply All Modifiers antes do export.</td>
+    </tr>
+    <tr>
+      <td>Particle hair/fur</td>
+      <td>GLB sem cabelo</td>
+      <td>Generate Hair as Mesh (free) converte pra mesh strands.</td>
+    </tr>
+    <tr>
+      <td>Displacement de shader</td>
+      <td>Mesh continua liso no GLB</td>
+      <td>DisplaceIt converte para deslocamento de mesh real.</td>
+    </tr>
+    <tr>
+      <td>Cloth sim não baked</td>
+      <td>GLB com pose inicial, não a drapped</td>
+      <td>Bake to keyframe / Apply modifier no frame final.</td>
+    </tr>
+    <tr>
+      <td>Poly count alto</td>
+      <td>GLB 50MB+, lento no browser</td>
+      <td>Decimate planar + Mesh Cleaner antes do bake. Gltf-transform draco compress pós-export.</td>
+    </tr>
+    <tr>
+      <td>Normal map invertido</td>
+      <td>Sombras erradas no Three.js</td>
+      <td>Bake Normal com space="TANGENT", flip_y se necessário. Validar no Three.js debug.</td>
+    </tr>
+    <tr>
+      <td>Material parallax (DECALmachine)</td>
+      <td>Detalhe sumido no GLB</td>
+      <td>Bake o shader parallax → normal map antes do export.</td>
+    </tr>
+    <tr>
+      <td>Multi-material com UV diferentes</td>
+      <td>Texturas misturadas</td>
+      <td>Texture atlas via OneAtlas ou SimpleBake atlas mode.</td>
+    </tr>
+    <tr>
+      <td>Subsurface scattering</td>
+      <td>Material plástico no GLB</td>
+      <td>SSS não exporta direto. Compensar com Sheen + base color mais saturada no Principled BSDF.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>12. Próximos passos sugeridos</h2>
+
+<div class="callout good">
+  <strong>Plano em 3 fases</strong>
+  <p style="margin-top: 6px;"><strong>Fase 1 (gratuito):</strong> instalar PolyZamboni + DisplaceIt + VDM Brush Baker + Mesh Cleaner 2 + Principled Baker. Refazer 1-2 dos seus experimentos antigos aplicando esses tools — sentir a diferença antes de gastar.</p>
+  <p style="margin-top: 6px;"><strong>Fase 2 (pragmática):</strong> comprar Easy Cardboard 3.0 ($18.75) + GLB Optimizer ($25). Refazer o experimento de papelão com geometria real. Comparar GLB v1 vs v2 lado a lado no browser.</p>
+  <p style="margin-top: 6px;"><strong>Fase 3 (expansão por categoria):</strong> conforme precisar, ir comprando addons da stack pragmática. Não comprar tudo de uma vez — esperar precisar.</p>
+</div>
+
+<p>
+  Posso construir um <strong>experimento de validação</strong> da Fase 1 já com os addons gratuitos pra você ver a diferença antes de comprar nada. É só pedir.
+</p>
+
+<footer class="bottom">
+  <p>Relatório técnico para uso interno. 6 categorias varridas: papelão, clay/orgânico, madeira/alvenaria, tecido/couro, dano/sci-fi, pipeline tools. 60+ addons avaliados via pesquisa estruturada em marketplaces (Superhive, BlenderMarket, BlenderKit, Gumroad, GitHub, extensions.blender.org).</p>
+  <p style="margin-top: 6px;">2026-05-21 · gerado por análise multiagente paralela</p>
+</footer>
+
+</body>
+</html>

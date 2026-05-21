@@ -22,3 +22,5 @@ scanned/out/glb/
 rigging/out/
 rigging/assets/*.glb
 rigging/assets/*.fbx
+fluid/out/
+fluid/cache/
