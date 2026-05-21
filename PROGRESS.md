@@ -146,6 +146,27 @@
 - v2 reaproveita GLB da v1 via URL absoluta (`location.hostname.includes("did.lu") ? URL_V1 : "./out/glb/..."`) — economiza 360KB de upload
 - **Hospedado:** https://st.did.lu/blender-shatter/v2/index.html
 
+### Experimento 10: simulacao de fluido Mantaflow + player web (2026-05-21 sessao 6)
+- Pasta `fluid/` — pipeline 100% automatica do zero: simulacao Mantaflow + bake + extract + player HTML
+- **Goal:** validar se da pra usar motor de fisica do Blender pra gerar animacoes que rodam fora do Blender sem nenhum runtime de fisica no consumidor final
+- **Pipeline (`fluid/scripts/build_fluid.py`):**
+  1. Cria esfera emissor + domain cubo + chao effector via Python
+  2. Configura Mantaflow liquid sim: gravidade, viscosidade, substeps 2-8, CFL 2.0
+  3. Bake automatico headless via `bpy.ops.fluid.bake_data()` + `bake_mesh()` (~3 min a res 96)
+  4. Pra cada um dos 80 frames: extrai mesh-surface do domain via depsgraph eval
+  5. Voxel remesh 0.13 pra reduzir polycount (raw 200k -> 5-15k tris)
+  6. Exporta cada frame como GLB individual (~80-200KB cada)
+- **Player HTML/JS (`fluid/index.html`):**
+  - Three.js + GLTFLoader carrega 80 GLBs em paralelo
+  - MeshPhysicalMaterial com transmission 0.85 + IOR 1.33 (aproxima refracao da agua)
+  - Player tipo YouTube: play/pause/scrub/speed (0.25-2x)/loop/girar/setas
+  - Loop completo, scrub frame-a-frame
+- **Resultado:** 80 GLBs (7.5MB total) pra 2.67s @ 30fps
+- **Mantaflow funciona em headless** (diferente do Rigify/Cell Fracture que tinham bug RNA)
+- **Topologia variavel frame-a-frame** (462 verts no f1, 7822 no f30, 5590 no f60) impede morph targets — solucao: mesh sequence em 80 GLBs separados
+- **Hospedado:** https://st.did.lu/blender-fluid/v1/index.html
+- **Documentacao completa:** [fluid/README.md](fluid/README.md) — descobertas tecnicas, trade-offs, formatos alternativos (Alembic/USD/VAT), viabilidade por plataforma
+
 ### Experimento 9: rigging automatico + walk cycle procedural (2026-05-20 sessao 5)
 - Pasta `rigging/` — pipeline 100% autonoma do zero: cria humanoide, riga com Rigify, anima walk cycle, exporta GLB, demo HTML com switcher entre 4 modelos (1 autoral + 3 references Khronos)
 - **Goal do user:** avaliar capacidades de rigging automatico + iniciativa em baixar assets/addons + autonomia
@@ -243,6 +264,62 @@ blender-experiments-2026/
 | Shatter v2 (5 materiais trocaveis em runtime) | https://st.did.lu/blender-shatter/v2/index.html |
 | Rigging v1 (humanoide com walk cycle procedural + 3 refs) | https://st.did.lu/blender-rigging/v1/index.html |
 | Fluid v1 (esfera virando agua + Mantaflow) | https://st.did.lu/blender-fluid/v1/index.html |
+
+## Proximos experimentos planejados (sessao 6+)
+
+Tres experimentos avaliados na sessao 6 antes de decidir comecar pelo fluido:
+
+### Proximo 1: papelao em geometria arbitraria (Easy Cardboard 3.0)
+- **Status:** aguardando user comprar Easy Cardboard 3.0 ($18.75 em Superhive)
+- **Goal:** importar qualquer modelo 3D + aplicar Easy Cardboard como modifier paramerico via Python + apply modifier + bake PBR + export GLB
+- **Viabilidade:** 7-8/10. Depende de confirmar API do addon na primeira execucao — provavelmente Geometry Nodes padrao com inputs acessiveis via `modifier["Input_X"]`. Se for, automatico 100%.
+- **Pipeline esperada:** carregar modelo base -> aplicar EC modifier -> ajustar layers/wear/espessura -> apply -> bake corrugacao pra PBR -> export GLB
+- **Trade-off:** "magia visual" do papelao (corrugacao, textura de fibra) vive no shader procedural — vai precisar bake pra texturas raster 2K-4K, perde resolucao infinita do procedural
+- **Por que vale:** resolve diretamente o que o Cardboard Shader (que ja temos) nao consegue dar — geometria real com espessura, dobras, corrugacao 3D que sobrevive ao export
+
+### Proximo 2: mato/musgo ao redor de geometria (Mossify)
+- **Status:** aguardando avaliacao se vale comprar Mossify, ou comecar com Baga Ivy/Modular Tree gratis primeiro
+- **Goal:** importar modelo 3D + scatter vegetacao em volta via Geometry Nodes + apply + export
+- **Viabilidade:** 7/10 com Mossify (confirmar API), 9/10 com Modular Tree gratis (API Python ja documentada)
+- **Recomendacao:** validar conceito primeiro com Modular Tree ou Baga Ivy (gratis), depois comprar Mossify se quisermos a estetica especifica dele
+- **Trade-off:** polycount alto, scatter facilmente gera 500k-2M tris — decimate pos-scatter eh trabalho meu
+
+### Proximo 3: simulacao de fluido [FEITO — sessao 6]
+- **Status:** ✓ implementado e hospedado
+- **Demo:** https://st.did.lu/blender-fluid/v1/index.html
+- **Docs:** [fluid/README.md](fluid/README.md)
+- **Aprendizados principais:**
+  - Mantaflow funciona em headless sem bugs (diferente do Rigify/Cell Fracture)
+  - Topologia variavel impede morph targets — solucao mesh sequence em GLBs separados
+  - Effector COLLISION precisa de volume real (plano nao retem agua)
+  - Voxel remesh eh chave pra reduzir peso (raw 200k -> remeshed 15k verts)
+  - Bake do .blend precisa estar salvo antes (cache eh relativo)
+  - Output: 80 GLBs / 7.5MB / 2.67s @ 30fps
+
+## Relatorios tecnicos (sessao 6)
+
+Pesquisa profunda sobre o ecosistema de plugins/addons do Blender com foco em **fidelidade reproduzivel fora do Blender**:
+
+| Relatorio | URL | Foco |
+|---|---|---|
+| Cardboard addons analysis | https://st.did.lu/reports/cardboard-addons/v1/index.html | Cardboard Shader (tem) vs Easy Cardboard 3.0 vs Cardboard Builder |
+| Geometry addons v1 (60+ plugins) | https://st.did.lu/reports/blender-geometry-addons/v1/index.html | 6 categorias, classificado por "GLB-friendly" |
+| Geometry addons v2 (90+ plugins, recalibrado) | https://st.did.lu/reports/blender-geometry-addons/v2/index.html | 11 categorias, nota objetiva 0-10 de fidelidade reproduzivel, filtro de automacao por agente IA |
+
+### Conceito-chave dos relatorios
+
+**Criterio:** plugins que aplicam efeito na GEOMETRIA (geo nodes apply, sculpt brushes, mesh ops) sao prioridade absoluta. Se mexem na malha, fidelidade reproduzivel tende a 10/10 porque o material em si pode ser bakeado e o look se reproduz em qualquer engine.
+
+**Penaliza:** features que dependem de iluminacao/SSS/volumetricos/IOR especificos do Cycles e nao tem caminho de bake claro.
+
+**Descarta:** plugins que exigem trabalho manual humano (Substance Designer, Marvelous Designer, ZBrush sculpt livre) — nao automatizaveis por agente IA via Python.
+
+**Top picks pra automacao:**
+1. Modular Tree (free, Python API, mesh real)
+2. Wicked Rocks ($15, seed-driven)
+3. VDM Brush Baker + Body Details VDM (free + $15)
+4. Trowel + Floor Generator + Parquet ($55 arquitetura)
+5. MESHmachine + HardOps + BoxCutter ($125 hard-surface)
 
 ## O que NAO foi feito (proximos passos)
 

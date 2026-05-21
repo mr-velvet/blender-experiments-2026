@@ -10,6 +10,15 @@ Experimentos de automacao do Blender via Python headless e MCP.
 - **Cardboard:** https://st.did.lu/blender-cardboard/v2/index.html
 - **Clay Doh:** https://st.did.lu/blender-claydoh/v2/index.html
 - **Clay Doh + VDM Faces:** https://st.did.lu/blender-claydoh-faces/v1/index.html
+- **Infinite (estruturas + FPS demo):** https://st.did.lu/blender-infinite/v1/index.html
+- **Scanned (instancing stress test):** https://st.did.lu/blender-scanned/v1/index.html
+- **Shatter v2 (cubo quebrando + player + materiais):** https://st.did.lu/blender-shatter/v2/index.html
+- **Rigging (walk cycle procedural):** https://st.did.lu/blender-rigging/v1/index.html
+- **Fluid (Mantaflow + player):** https://st.did.lu/blender-fluid/v1/index.html ← [docs detalhada](./fluid/README.md)
+
+## Relatorios tecnicos
+- **Geometry addons v2 (90+ plugins, recalibrado):** https://st.did.lu/reports/blender-geometry-addons/v2/index.html
+- **Cardboard addons (3 plugins comparados):** https://st.did.lu/reports/cardboard-addons/v1/index.html
 
 ## Setup
 - Blender 5.1.2 (Blender 4.4 tambem instalado pra compatibilidade)
