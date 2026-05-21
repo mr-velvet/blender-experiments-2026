@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Shatter — Cubo Clay Doh quebrando</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #1a1816;
+    --panel: #25221f;
+    --panel-2: #2f2b28;
+    --accent: #f4a380;
+    --accent-2: #f6c5a8;
+    --text: #f0ebe5;
+    --text-dim: #998c80;
+    --border: #3a342f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+    overflow: hidden;
+  }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  #header {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 14px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(26,24,22,0.85), transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
+  #header h1 {
+    font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; color: var(--text);
+  }
+  #header .sub {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 2px;
+  }
+  #header .badge {
+    pointer-events: auto;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 11px; color: var(--text-dim);
+    text-decoration: none; transition: all 0.15s;
+  }
+  #header .badge:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Player Controls (YouTube-style) */
+  #player {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(26,24,22,0.95) 60%, transparent);
+    padding: 18px 22px 16px;
+    z-index: 20;
+    transition: opacity 0.3s;
+  }
+  #player.hidden { opacity: 0; pointer-events: none; }
+
+  /* Timeline */
+  #timeline-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px;
+  }
+  #time-cur, #time-tot {
+    font-size: 12px; color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 50px;
+  }
+  #time-cur { color: var(--text); }
+  #time-tot { text-align: right; }
+  #timeline-wrap {
+    flex: 1; position: relative; height: 22px;
+    display: flex; align-items: center;
+    cursor: pointer;
+  }
+  #timeline-bg {
+    width: 100%; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: height 0.15s;
+  }
+  #timeline-wrap:hover #timeline-bg { height: 6px; }
+  #timeline-fill {
+    height: 100%; width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.05s linear;
+  }
+  #timeline-knob {
+    position: absolute;
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, 0);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    pointer-events: none;
+    transition: transform 0.15s;
+  }
+  #timeline-wrap:hover #timeline-knob { transform: translate(-50%, 0) scale(1.2); }
+  #timeline-tip {
+    position: absolute;
+    bottom: 28px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    padding: 4px 8px; border-radius: 4px;
+    font-size: 11px; color: var(--text);
+    pointer-events: none;
+    opacity: 0; transition: opacity 0.1s;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  #timeline-wrap:hover #timeline-tip { opacity: 1; }
+
+  /* Buttons row */
+  #buttons-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn {
+    background: transparent; border: none;
+    color: var(--text); padding: 8px 10px;
+    cursor: pointer; border-radius: 6px;
+    font-size: 16px;
+    transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 36px; height: 36px;
+  }
+  .btn:hover { background: var(--panel-2); }
+  .btn.active { color: var(--accent); }
+  .btn svg { width: 18px; height: 18px; fill: currentColor; }
+  #btn-play svg { width: 22px; height: 22px; }
+
+  .divider {
+    width: 1px; height: 22px; background: var(--border);
+    margin: 0 4px;
+  }
+
+  .group {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .group .lbl {
+    font-size: 11px; color: var(--text-dim);
+    margin-right: 4px; user-select: none;
+  }
+
+  .pill {
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); padding: 5px 10px;
+    border-radius: 4px; cursor: pointer;
+    font-size: 11px; transition: all 0.15s;
+    user-select: none;
+  }
+  .pill:hover { border-color: var(--accent); }
+  .pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* Frame counter */
+  #frame-info {
+    font-size: 11px; color: var(--text-dim);
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  #frame-info span { color: var(--text); }
+
+  /* Keybinds hint */
+  #hints {
+    position: fixed; left: 22px; bottom: 100px;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 10px 14px; border-radius: 6px;
+    font-size: 11px; color: var(--text-dim);
+    line-height: 1.7;
+    z-index: 5;
+    opacity: 0.85;
+    max-width: 200px;
+  }
+  #hints kbd {
+    display: inline-block;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px; border-radius: 3px;
+    font-family: inherit; font-size: 10px;
+    color: var(--text); margin: 0 2px;
+  }
+
+  #loading {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    z-index: 100;
+    color: var(--text-dim);
+    font-size: 13px;
+    pointer-events: none;
+  }
+  #loading.hide { opacity: 0; transition: opacity 0.4s; }
+
+  /* Hide elements on small screens */
+  @media (max-width: 700px) {
+    #hints { display: none; }
+    .group .lbl { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<div id="header">
+  <div>
+    <h1>Shatter</h1>
+    <div class="sub">cubo clay doh quebrando · animacao bakeada em GLB</div>
+  </div>
+  <a class="badge" href="https://github.com/mr-velvet/blender-experiments-2026" target="_blank">repo</a>
+</div>
+
+<div id="hints">
+  <kbd>Space</kbd> play/pause<br>
+  <kbd>&larr;</kbd> <kbd>&rarr;</kbd> &plusmn;1 frame<br>
+  <kbd>Shift</kbd>+<kbd>&larr;</kbd>/<kbd>&rarr;</kbd> &plusmn;10<br>
+  <kbd>Home</kbd>/<kbd>End</kbd> inicio/fim<br>
+  <kbd>L</kbd> loop &nbsp; <kbd>0-9</kbd> jump
+</div>
+
+<div id="player">
+  <div id="timeline-row">
+    <div id="time-cur">0:00.00</div>
+    <div id="timeline-wrap">
+      <div id="timeline-bg">
+        <div id="timeline-fill"></div>
+      </div>
+      <div id="timeline-knob" style="left: 0%;"></div>
+      <div id="timeline-tip" style="left: 0%;">0</div>
+    </div>
+    <div id="time-tot">0:04.00</div>
+  </div>
+
+  <div id="buttons-row">
+    <button class="btn" id="btn-prev" title="Frame -1 (Left)">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"/></svg>
+    </button>
+    <button class="btn" id="btn-play" title="Play/Pause (Space)">
+      <svg viewBox="0 0 24 24" id="icon-play"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="btn" id="btn-next" title="Frame +1 (Right)">
+      <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2V6zM6 18l8.5-6L6 6v12z"/></svg>
+    </button>
+    <button class="btn" id="btn-restart" title="Home (frame 0)">
+      <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="group">
+      <span class="lbl">speed</span>
+      <button class="pill" data-speed="0.25">0.25x</button>
+      <button class="pill" data-speed="0.5">0.5x</button>
+      <button class="pill active" data-speed="1">1x</button>
+      <button class="pill" data-speed="2">2x</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn active" id="btn-loop" title="Loop (L)">
+      <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+    </button>
+
+    <div id="frame-info">
+      frame <span id="frame-num">0</span> / <span id="frame-tot">120</span>
+    </div>
+  </div>
+</div>
+
+<div id="loading">carregando shatter.glb...</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.166.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.166.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+// ---- Scene setup ----
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf5f1ea);
+
+// RoomEnvironment pra PBR plausivel sem HDR file
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(11, 5, 11);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 3, 0);  // entre o chao (y=0) e o cubo no ar (y=6)
+controls.enablePan = false;
+controls.minDistance = 5;
+controls.maxDistance = 30;
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.update();
+
+// Lights
+const hemi = new THREE.HemisphereLight(0xfff8f0, 0x3a3530, 0.6);
+scene.add(hemi);
+
+const dir = new THREE.DirectionalLight(0xffffff, 2.5);
+dir.position.set(5, 10, 5);
+dir.castShadow = true;
+dir.shadow.mapSize.set(2048, 2048);
+dir.shadow.camera.left = -8;
+dir.shadow.camera.right = 8;
+dir.shadow.camera.top = 8;
+dir.shadow.camera.bottom = -8;
+dir.shadow.camera.near = 0.1;
+dir.shadow.camera.far = 30;
+dir.shadow.bias = -0.0005;
+scene.add(dir);
+
+// ---- Resize handler ----
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ---- Animation state ----
+let mixer = null;
+let actions = [];   // todas AnimationActions (1 por clip)
+let duration = 4.0;
+let totalFrames = 120;
+const FPS = 30;
+let isPlaying = false;
+let isLooping = true;
+let speed = 1.0;
+let curTime = 0.0;
+let scrubbing = false;
+
+const clock = new THREE.Clock();
+
+// ---- Load GLB ----
+const loader = new GLTFLoader();
+const GLB_URL = "./out/glb/shatter_v1.glb";
+
+loader.load(GLB_URL, (gltf) => {
+  const root = gltf.scene;
+  // habilita shadows
+  root.traverse((o) => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      o.receiveShadow = true;
+      // Floor especificamente recebe shadow mais leve
+      if (o.name === "Floor" || o.name.toLowerCase().includes("plane")) {
+        o.castShadow = false;
+      }
+    }
+  });
+  scene.add(root);
+
+  // Setup mixer + actions
+  mixer = new THREE.AnimationMixer(root);
+  if (!gltf.animations || gltf.animations.length === 0) {
+    console.warn("Nenhuma animacao no GLB!");
+    document.getElementById("loading").textContent = "ERRO: GLB sem animacao";
+    return;
+  }
+
+  duration = gltf.animations[0].duration;
+  totalFrames = Math.round(duration * FPS);
+  document.getElementById("frame-tot").textContent = totalFrames;
+  document.getElementById("time-tot").textContent = formatTime(duration);
+
+  // todas as actions: cada clip = 1 obj animado (8 shards apos cell_fracture)
+  for (const clip of gltf.animations) {
+    const action = mixer.clipAction(clip);
+    action.setLoop(THREE.LoopRepeat, Infinity);
+    action.clampWhenFinished = true;
+    action.play();
+    action.paused = true;  // comeca pausado
+    action.time = 0;
+    actions.push(action);
+  }
+  mixer.update(0);
+  setTime(0);
+
+  document.getElementById("loading").classList.add("hide");
+  setTimeout(() => document.getElementById("loading").remove(), 500);
+
+  console.log(`Loaded: ${gltf.animations.length} clips, duration=${duration.toFixed(2)}s, frames=${totalFrames}`);
+}, (xhr) => {
+  if (xhr.total) {
+    const pct = (xhr.loaded / xhr.total * 100).toFixed(0);
+    document.getElementById("loading").textContent = `carregando shatter.glb... ${pct}%`;
+  }
+}, (err) => {
+  console.error(err);
+  document.getElementById("loading").textContent = "ERRO: " + err.message;
+});
+
+// ---- Time controls ----
+function setTime(t) {
+  curTime = Math.max(0, Math.min(t, duration));
+  for (const a of actions) {
+    a.time = curTime;
+  }
+  if (mixer) mixer.update(0);
+  updateUI();
+}
+
+function play() {
+  if (!mixer) return;
+  // se ja chegou no fim e nao eh loop, reinicia
+  if (curTime >= duration - 0.001 && !isLooping) {
+    setTime(0);
+  }
+  for (const a of actions) {
+    a.paused = false;
+    a.setLoop(isLooping ? THREE.LoopRepeat : THREE.LoopOnce, isLooping ? Infinity : 1);
+  }
+  isPlaying = true;
+  updateUI();
+}
+
+function pause() {
+  if (!mixer) return;
+  for (const a of actions) a.paused = true;
+  isPlaying = false;
+  updateUI();
+}
+
+function togglePlay() {
+  isPlaying ? pause() : play();
+}
+
+function step(delta) {
+  pause();
+  const frameDelta = delta;  // delta em frames
+  const newFrame = Math.max(0, Math.min(totalFrames, Math.round(curTime * FPS) + frameDelta));
+  setTime(newFrame / FPS);
+}
+
+function setSpeed(s) {
+  speed = s;
+  if (mixer) mixer.timeScale = s;
+  document.querySelectorAll("[data-speed]").forEach(b => {
+    b.classList.toggle("active", parseFloat(b.dataset.speed) === s);
+  });
+}
+
+function toggleLoop() {
+  isLooping = !isLooping;
+  document.getElementById("btn-loop").classList.toggle("active", isLooping);
+  for (const a of actions) {
+    a.setLoop(isLooping ? THREE.LoopRepeat : THREE.LoopOnce, isLooping ? Infinity : 1);
+  }
+}
+
+// ---- UI update ----
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec - m * 60;
+  return `${m}:${s.toFixed(2).padStart(5, "0")}`;
+}
+
+function updateUI() {
+  const pct = (curTime / duration) * 100;
+  document.getElementById("timeline-fill").style.width = pct + "%";
+  document.getElementById("timeline-knob").style.left = pct + "%";
+  document.getElementById("time-cur").textContent = formatTime(curTime);
+  document.getElementById("frame-num").textContent = Math.round(curTime * FPS);
+
+  const icon = document.getElementById("icon-play");
+  if (isPlaying) {
+    icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+  } else {
+    icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+  }
+}
+
+// ---- Timeline interaction ----
+const tlWrap = document.getElementById("timeline-wrap");
+const tlTip = document.getElementById("timeline-tip");
+
+function timelineXToTime(x) {
+  const rect = tlWrap.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+  return pct * duration;
+}
+
+tlWrap.addEventListener("mousedown", (e) => {
+  scrubbing = true;
+  const wasPlaying = isPlaying;
+  pause();
+  tlWrap.dataset.wasPlaying = wasPlaying ? "1" : "0";
+  setTime(timelineXToTime(e.clientX));
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (scrubbing) {
+    setTime(timelineXToTime(e.clientX));
+  }
+  // hover tooltip
+  if (e.target === tlWrap || tlWrap.contains(e.target)) {
+    const t = timelineXToTime(e.clientX);
+    const rect = tlWrap.getBoundingClientRect();
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    tlTip.style.left = pct + "%";
+    tlTip.textContent = `${Math.round(t * FPS)}f · ${formatTime(t)}`;
+  }
+});
+
+window.addEventListener("mouseup", () => {
+  if (scrubbing) {
+    scrubbing = false;
+    if (tlWrap.dataset.wasPlaying === "1") play();
+  }
+});
+
+// ---- Button wires ----
+document.getElementById("btn-play").addEventListener("click", togglePlay);
+document.getElementById("btn-prev").addEventListener("click", () => step(-1));
+document.getElementById("btn-next").addEventListener("click", () => step(1));
+document.getElementById("btn-restart").addEventListener("click", () => { pause(); setTime(0); });
+document.getElementById("btn-loop").addEventListener("click", toggleLoop);
+document.querySelectorAll("[data-speed]").forEach(b => {
+  b.addEventListener("click", () => setSpeed(parseFloat(b.dataset.speed)));
+});
+
+// ---- Keyboard shortcuts ----
+window.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+  switch (e.code) {
+    case "Space":
+      e.preventDefault();
+      togglePlay();
+      break;
+    case "ArrowLeft":
+      e.preventDefault();
+      step(e.shiftKey ? -10 : -1);
+      break;
+    case "ArrowRight":
+      e.preventDefault();
+      step(e.shiftKey ? 10 : 1);
+      break;
+    case "Home":
+      e.preventDefault();
+      pause(); setTime(0);
+      break;
+    case "End":
+      e.preventDefault();
+      pause(); setTime(duration);
+      break;
+    case "KeyL":
+      toggleLoop();
+      break;
+    case "Digit0": case "Digit1": case "Digit2": case "Digit3": case "Digit4":
+    case "Digit5": case "Digit6": case "Digit7": case "Digit8": case "Digit9": {
+      const n = parseInt(e.code.slice(-1));
+      setTime((n / 10) * duration);
+      break;
+    }
+  }
+});
+
+// ---- Render loop ----
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  if (mixer && isPlaying && !scrubbing) {
+    mixer.update(dt);
+    // sincroniza curTime com mixer (pega da primeira action)
+    if (actions.length > 0) {
+      curTime = actions[0].time;
+      // detecta fim quando nao eh loop
+      if (!isLooping && curTime >= duration - 0.01) {
+        curTime = duration;
+        pause();
+      } else {
+        updateUI();
+      }
+    }
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+</body>
+</html>

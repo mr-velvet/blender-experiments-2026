@@ -469,3 +469,267 @@ Pra trocar de cena sem reload da pagina: marcar GLBs adicionados com `userData.f
 ## 5. Lighting workaround pra torres altas
 
 `DirectionalLight` em y=50 nao cobre torre de 70m de altura — andares superiores ficam pretos. Solucao: aumentar altura da light (`y=120`) ou adicionar 2a directional fill em outra direcao.
+
+---
+
+# Sessao 2026-05-20 (4): rigid body bake → GLB animado → player tipo YouTube
+
+## 1. Cell Fracture em Blender 5.1: extension + workaround do RNA
+
+Em Blender 5.x o addon Cell Fracture nao vem built-in nem como addon classico — virou extension oficial:
+
+```python
+bpy.context.preferences.system.use_online_access = True
+bpy.ops.extensions.repo_sync_all()
+bpy.ops.extensions.package_install(repo_index=0, pkg_id="cell_fracture", enable_on_install=True)
+```
+
+**Bug critico em headless:** apos `enable_on_install=True`, `addon_utils.check("bl_ext.blender_org.cell_fracture")` retorna `(True, True)`, mas `bpy.ops.object.add_fracture_cell_objects(...)` falha com `AttributeError: could not be found`. O RNA do operator nao registra mesmo com a classe `FractureCell(Operator)` ja registrada. Acontece tambem com outras extensions em headless.
+
+**Workaround robusto:** chamar a `main(context, **kwargs)` do modulo direto, pulando o sistema bpy.ops:
+
+```python
+import bl_ext.blender_org.cell_fracture as cf
+cf.main(bpy.context,
+    source={'VERT_OWN'},
+    source_limit=60,
+    source_noise=1.0,
+    cell_scale=(1.0, 1.0, 1.0),
+    recursion=0, recursion_source_limit=8, recursion_clamp=250,
+    recursion_chance=0.25, recursion_chance_select='SIZE_MIN',
+    use_smooth_faces=False, use_sharp_edges=False, use_sharp_edges_apply=False,
+    use_data_match=True, use_island_split=True, margin=0.0001,
+    material_index=0, use_interior_vgroup=False,
+    mass_mode='VOLUME', mass=1.0,
+    use_recenter=True, use_remove_original=True,
+    use_debug_points=False, use_debug_redraw=False, use_debug_bool=False,
+    collection_name="Shards",
+)
+```
+
+**Cuidado VERT_OWN:** clamp em `min(source_limit, len(verts))`. Cubo crudo so tem 8 verts → max 8 shards. Pra ter 60+ shards, subdividir o cubo antes:
+
+```python
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.mesh.subdivide(number_cuts=5)  # 8 -> 386 verts -> ~46 shards efetivos
+bpy.ops.object.mode_set(mode='OBJECT')
+```
+
+Algumas celulas caem fora do volume e somem — esperar 70-80% do `source_limit` como yield real.
+
+## 2. Pipeline rigid body sim → keyframes em headless
+
+glTF 2.0 nao suporta rigid body. Precisa bakear a simulacao pra keyframes TRS.
+
+### Setup
+```python
+bpy.ops.rigidbody.world_add()
+rbw = bpy.context.scene.rigidbody_world
+rbw.solver_iterations = 20
+rbw.substeps_per_frame = 20  # alto pra reduzir penetracao em impactos rapidos
+rbw.point_cache.frame_start = 1
+rbw.point_cache.frame_end = 120
+```
+
+### Chao + shards
+```python
+# Chao passivo
+bpy.ops.rigidbody.object_add()
+floor.rigid_body.type = 'PASSIVE'
+floor.rigid_body.collision_shape = 'BOX'
+
+# Cada shard active + convex hull
+for s in shards:
+    bpy.ops.rigidbody.object_add()
+    s.rigid_body.type = 'ACTIVE'
+    s.rigid_body.collision_shape = 'CONVEX_HULL'  # CONVEX_HULL eh estavel; MESH lenta
+    s.rigid_body.mass = vol_aprox(s)
+```
+
+### Trigger dramatico (cubo intacto por meio segundo antes de cair)
+Animar a propriedade `rigid_body.kinematic`:
+
+```python
+HOLD = 15  # frames
+for s in shards:
+    s.rigid_body.kinematic = True
+    s.keyframe_insert(data_path="rigid_body.kinematic", frame=1)
+    s.keyframe_insert(data_path="rigid_body.kinematic", frame=HOLD)
+    s.rigid_body.kinematic = False
+    s.keyframe_insert(data_path="rigid_body.kinematic", frame=HOLD + 1)
+```
+
+Resultado: shards ficam suspensos no ar como "cubo intacto" por 15 frames, depois caem sob gravidade. Mais cinematico que cair desde frame 1.
+
+### Bake da simulacao (essencial em headless)
+```python
+override = bpy.context.copy()
+override["point_cache"] = scene.rigidbody_world.point_cache
+with bpy.context.temp_override(**override):
+    bpy.ops.ptcache.bake_all(bake=True)
+```
+
+Sem `temp_override` apontando pro point_cache do RBW, `bake_all` falha silencioso em headless (em GUI ele pega da context bar). Resultado: simulacao calculada, mas sem dados nos cache files.
+
+### Bake pra keyframes
+```python
+for s in shards: s.select_set(True)
+bpy.context.view_layer.objects.active = shards[0]
+bpy.ops.nla.bake(
+    frame_start=1, frame_end=120, step=1,
+    only_selected=True,
+    visual_keying=True,         # captura o resultado da sim, nao a transform local
+    clear_constraints=False,
+    use_current_action=False,   # cria Action limpa por objeto
+    bake_types={'OBJECT'},
+)
+```
+
+`step=1` obrigatorio — qualquer valor maior perde frames de impacto. `visual_keying=True` essencial — sem isso, baka transform local que ignora rigid body.
+
+### Remover rigid body antes de exportar
+```python
+bpy.ops.object.select_all(action='DESELECT')
+for s in shards: s.select_set(True)
+floor.select_set(True)
+bpy.ops.rigidbody.objects_remove()
+bpy.ops.rigidbody.world_remove()
+```
+
+Sem isso, o glTF exporter as vezes mistura sim live com keys, ou exporta um buffer enorme com dados redundantes.
+
+## 3. Export GLB com animacao TRS preservada
+
+Settings criticas pra scrubbing funcionar:
+
+```python
+bpy.ops.export_scene.gltf(
+    filepath=out_path,
+    export_format='GLB',
+    use_selection=True,
+    export_apply=False,            # NAO aplicar modifiers — preservar animacao
+    export_animations=True,
+    export_animation_mode='ACTIONS',  # ou 'SCENE' pra 1 clip unico
+    export_force_sampling=True,    # ESSENCIAL — sem isso, channels viram Bezier que travam scrubbing
+    export_frame_range=True,
+    export_frame_step=1,
+    export_optimize_animation_size=False,  # preserva keyframes pra seek preciso
+    export_morph=False, export_skins=False,
+)
+```
+
+`export_animation_mode='SCENE'` deveria juntar tudo num clip, mas em testes ainda gerou N clips quando ha N Actions diferentes (uma por objeto). Tratar isso no JS: tocar todos os clips em paralelo via `mixer.clipAction(c).play()` pra cada `c in gltf.animations`.
+
+## 4. Material pra GLB animado: pular bake quando possivel
+
+Materiais procedurais Blender (Clay Doh, etc) com `Object Mapping` ou node groups complexos viram **embedded textures gigantes** no GLB (35MB+ pra 46 shards) — exporter materializa o procedural em texturas baked horrendas via `glTF Material Output` fallback.
+
+**Solucao pra demos:** criar Principled BSDF puro com cor solida saturada:
+
+```python
+mat = bpy.data.materials.new("ClaySolid")
+mat.use_nodes = True
+bsdf = mat.node_tree.nodes["Principled BSDF"]
+bsdf.inputs["Base Color"].default_value = (0.85, 0.45, 0.40, 1.0)  # coral saturado
+bsdf.inputs["Roughness"].default_value = 0.72
+# Sheen Weight existe so em Blender 4.x+ Principled v2
+if "Sheen Weight" in bsdf.inputs:
+    bsdf.inputs["Sheen Weight"].default_value = 0.4
+    bsdf.inputs["Sheen Roughness"].default_value = 0.4
+    bsdf.inputs["Sheen Tint"].default_value = (1.0, 0.85, 0.78, 1.0)
+```
+
+GLB resultante: 360KB com 46 shards. Cor "rosa-clay" no PBR ambient eh suficiente pra ler como "massinha quebrada" sem precisar de textura. Sheen subtle adiciona look de massinha vs plastico.
+
+**Quando ler claro demais (parece branco):** PBR + env brilhante satura tudo acima de 0.85 grayscale. Usar valores mais escuros e saturados pra cor permanecer visivel.
+
+## 5. Player de animacao GLB tipo YouTube — gotchas
+
+### Scrubbing
+```js
+function setTime(t) {
+  curTime = clamp(t, 0, duration);
+  for (const a of actions) a.time = curTime;
+  mixer.update(0);  // forca re-eval sem avancar tempo
+}
+```
+
+NUNCA usar `mixer.timeScale = 0` pra pausar — `mixer.update(dt)` ainda multiplica e quebra scrubbing. Usar `action.paused = true` em todas as actions.
+
+### Speed control
+```js
+mixer.timeScale = 0.25 / 0.5 / 1 / 2;  // afeta playback, nao scrubbing
+```
+
+NAO mexer em `action.timeScale` — afeta blending com outras actions.
+
+### Loop toggle
+```js
+for (const a of actions) {
+  a.setLoop(isLooping ? THREE.LoopRepeat : THREE.LoopOnce, isLooping ? Infinity : 1);
+}
+```
+
+`clampWhenFinished=true` impede rewind automatico. Pra reiniciar quando chega no fim sem loop: setar `time=0` antes do `paused=false`.
+
+### Scrubbing durante play
+```js
+tlWrap.addEventListener("mousedown", e => {
+  scrubbing = true;
+  wasPlaying = isPlaying;
+  pause();
+  setTime(timelineXToTime(e.clientX));
+});
+window.addEventListener("mouseup", () => {
+  if (scrubbing) { scrubbing = false; if (wasPlaying) play(); }
+});
+```
+
+Sem pausar durante scrub, o mixer continua avancando e briga com `setTime`. Despausar so no mouseup.
+
+### Atalhos de teclado essenciais
+- `Space` — play/pause
+- `←` `→` — frame ±1
+- `Shift+←/→` — frame ±10
+- `Home` / `End` — frame 0 / final
+- `L` — loop toggle
+- `0-9` — jump pra X% da timeline
+
+### HUD
+- Timer formato `M:SS.cc` (centesimos pra ser preciso)
+- Frame counter: `Math.round(curTime * FPS)` — FPS fixo conhecido do bake
+- Tooltip no hover do slider: `${frame}f · ${time}`
+
+## 6. Three.js + RoomEnvironment pra PBR sem HDR file
+
+Pra cena PBR plausivel sem precisar baixar HDR external:
+
+```js
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+```
+
+Builtin, sem network call. Da reflexoes/ambient PBR-coerentes. Combinar com `toneMapping = ACESFilmicToneMapping` e `toneMappingExposure = 0.85` pra nao saturar cores claras.
+
+## 7. Sombras em Three.js
+
+Pra contact shadow real (nao fake):
+
+```js
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const dir = new THREE.DirectionalLight(0xffffff, 2.5);
+dir.castShadow = true;
+dir.shadow.mapSize.set(2048, 2048);
+dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+dir.shadow.bias = -0.0005;  // contra shadow acne
+
+// no traverse:
+mesh.castShadow = true; mesh.receiveShadow = true;
+```
+
+`@react-three/drei` `ContactShadows` nao existe em Three.js puro. Usar directional + shadow map regular eh equivalente visual em cena pequena.

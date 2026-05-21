@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-20 (sessao 3 — experimento 7: scan 3D + instancing stress test)
+2026-05-20 (sessao 4 — experimento 8: shatter cubo Clay Doh + player tipo YouTube)
 
 ## O que ja foi feito
 
@@ -112,6 +112,31 @@
 - **Insight:** com instancing ativo, GPU fica fill-rate bound (overdraw das pedras grandes) e nao mais draw-call bound. Sem instancing, 5000 copias = 1500+ draw calls mas ainda 60 fps porque o browser frustum culla agressivo.
 - **Hospedado:** https://st.did.lu/blender-scanned/v1/index.html
 
+### Experimento 8: cubo Clay Doh quebrando + player tipo YouTube (2026-05-20 sessao 4)
+- Pasta `shatter/` — pipeline completa: simulacao rigid body no Blender, bake em keyframes, GLB animado, player HTML/JS com controles tipo YouTube
+- **Setup multi-agente:** Observer (general-purpose) em paralelo dando feedback tecnico antecipado; Implementer (main) executando
+- **Cell Fracture em Blender 5.1:** nao vem mais built-in, virou extension `bl_ext.blender_org.cell_fracture`. Instalavel headless via `bpy.ops.extensions.package_install(repo_index=0, pkg_id="cell_fracture", enable_on_install=True)`. **Bug critico em headless:** apos enable, o op `bpy.ops.object.add_fracture_cell_objects` nao registra no RNA mesmo com `addon_utils.check()` retornando `(True, True)`. **Workaround:** importar o modulo (`import bl_ext.blender_org.cell_fracture as cf`) e chamar `cf.main(bpy.context, **kwargs)` direto — pula o sistema de RNA.
+- **Cell Fracture com source=VERT_OWN:** clamp em `min(source_limit, len(verts))`. Cubo crudo tem 8 verts → max 8 shards. **Solucao:** subdivide o cubo com `bpy.ops.mesh.subdivide(number_cuts=5)` antes — 386 verts → ~46 shards efetivos (algumas celulas Voronoi caem fora).
+- **Pipeline rigid body → keyframes em headless:**
+  1. `bpy.ops.rigidbody.world_add()`, configurar substeps=20, frame_end no point_cache
+  2. Pra cada shard: `bpy.ops.rigidbody.object_add()`, type='ACTIVE', collision_shape='CONVEX_HULL'
+  3. Trigger dramatico: shards iniciam com `rigid_body.kinematic=True`, keyframe em frame 1 e frame 15, depois `kinematic=False` keyframe em frame 16 — cubo "espera" antes de cair
+  4. `bpy.ops.ptcache.bake_all(bake=True)` com `temp_override(point_cache=scene.rigidbody_world.point_cache)` — caso contrario falha silencioso em headless
+  5. `bpy.ops.nla.bake(visual_keying=True, step=1, bake_types={'OBJECT'})` — gera Action por shard com 120 keyframes TRS
+  6. `bpy.ops.rigidbody.objects_remove()` + `rigidbody.world_remove()` — limpar antes do export pra glTF nao misturar sim live com keys
+- **Export GLB:** `export_animations=True, export_force_sampling=True, export_frame_step=1, export_optimize_animation_size=False` — sampling forcado eh ESSENCIAL pra scrubbing (sem isso vira Bezier que trava)
+- **Material:** Clay Doh procedural com Object Coord → GLB de 35MB (exporter embed texturas baked horrendas). Solucao: `apply_solid_clay` Principled BSDF puro com base color rosa-coral `(0.85, 0.45, 0.40)` + sheen 0.4 — GLB final 360KB com 46 shards animados.
+- **Player HTML/JS (`shatter/index.html`):**
+  - Three.js + GLTFLoader + AnimationMixer + OrbitControls + RoomEnvironment (PBR builtin sem HDR)
+  - Timeline scrubbable: range slider custom, click pra seek, hover tooltip com frame+tempo, knob com hover scale
+  - Controles: play/pause (Space), frame ±1 (←/→), ±10 (Shift+arrows), Home/End, L (loop toggle), 0-9 (jump %), speed buttons (0.25/0.5/1/2x)
+  - Pattern critico de scrubbing: `action.paused=true; action.time=t; mixer.update(0)` — setar `timeScale=0` quebra
+  - Scrubbing durante play: pausa no mousedown, retoma no mouseup
+  - HUD com timer MM:SS.cc + frame counter (X / 120)
+  - Tema visual: bg dark (#1a1816), accent coral (#f4a380), tipografia clean — combina com look clay
+- **Hospedado:** https://st.did.lu/blender-shatter/v1/index.html
+- **Tamanho final:** GLB 360KB + HTML 13KB. Carrega instantaneo.
+
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
 - Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
@@ -172,6 +197,7 @@ blender-experiments-2026/
 | Faces + Clay Doh v1 | https://st.did.lu/blender-claydoh-faces/v1/index.html |
 | Infinite v1 (FPS demo navegavel) | https://st.did.lu/blender-infinite/v1/index.html |
 | Scanned v1 (instancing stress test) | https://st.did.lu/blender-scanned/v1/index.html |
+| Shatter v1 (cubo quebrando + player tipo YouTube) | https://st.did.lu/blender-shatter/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 
