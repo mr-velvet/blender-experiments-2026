@@ -137,6 +137,15 @@
 - **Hospedado:** https://st.did.lu/blender-shatter/v1/index.html
 - **Tamanho final:** GLB 360KB + HTML 13KB. Carrega instantaneo.
 
+### Experimento 8.5: seletor de material em runtime (v2)
+- Trocar material dos shards sem regerar GLB: substituir `mesh.material` por `MeshPhysicalMaterial` compartilhado no Three.js
+- 5 presets: Coral (atual), Cardboard (papelao kraft), Rosa bebe, Amarelo manteiga, Verde menta
+- UI: swatches circulares no buttons-row (cores reais como background), tooltip no hover com label, swatch ativo destacado
+- Atalho `M` cycla materiais
+- Tecnica: 1 instancia de `MeshPhysicalMaterial` compartilhada por TODOS os shards (~46), troca de cor/roughness/sheen/sheenColor com `material.needsUpdate = true`. Performance instantanea, sem GC.
+- v2 reaproveita GLB da v1 via URL absoluta (`location.hostname.includes("did.lu") ? URL_V1 : "./out/glb/..."`) — economiza 360KB de upload
+- **Hospedado:** https://st.did.lu/blender-shatter/v2/index.html
+
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
 - Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
@@ -198,6 +207,7 @@ blender-experiments-2026/
 | Infinite v1 (FPS demo navegavel) | https://st.did.lu/blender-infinite/v1/index.html |
 | Scanned v1 (instancing stress test) | https://st.did.lu/blender-scanned/v1/index.html |
 | Shatter v1 (cubo quebrando + player tipo YouTube) | https://st.did.lu/blender-shatter/v1/index.html |
+| Shatter v2 (5 materiais trocaveis em runtime) | https://st.did.lu/blender-shatter/v2/index.html |
 
 ## O que NAO foi feito (proximos passos)
 
