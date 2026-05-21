@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-20 (sessao 4 — experimento 8: shatter cubo Clay Doh + player tipo YouTube)
+2026-05-20 (sessao 5 — experimento 9: rigging automatico + walk cycle procedural)
 
 ## O que ja foi feito
 
@@ -146,6 +146,39 @@
 - v2 reaproveita GLB da v1 via URL absoluta (`location.hostname.includes("did.lu") ? URL_V1 : "./out/glb/..."`) — economiza 360KB de upload
 - **Hospedado:** https://st.did.lu/blender-shatter/v2/index.html
 
+### Experimento 9: rigging automatico + walk cycle procedural (2026-05-20 sessao 5)
+- Pasta `rigging/` — pipeline 100% autonoma do zero: cria humanoide, riga com Rigify, anima walk cycle, exporta GLB, demo HTML com switcher entre 4 modelos (1 autoral + 3 references Khronos)
+- **Goal do user:** avaliar capacidades de rigging automatico + iniciativa em baixar assets/addons + autonomia
+- **Pesquisa autonoma:** Rigify (built-in, free) vs Auto-Rig Pro (paid) vs MPFB vs Mixamo (requires login, nao serve pra autonomous). Escolhido Rigify por: gratis, headless capable, ja vem com Blender 5.1
+- **Referencias publicas baixadas:** Khronos Sample Assets via raw.githubusercontent.com — CesiumMan, Fox (3 anims), RiggedFigure, BrainStem. Inspecionados via parser GLB proprio (skins, joints, anims).
+- **Rigify em Blender 5.1 headless:** mesmo bug do Cell Fracture (op nao registra). Workaround `from rigify.metarigs.Basic import basic_human; basic_human.create(arm)` + `from rigify import generate; generate.generate_rig(ctx, metarig)`. Documentado em LEARNINGS.md sessao 5.
+- **Pipeline implementada (`rigging/scripts/build_character.py`):**
+  1. Constroi humanoide stylized: 22 primitivos (esferas/cilindros/cubos) com proporcoes humanas (1.75m), apply transforms, join, smooth -> mesh 1862 verts / 1916 tris
+  2. Material Principled BSDF coral (0.95, 0.55, 0.45) com sheen 0.3
+  3. Adiciona metarig basic_human via `basic_human.create()` direto (29 bones)
+  4. Calcula scale via bbox mesh / bbox edit_bones, alinha metarig sobre o mesh
+  5. `generate.generate_rig()` gera 222 bones do control rig (DEF + MCH + control + tweaks)
+  6. Parent mesh -> rig com `ARMATURE_AUTO` -> 35 vertex groups + modifier armature
+  7. **CRITICO**: seta `IK_FK = 1.0` em `thigh_parent.L/R`, `upper_arm_parent.L/R` (Rigify comeca em IK, mas DEF bones via IK ficam estaticos em pose default — meus keyframes FK eram ignorados)
+  8. Walk cycle: 5 keyframes (contact, passing, contact espelhada, passing espelhada, loop) em 14 bones FK (torso, hips, chest, thighs, shins, foots, upper_arms, forearms, head)
+  9. Export GLB com `export_def_bones=True` (35 DEF bones em vez dos 222 total) + `export_force_sampling=True` (frame-by-frame, nao Bezier)
+  10. Resultado: GLB 244KB, mesh 1862 verts + 1 skin com 35 joints + animacao 45 frames @ 30fps
+- **Demo HTML (`rigging/index.html`):** Three.js + GLTFLoader + AnimationMixer + OrbitControls + RoomEnvironment + SkeletonHelper
+  - Sidebar com 4 model cards (badge "autoral" vs "referencia")
+  - Switcher entre os 4 GLBs sem reload
+  - Player tipo YouTube reaproveitado do experimento 8 (timeline scrubbable, hover tooltip, speed buttons 0.25x/1x/2x, play/pause, loop)
+  - Toggle skeleton helper (tecla B) — desenha bones em verde por cima do mesh
+  - Toggle wireframe (W), auto-rotate (R), restart (Home)
+  - Multi-animation selector aparece quando GLB tem >1 anim (Fox: Survey/Walk/Run)
+  - Info panel com vertices/tris/bones/animations/duration/file size
+  - Atalhos: Space play/pause, B skeleton, W wire, R rotate, 1-4 troca modelo
+- **Hospedado:** https://st.did.lu/blender-rigging/v1/index.html
+- **Insights tecnicos chave:**
+  1. RNA-bug do Rigify em headless: padrao identico ao Cell Fracture, sempre tem workaround importando o modulo direto
+  2. IK_FK switch eh a "gotcha" oculta do Rigify: animar FK sem trocar pra modo FK = animacao silenciosamente ignorada
+  3. `export_def_bones=True` eh essencial pra GLB Rigify: sem isso ~5x mais nodes, sem isso ~5x mais bytes
+  4. 5 keyframes bem distribuidos (contact/passing x2 + loop close) sao suficientes pra walk cycle credivel — interpolacao Bezier do Blender da o resto
+
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.
 - Edge crease em Blender 5.1: atribuir via bmesh layer "crease_edge" (a API `e.crease` nao funciona mais)
@@ -208,6 +241,7 @@ blender-experiments-2026/
 | Scanned v1 (instancing stress test) | https://st.did.lu/blender-scanned/v1/index.html |
 | Shatter v1 (cubo quebrando + player tipo YouTube) | https://st.did.lu/blender-shatter/v1/index.html |
 | Shatter v2 (5 materiais trocaveis em runtime) | https://st.did.lu/blender-shatter/v2/index.html |
+| Rigging v1 (humanoide com walk cycle procedural + 3 refs) | https://st.did.lu/blender-rigging/v1/index.html |
 
 ## O que NAO foi feito (proximos passos)
 

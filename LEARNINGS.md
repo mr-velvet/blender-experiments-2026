@@ -733,3 +733,200 @@ mesh.castShadow = true; mesh.receiveShadow = true;
 ```
 
 `@react-three/drei` `ContactShadows` nao existe em Three.js puro. Usar directional + shadow map regular eh equivalente visual em cena pequena.
+
+---
+
+# Sessao 5 (2026-05-20) — Rigging automatico com Rigify
+
+## 1. Rigify em Blender 5.1 headless: o mesmo bug do Cell Fracture
+
+Padrao identico ao Cell Fracture (experimento 8): operadores RNA nao registram em modo headless mesmo com `addon_utils.check()` retornando `(True, True)`.
+
+**Sintomas:**
+- `addon_utils.enable("rigify")` retorna ok, `addon_utils.check("rigify") == (True, True)`
+- `bpy.ops.object.armature_human_metarig_add()` -> AttributeError "could not be found"
+- `bpy.ops.pose.rigify_generate()` -> mesmo erro
+
+**Workaround universal:** importar o modulo do addon direto e chamar funcoes de baixo nivel.
+
+```python
+addon_utils.enable("rigify", default_set=True, persistent=True)
+
+# Criar metarig direto
+from rigify.metarigs.Basic import basic_human
+
+arm_data = bpy.data.armatures.new("metarig")
+arm_obj = bpy.data.objects.new("metarig", arm_data)
+bpy.context.collection.objects.link(arm_obj)
+bpy.context.view_layer.objects.active = arm_obj
+arm_obj.select_set(True)
+
+bpy.ops.object.mode_set(mode="EDIT")
+basic_human.create(arm_obj)   # injeta 29 bones diretamente
+bpy.ops.object.mode_set(mode="OBJECT")
+
+# Generate rig real (de 29 metarig bones pra 222 control rig bones)
+from rigify import generate
+generate.generate_rig(bpy.context, arm_obj)
+rig = bpy.data.objects["rig"]
+```
+
+Em Blender 5.1.2 ha:
+- `rigify.metarigs.Basic.basic_human` (humanoide simples, recomendado)
+- `rigify.metarigs.Basic.basic_quadruped`
+- `rigify.metarigs.Animals.*` (varios animais)
+
+## 2. A pegadinha critica do Rigify: IK_FK switch
+
+Quando voce gera o rig, ele vem em **modo IK (IK_FK = 0.0)** por default. As DEF bones (que sao as unicas exportadas com `export_def_bones=True`) seguem via constraints:
+- `DEF-thigh.L` -> `COPY_TRANSFORMS` de `thigh_tweak.L`
+- `thigh_tweak.L` <- influenciado por IK chain (no modo IK) ou FK chain (no modo FK)
+
+Se voce animar `thigh_fk.L` mas `IK_FK = 0.0`, **suas animacoes sao ignoradas**: o DEF segue o IK que esta parado em pose A.
+
+**Solucao:** setar `IK_FK = 1.0` nos bones de "parent switch" antes/durante a animacao:
+
+```python
+fk_switches = ["thigh_parent.L", "thigh_parent.R",
+               "upper_arm_parent.L", "upper_arm_parent.R"]
+for sw_name in fk_switches:
+    b = rig.pose.bones.get(sw_name)
+    if b and "IK_FK" in b:
+        b["IK_FK"] = 1.0
+        b.keyframe_insert('["IK_FK"]', frame=1)
+```
+
+Custom properties dos bones de switch (Rigify adiciona):
+- `IK_FK` (0=IK ativo, 1=FK ativo)
+- `IK_Stretch` (0-1, deforma osso ao alongar IK)
+- `FK_limb_follow` (0-1)
+- `IK_parent` (int, qual bone faz parent do IK target)
+
+## 3. Walk cycle procedural — 5 keyframes pro ciclo completo
+
+Pattern minimalista pra walk cycle "credivel":
+- f1  = contact pose (L atras, R frente)
+- f2  = passing pose (L sobe, R desce — torso bob alto)
+- f3  = contact pose espelhada (L frente, R atras)
+- f4  = passing pose espelhada
+- f5  = volta pra f1 (loop close)
+
+Bones envolvidos e padroes:
+- **torso**: bob vertical (location Z) em f2 e f4 (alto), zero em f1, f3, f5
+- **hips**: rotacao Z alterna +5/-5 graus em contact, 0 em passing (sway)
+- **chest** (spine_fk.001): contra-rotacao Z (-5/+5)
+- **thigh_fk.L/R**: rotacao X alterna +35 / -25 graus em contact, ~0 em passing
+- **shin_fk.L/R**: dobrada (60 graus) em passing, esticada (5-15) em contact
+- **foot_fk.L/R**: ankle roll seguindo contact
+- **upper_arm_fk.L/R**: contrabalanco — quando perna vai pra tras, braco oposto pra frente
+- **forearm_fk.L/R**: dobra constante (~30-45) durante walk humano
+
+5 keyframes por bone x 14 bones = ~70 fcurves total. Smooth via interpolacao Bezier default.
+
+## 4. Parent mesh -> armature com Automatic Weights
+
+Em headless funciona normalmente:
+
+```python
+bpy.ops.object.select_all(action="DESELECT")
+mesh.select_set(True)
+rig.select_set(True)
+bpy.context.view_layer.objects.active = rig  # rig deve ser ACTIVE
+bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+```
+
+Resultado: adiciona modifier `Armature` no mesh + cria vertex groups por bone DEF. Pra humanoide stylized com primitivos juntados (esferas+cilindros+cubos), os weights ficam aceitaveis sem refinamento — pernas/bracos seguem bem, alguns artefatos nas juntas (ombro, quadril).
+
+## 5. Export GLB com armature + skin + animation
+
+Settings essenciais:
+
+```python
+bpy.ops.export_scene.gltf(
+    filepath="char.glb",
+    export_format="GLB",
+    use_selection=True,
+    export_animations=True,
+    export_animation_mode="ACTIONS",
+    export_force_sampling=True,     # CRITICO: sampling, nao Bezier
+    export_frame_step=1,
+    export_optimize_animation_size=False,
+    export_skins=True,
+    export_def_bones=True,          # exporta SO bones DEF-* (Rigify deform bones)
+                                    # sem isso, GLB tem 222 nodes (todo control rig)
+)
+```
+
+Sem `export_def_bones=True`, o GLB tem 222 nodes/joints — pesa muito mais e quebra varios viewers que assumem ~50 bones. Com `True`, vai pros 35 DEF bones que efetivamente deformam o mesh.
+
+## 6. Action no Blender 5.x: fcurves nao estao em action.fcurves
+
+Em Blender 5.x, actions sao "layered actions". A API mudou:
+
+```python
+# Blender <5.x (DEPRECATED):
+# for fc in action.fcurves: ...
+
+# Blender 5.x:
+for layer in action.layers:
+    for strip in layer.strips:
+        for slot in action.slots:
+            cb = strip.channelbag(slot, ensure=False)
+            if cb:
+                for fc in cb.fcurves:
+                    ...
+```
+
+`action.frame_range` ainda funciona. `bpy.ops.nla.bake()` continua gerando action com fcurves automaticamente.
+
+## 7. Three.js skinned animation patterns
+
+Carregando GLB com skin+anim via GLTFLoader:
+
+```js
+const gltf = await loader.loadAsync(url);
+const mixer = new THREE.AnimationMixer(gltf.scene);
+const action = mixer.clipAction(gltf.animations[0]);
+action.setLoop(THREE.LoopRepeat);
+action.play();
+// no loop: mixer.update(dt);
+```
+
+SkeletonHelper:
+```js
+const helper = new THREE.SkeletonHelper(gltf.scene);
+scene.add(helper);  // ADD na scene, nao no gltf.scene
+```
+
+Multi-animation switch (Fox.glb tem Survey/Walk/Run):
+```js
+const actions = gltf.animations.map(clip => mixer.clipAction(clip));
+function playAnim(idx) {
+  actions.forEach(a => a.stop());  // CRITICO sem isso acumula influencia
+  actions[idx].reset().play();
+}
+```
+
+## 8. Fluxo end-to-end completo (do zero ao GLB animado)
+
+1. **Mesh**: `bpy.ops.mesh.primitive_*_add` + transforms + join
+2. **Metarig**: `from rigify.metarigs.Basic import basic_human; basic_human.create(arm)`
+3. **Scale-fit**: bbox mesh vs edit_bones, scale = mesh_h / rig_h, apply transforms
+4. **Generate**: `from rigify import generate; generate.generate_rig(ctx, metarig)` -> cria `bpy.data.objects["rig"]`
+5. **Parent**: `bpy.ops.object.parent_set(type="ARMATURE_AUTO")`
+6. **Switch FK**: setar `IK_FK=1.0` nos `*_parent.L/R` bones com keyframe
+7. **Animate**: keyframes nos `*_fk.L/R` bones (5 poses pro walk)
+8. **Export**: `bpy.ops.export_scene.gltf(... export_def_bones=True, export_force_sampling=True)`
+
+Resultado: GLB de 244KB com mesh 1862 verts + 35 DEF bones + animacao 45 frames @ 30fps, abre instantaneo em Three.js.
+
+## 9. Fontes publicas de GLBs rigados pra benchmark
+
+Khronos Sample Assets (raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/X/glTF-Binary/X.glb):
+- **CesiumMan** (438KB) — humano texturizado andando, 19 joints, 2s
+- **Fox** (159KB) — quadrupede, 24 joints, **3 anims** (Survey/Walk/Run) — bom pra testar multi-anim switcher
+- **RiggedFigure** (50KB) — humano simples T-pose -> A-pose, 19 joints
+- **BrainStem** (3.1MB) — humano detalhado com 59 materiais, 18 joints, 35s
+
+CC0 / Free use. Ideais como baseline pra comparar capacidades de rigging proprio.
+

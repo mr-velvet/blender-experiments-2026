@@ -19,3 +19,6 @@ card-*.png
 demo-*.png
 infinite/out/
 scanned/out/glb/
+rigging/out/
+rigging/assets/*.glb
+rigging/assets/*.fbx
