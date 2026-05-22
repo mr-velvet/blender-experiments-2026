@@ -6,9 +6,71 @@
 
 ## A regra fundadora
 
-**Esta workspace existe pra validar o fluxo Blender (com plugins sofisticados) → GLB/Alembic/etc → consumo em outras engines (Three.js, Unity, Unreal).**
+**Esta workspace existe SOMENTE pra testar fluxos de trabalho SOFISTICADOS no Blender — fluxos onde o agente, mexendo no Blender diretamente, torna possivel trabalho que antes era impossivel pelo volume manual.**
 
-O experimento NUNCA eh sobre fazer algo aparecer na tela. O experimento eh sobre **provar que o pipeline funciona com complexidade real de producao**. Se voce nao testou o fluxo de verdade, voce nao entregou nada — independente de quao bonito ficou o resultado visual.
+Especificamente:
+- Plugins sofisticados (geo nodes complexos, addons pagos, motores de fisica, sistemas de scatter, etc)
+- Pipelines que exigem dezenas/centenas de operacoes coordenadas
+- Workflows onde a IA atua como TD (technical director) automatizando o trabalho grosso
+- Validacao de que esses fluxos podem ser dirigidos via Python headless ou MCP
+
+**Esta workspace NAO eh pra:**
+- Testar nada banal, simples, ou ja conhecido
+- Demos visuais
+- "Hello world" de feature do Blender
+- Qualquer coisa que humano competente conseguiria fazer manualmente em 30 minutos
+
+O experimento NUNCA eh sobre fazer algo aparecer na tela. O experimento eh sobre **provar que um fluxo sofisticado funciona automatizado, com fidelidade real**. Se voce nao testou um fluxo sofisticado de verdade, voce nao entregou nada — independente de quao bonito ficou o resultado visual.
+
+---
+
+## Regra de selecao de experimento (decisao 0, antes de qualquer codigo)
+
+**Sempre, antes de comecar:** o pedido eh suficientemente sofisticado pra justificar um experimento nesta workspace?
+
+### Criterios pra SER experimento valido aqui
+
+Pelo menos UM destes precisa ser verdade:
+
+1. **Usa plugin ou feature sofisticada do Blender** que nao tem solucao trivial fora dele (geometry nodes complexos, fluid sim, cloth, rigid body, sculpt, VDM, particles, scatter de mesh complexa, etc)
+2. **Coordena dezenas/centenas de operacoes** que seriam invialveis manualmente (batch de N combos, scatter massivo, geracao paramerica de variacoes, etc)
+3. **Testa interoperabilidade** Blender→outra engine com fidelidade real (skin+anim, mesh sequence, materiais complexos preservados, etc)
+4. **Valida automacao de algo que antes exigia trabalho humano repetitivo** (Rigify automatizado, bake PBR de N materiais, extracao de assets de pack monolitico, etc)
+
+### Criterios que FAZEM o pedido NAO ser experimento valido
+
+Se qualquer destes eh verdade, **interromper o user antes de codar**:
+
+- ❌ Pedido pode ser resolvido com geometria primitiva (cubo, esfera, plano, triangulo a mao)
+- ❌ Pedido pode ser resolvido com `bpy.ops.mesh.primitive_*` + transforms basicos
+- ❌ Pedido pode ser resolvido sem nenhum addon/plugin/feature sofisticada
+- ❌ Resultado seria didatico/educacional ("ver como funciona feature X")
+- ❌ Humano competente faria manualmente em < 30min
+- ❌ O sofisticado do experimento esta no JS/Three.js/runtime, e nao no Blender (workspace eh pra testar fluxo Blender, nao fluxo de runtime)
+
+### Como interromper
+
+Se o pedido cai num dos criterios de "nao valido", **NAO codar nada**. Responder algo tipo:
+
+> "Esse pedido nao justifica um experimento nesta workspace porque [razao]. O fluxo que valeria a pena testar aqui seria [proposta sofisticada]. Se a intencao eh [interpretacao alternativa], me confirma e eu reformulo. Se eh mesmo pra fazer [pedido original], faz mais sentido em outro contexto, nao aqui."
+
+**Nunca aceitar pedido simples "porque o user pediu". A workspace existe pra um proposito unico. Pedido simples eh ruido, e implementar ruido gasta horas de trabalho real.**
+
+---
+
+## Decidir SEMPRE pelo mais sofisticado (regra absoluta)
+
+Dentro de um experimento valido, em qualquer decisao tecnica com mais de uma opcao:
+
+**A opcao mais sofisticada eh sempre a escolhida. Sem excecao. Em hipotese alguma.**
+
+- "Versao simples primeiro pra validar" → PROIBIDO. O simples a gente ja sabe que funciona. O experimento existe pra testar o sofisticado.
+- "Vou comecar com o gratis pra ver se vale o pago" → PROIBIDO se a versao gratis nao for ela mesma sofisticada. Se for, ok — mas a sofisticacao eh criterio inegociavel.
+- "Implementacao manual pra validar antes de usar o addon" → PROIBIDO. O addon eh o objeto do teste.
+- "Algoritmo proprio pra testar antes de usar o motor de fisica do Blender" → PROIBIDO. O motor eh o objeto do teste.
+- "Vou simular o efeito pra economizar tempo" → PROIBIDO. Simular nao testa fluxo. Testar fluxo eh o ponto.
+
+Se houver impulso de simplificar "so pra essa parte", reconhecer como o anti-perfil agindo, e parar.
 
 ---
 
