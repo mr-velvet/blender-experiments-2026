@@ -1,7 +1,7 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-21 (sessao 7 — experimento 11: grama alta com esqueleto + wind dinamico)
+2026-05-22 (sessao 9 — experimento 13: Easy Cardboard 3.1 com autonomia total)
 
 ## O que ja foi feito
 
@@ -247,6 +247,28 @@
   2. IK_FK switch eh a "gotcha" oculta do Rigify: animar FK sem trocar pra modo FK = animacao silenciosamente ignorada
   3. `export_def_bones=True` eh essencial pra GLB Rigify: sem isso ~5x mais nodes, sem isso ~5x mais bytes
   4. 5 keyframes bem distribuidos (contact/passing x2 + loop close) sao suficientes pra walk cycle credivel — interpolacao Bezier do Blender da o resto
+
+### Experimento 13: Easy Cardboard 3.1 — pipeline autonomo end-to-end (2026-05-22 sessao 9)
+- Pasta `experiment-13-easy-cardboard/` — pipeline 100% autonomo do zero: pega .blend do asset comprado, descobre como funciona, monta caixa, bakeia, exporta, deploya
+- **Goal do user:** avaliar autonomia total do agente — toda decisao tecnica e operacional sem perguntar
+- **Asset analisado:** `📦 Easy Cardboard 3.1 Plus.blend` (53MB) — descoberto que NAO eh addon Python, eh **Geometry Nodes asset distribuido como .blend** com 44 node groups + material shader complexo + 10 imagens (Paper006 4K + corrugation strips)
+- **Pipeline (`scripts/02_build_box.py`):**
+  1. Append node group `📦 Easy Cardboard 3.0` (geometry) + material `Easy Cardboard 3` (shader) do .blend asset
+  2. Cria cubo 30×20×15cm via bmesh, subdivide 8 cuts/aresta (~1200 verts apos solidify), smart UV project
+  3. Adiciona GeometryNodes modifier apontando pro node group apendado
+  4. Configura sockets via `mod[item.identifier]`: Thickness 3mm, Global Scale 0.5, Wear 0.05 (caixa nova), Strength 0.3, Displacement Strength 0.15, Fibers Density 1.0
+  5. Apply modifier — freeze geometria
+  6. Bake Cycles 32 samples × 2048² × 3 maps (DIFFUSE color + NORMAL tangent + ROUGHNESS) com `bpy.ops.object.bake()` + bake target node injetado no material
+  7. Substitui o material complexo do asset por Principled BSDF simples consumindo as 3 texturas bakeadas (assim GLB carrega texturas, nao node group)
+  8. Export GLB com `export_image_format='AUTO'` — texturas embedded
+- **Insights tecnicos:**
+  1. **Easy Cardboard nao gera corrugacao geometrica** (nota oficial Image #1): solidifica + aplica textura via UV Direction Mask. Caras com UV alinhadas a direcao do corrugado mostram listas; caras perpendiculares ficam lisas — comportamento correto e validado no bake (color map mostra exatamente isso).
+  2. **Bake API mudou em Blender 5.x:** `scene.render.bake.*` em vez de `scene.cycles.bake.*` (que existia em 4.x e foi removido)
+  3. **VFont warning ("VFBfont Regular.002")** durante depsgraph eval do node group eh inofensivo — o group inclui um `FS Explanation` subgrid com texto de UI que nao tem fonte alvo no append
+  4. **GLB export do material apos bake:** trocar para um Principled BSDF simples ANTES do export — exporter glTF do Blender suporta basecolor/roughness/normal via Image Texture direta, mas nao consegue exportar shader node groups complexos
+- **Validacao visual:** screenshot via Playwright MCP mostrou caixa com corrugacao do papelao aplicada nas laterais corretas + fibras nas normais + dobras nas bordas. Primeiro bake (wear 0.25) deformou demais; rebake com wear 0.05 + displacement 0.15 mantem forma de caixa reconhecivel.
+- **Hospedado:** https://st.did.lu/cardboard-experiment/v1/index.html
+- **Autonomia:** zero perguntas ao user durante execucao apos goal definido — escolha Blender 5.1, dimensoes da caixa (30×20×15cm), 2048², seed, todos os parametros de corrugacao decididos pelo agente
 
 ### Learnings tecnicos
 - VDM em Blender: RGB centrado em 0 (nao 0.5), valores ate ~0.8. R=tangent u, G=bitangent v, B=normal.

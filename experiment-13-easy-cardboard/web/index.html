@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Easy Cardboard — Blender Headless → Web</title>
+<style>
+  :root {
+    --bg-1: #1a120b;
+    --bg-2: #2a1d10;
+    --text: #f3e3c3;
+    --accent: #d49a4a;
+    --muted: #a08a6b;
+    --panel: rgba(20, 14, 8, 0.72);
+    --panel-edge: rgba(212, 154, 74, 0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, var(--bg-2), var(--bg-1));
+    color: var(--text);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    overflow: hidden;
+  }
+  #canvas-wrap {
+    position: fixed;
+    inset: 0;
+  }
+  canvas { display: block; }
+
+  .hud {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hud.top-left {
+    top: 24px; left: 24px;
+    max-width: 360px;
+  }
+  .hud.bottom-left {
+    bottom: 24px; left: 24px;
+    max-width: 380px;
+  }
+  .hud.bottom-right {
+    bottom: 24px; right: 24px;
+    text-align: right;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 12px;
+    line-height: 1.15;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  h1 .sub { display: block; font-size: 14px; font-weight: 400; color: var(--muted); margin-top: 6px; letter-spacing: 0.05em;}
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 12px;
+    padding: 14px 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 12px;
+    line-height: 1.55;
+    pointer-events: auto;
+  }
+  .panel h2 {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .panel ul { list-style: none; }
+  .panel li {
+    padding: 3px 0;
+    color: var(--text);
+  }
+  .panel li .k { color: var(--muted); display: inline-block; min-width: 130px;}
+  .panel li .v { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .footer {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  #loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-1);
+    z-index: 100;
+    transition: opacity 0.6s ease;
+  }
+  #loading.gone { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 2px solid var(--panel-edge);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div id="loading"><div class="spinner"></div></div>
+
+  <div id="canvas-wrap"></div>
+
+  <div class="hud top-left">
+    <span class="badge">Experiment 13 · cardboard</span>
+    <h1>
+      Easy Cardboard 3.1
+      <span class="sub">Geometry Nodes asset → headless pipeline → Three.js</span>
+    </h1>
+  </div>
+
+  <div class="hud bottom-left">
+    <div class="panel">
+      <h2>Pipeline executado</h2>
+      <ul>
+        <li><span class="k">Blender:</span><span class="v">5.1.2 headless</span></li>
+        <li><span class="k">Asset:</span><span class="v">Easy Cardboard 3.1 (.blend)</span></li>
+        <li><span class="k">Modifier:</span><span class="v">Geometry Nodes apendado</span></li>
+        <li><span class="k">Bake:</span><span class="v">Cycles · 2048² · color + normal + roughness</span></li>
+        <li><span class="k">Saida:</span><span class="v">GLB com texturas embedded</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hud bottom-right">
+    <div class="footer">arraste para girar · scroll para zoom</div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    const wrap = document.getElementById('canvas-wrap');
+    const loading = document.getElementById('loading');
+
+    // renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    wrap.appendChild(renderer.domElement);
+
+    // scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a120b);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    // camera
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.01, 100);
+    camera.position.set(0.55, 0.42, 0.65);
+
+    // controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.target.set(0, 0.08, 0);
+    controls.minDistance = 0.25;
+    controls.maxDistance = 2.5;
+    controls.maxPolarAngle = Math.PI * 0.49;
+
+    // ground / shadow catcher
+    const groundGeo = new THREE.CircleGeometry(1.2, 64);
+    const groundMat = new THREE.ShadowMaterial({ opacity: 0.45 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // lights
+    const hemi = new THREE.HemisphereLight(0xffeac9, 0x2a1d10, 0.45);
+    scene.add(hemi);
+
+    const key = new THREE.DirectionalLight(0xffe6c2, 2.4);
+    key.position.set(1.0, 1.6, 0.8);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 0.1;
+    key.shadow.camera.far = 5;
+    key.shadow.camera.left = -1;
+    key.shadow.camera.right = 1;
+    key.shadow.camera.top = 1;
+    key.shadow.camera.bottom = -1;
+    key.shadow.bias = -0.0005;
+    scene.add(key);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const fill = new THREE.DirectionalLight(0x88a4c8, 0.5);
+    fill.position.set(-0.8, 0.4, -0.6);
+    scene.add(fill);
+
+    // load GLB
+    const loader = new GLTFLoader();
+    loader.load('./cardboard_box.glb?v=2', (gltf) => {
+      const root = gltf.scene;
+      root.traverse((c) => {
+        if (c.isMesh) {
+          c.castShadow = true;
+          c.receiveShadow = true;
+          if (c.material) {
+            c.material.roughness = c.material.roughness ?? 0.8;
+            c.material.metalness = 0.0;
+          }
+        }
+      });
+
+      // center on origin, sit on ground
+      const box = new THREE.Box3().setFromObject(root);
+      const center = box.getCenter(new THREE.Vector3());
+      root.position.x -= center.x;
+      root.position.z -= center.z;
+      root.position.y -= box.min.y;
+
+      scene.add(root);
+
+      // fit camera roughly to bounding box
+      const size = box.getSize(new THREE.Vector3());
+      const radius = size.length() * 0.5;
+      const camDist = radius / Math.sin(camera.fov * Math.PI / 360);
+      camera.position.set(camDist*0.8, camDist*0.6, camDist*0.9);
+      controls.target.set(0, size.y * 0.5, 0);
+
+      loading.classList.add('gone');
+    }, (xhr) => {
+      // progress
+    }, (err) => {
+      console.error('GLB load error', err);
+      loading.innerHTML = '<div style="color:#d49a4a;font-size:14px;">Falha ao carregar o GLB</div>';
+    });
+
+    // gentle auto-rotate when idle
+    let lastInteraction = performance.now();
+    controls.addEventListener('start', () => { lastInteraction = performance.now(); });
+    controls.addEventListener('change', () => { lastInteraction = performance.now(); });
+
+    // resize
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    function tick() {
+      const idle = (performance.now() - lastInteraction) > 1800;
+      if (idle) {
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6;
+      } else {
+        controls.autoRotate = false;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+    tick();
+  </script>
+</body>
+</html>
