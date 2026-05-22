@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Corrugacao — Type, Direction Mask, Invert — Easy Cardboard 3.1</title>
+<style>
+  :root {
+    --bg-1: #1a120b;
+    --bg-2: #2a1d10;
+    --text: #f3e3c3;
+    --accent: #d49a4a;
+    --muted: #a08a6b;
+    --panel: rgba(20, 14, 8, 0.78);
+    --panel-edge: rgba(212, 154, 74, 0.28);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; min-height: 100%;
+    background: radial-gradient(ellipse at center, var(--bg-2), var(--bg-1));
+    color: var(--text);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+  .page { padding: 32px 40px 80px; max-width: 1400px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  .badge {
+    display: inline-block;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 14px 0 6px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    align-items: start;
+    margin-top: 36px;
+  }
+  .preview {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .preview .badge-current {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+  .controls {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .controls h2 {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .controls label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .controls .value {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .controls input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--panel-edge);
+    border-radius: 2px;
+    outline: none;
+  }
+  .controls input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg-1);
+  }
+  .controls input[type=range]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg-1);
+  }
+  .thumbs {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+  }
+  .thumb {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .thumb.active {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .thumb img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  .thumb .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+  nav.nav {
+    margin: 30px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  nav.nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  nav.nav a:hover { color: var(--text); border-color: var(--panel-edge); }
+  nav.nav a.active {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .footer {
+    margin-top: 50px;
+    color: var(--muted);
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <span class="badge">Experiment 13 · cardboard</span>
+    <h1>Corrugacao — Type, Direction Mask, Invert</h1>
+    <p class="subtitle">O plugin tem duas variacoes de corrugacao (<strong>Type 0/1</strong>) e um threshold de mascara direcional que decide onde o corrugado aparece em funcao da UV. <strong>Direction Mask Threshold</strong> alto = corrugado so nas quinas; baixo = espalha mais. <strong>Invert</strong> inverte essa selecao.</p>
+  </header>
+
+  <nav class="nav">
+    <a href="../wear/index.html">Wear</a>
+    <a href="../scale/index.html">Scale</a>
+    <a href="../corrugation/index.html">Corrugation</a>
+    <a href="../shapes/index.html">Shapes</a>
+    <a href="../wild/index.html">Wild</a>
+    <a href="../index.html">← hub</a>
+  </nav>
+
+  <div class="stage">
+    <div class="preview">
+      <span class="badge-current" id="badge">TYPE0 DM05</span>
+      <img id="hero" src="corr_type0_dm05.png" alt="cardboard preview" />
+    </div>
+    <div class="controls">
+      <h2>Type + Direction Mask</h2>
+      <label>Variation</label>
+      <div class="value" id="value">TYPE0 DM05</div>
+      <input type="range" id="slider" min="0" max="6" step="1" value="0" />
+      <div style="margin-top:24px;font-size:11px;color:var(--muted);line-height:1.6;">
+        Cada variacao foi gerada num processo Blender 5.1 headless usando o Geometry Nodes asset Easy Cardboard 3.1.<br><br>
+        Plugin: <strong>Simple Box Creator</strong> + <strong>Easy Cardboard 3.0</strong> + <strong>Smooth by Angle</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div class="thumbs" id="thumbs"></div>
+
+  <div class="footer">renders Cycles 32 samples · pipeline 100% headless via plugin do asset</div>
+</div>
+
+<script>
+const variations = [{"img": "corr_type0_dm05.png", "label": "TYPE0 DM05"}, {"img": "corr_type0_dm10.png", "label": "TYPE0 DM10"}, {"img": "corr_type0_dm20.png", "label": "TYPE0 DM20"}, {"img": "corr_type1_dm10.png", "label": "TYPE1 DM10"}, {"img": "corr_type1_dm20.png", "label": "TYPE1 DM20"}, {"img": "corr_type0_inv.png", "label": "TYPE0 INV"}, {"img": "corr_type0_disp_high.png", "label": "TYPE0 DISP HIGH"}];
+const slider = document.getElementById('slider');
+const hero = document.getElementById('hero');
+const badge = document.getElementById('badge');
+const valueLabel = document.getElementById('value');
+const thumbs = document.getElementById('thumbs');
+
+// build thumbs
+variations.forEach((v, i) => {
+  const div = document.createElement('div');
+  div.className = 'thumb' + (i === 0 ? ' active' : '');
+  div.innerHTML = `<img src="${v.img}" loading="lazy"/><div class="label">${v.label}</div>`;
+  div.addEventListener('click', () => {
+    slider.value = i;
+    update(i);
+  });
+  thumbs.appendChild(div);
+});
+
+slider.addEventListener('input', e => update(parseInt(e.target.value)));
+
+function update(i) {
+  const v = variations[i];
+  hero.src = v.img;
+  badge.textContent = v.label;
+  valueLabel.textContent = v.label;
+  document.querySelectorAll('.thumb').forEach((t, idx) => {
+    t.classList.toggle('active', idx === i);
+  });
+}
+
+// active nav
+const path = location.pathname;
+document.querySelectorAll('nav.nav a').forEach(a => {
+  if (path.includes(a.getAttribute('href').replace('../', '').replace('/index.html', ''))) {
+    a.classList.add('active');
+  }
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  let i = parseInt(slider.value);
+  if (e.key === 'ArrowRight' && i < variations.length - 1) { i++; slider.value = i; update(i); }
+  if (e.key === 'ArrowLeft' && i > 0) { i--; slider.value = i; update(i); }
+});
+</script>
+</body>
+</html>

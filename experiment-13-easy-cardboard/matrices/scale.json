@@ -1,0 +1,9 @@
+[
+  {"name": "gs_025", "cb": {"Global Scale": 0.25}},
+  {"name": "gs_050", "cb": {"Global Scale": 0.50}},
+  {"name": "gs_075", "cb": {"Global Scale": 0.75}},
+  {"name": "gs_100", "cb": {"Global Scale": 1.00}},
+  {"name": "gs_150", "cb": {"Global Scale": 1.50}},
+  {"name": "gs_200", "cb": {"Global Scale": 2.00}},
+  {"name": "gs_300", "cb": {"Global Scale": 3.00}}
+]

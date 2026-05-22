@@ -1,0 +1,9 @@
+[
+  {"name": "wild_pristine", "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0}, "cb": {"Wear ⏰": 0.0, "Global Scale": 0.7, " Fibers Density": 3.0}},
+  {"name": "wild_used", "box": {"Width": 1.2, "Length": 0.9, "Height": 0.8}, "cb": {"Wear ⏰": 0.4, "Global Scale": 1.0, "Direction Mask Threshold": 1.5}},
+  {"name": "wild_battered", "box": {"Width": 1.0, "Length": 1.4, "Height": 0.7}, "cb": {"Wear ⏰": 0.85, "Global Scale": 1.2, "Displacement Strength": 0.35, "Strength": 0.4}},
+  {"name": "wild_micro", "box": {"Width": 0.8, "Length": 0.8, "Height": 0.8}, "cb": {"Wear ⏰": 0.15, "Global Scale": 0.3, " Fibers Density": 4.0, "Fibers Size": 0.04}},
+  {"name": "wild_macro", "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0}, "cb": {"Wear ⏰": 0.25, "Global Scale": 2.5, "Direction Mask Threshold": 0.8}},
+  {"name": "wild_open", "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0, "Flap Length": 0.35, "Gaps (Length)": 0.20, "Gap (Width)": 0.20}, "cb": {"Wear ⏰": 0.3}},
+  {"name": "wild_squat", "box": {"Width": 1.5, "Length": 1.5, "Height": 0.4, "Flap Length": 0.20}, "cb": {"Wear ⏰": 0.5, "Global Scale": 1.1}}
+]

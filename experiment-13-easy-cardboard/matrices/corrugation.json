@@ -1,0 +1,9 @@
+[
+  {"name": "corr_type0_dm05", "cb": {"Type": 0, "Direction Mask Threshold": 0.5}},
+  {"name": "corr_type0_dm10", "cb": {"Type": 0, "Direction Mask Threshold": 1.0}},
+  {"name": "corr_type0_dm20", "cb": {"Type": 0, "Direction Mask Threshold": 2.0}},
+  {"name": "corr_type1_dm10", "cb": {"Type": 1, "Direction Mask Threshold": 1.0}},
+  {"name": "corr_type1_dm20", "cb": {"Type": 1, "Direction Mask Threshold": 2.0}},
+  {"name": "corr_type0_inv", "cb": {"Type": 0, "Direction Mask Threshold": 1.0, "Invert": true}},
+  {"name": "corr_type0_disp_high", "cb": {"Type": 0, "Displacement Strength": 0.5, "Strength": 0.5}}
+]

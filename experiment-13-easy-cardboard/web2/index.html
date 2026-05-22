@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8" /><title>Easy Cardboard — Experiments</title>
+<style>
+body{background:#1a120b;color:#f3e3c3;font-family:Inter,system-ui,sans-serif;padding:60px 40px;max-width:900px;margin:0 auto;}
+h1{font-size:36px;font-weight:700;margin-bottom:8px;}
+.sub{color:#a08a6b;margin-bottom:40px;font-size:14px;line-height:1.6;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+a.card{background:rgba(20,14,8,.78);border:1px solid rgba(212,154,74,.28);border-radius:14px;padding:24px;text-decoration:none;color:#f3e3c3;transition:transform .15s, border-color .15s;}
+a.card:hover{transform:translateY(-2px);border-color:#d49a4a;}
+a.card h2{color:#d49a4a;font-size:18px;margin-bottom:6px;}
+a.card p{color:#a08a6b;font-size:13px;line-height:1.5;}
+.badge{display:inline-block;background:rgba(20,14,8,.78);border:1px solid rgba(212,154,74,.28);padding:4px 10px;border-radius:999px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#d49a4a;}
+</style></head>
+<body>
+<span class="badge">Experiment 13 · cardboard</span>
+<h1 style="margin-top:14px;">Easy Cardboard 3.1 — exploration matrix</h1>
+<p class="sub">Quatro demos isoladas, cada uma variando uma dimensao do plugin Geometry Nodes do asset. Renders Cycles 100% headless, pipeline a partir do .blend comprado.</p>
+<div class="grid">
+  <a class="card" href="wear/index.html"><h2>Wear ⏰</h2><p>6 niveis de desgaste — do papelao novo ao surrado.</p></a>
+  <a class="card" href="scale/index.html"><h2>Global Scale</h2><p>7 valores — granulacao fina ate "papelao grosso".</p></a>
+  <a class="card" href="corrugation/index.html"><h2>Corrugation</h2><p>Type 0/1 × Direction Mask × Invert.</p></a>
+  <a class="card" href="shapes/index.html"><h2>Box Shapes</h2><p>Caixas diferentes via Simple Box Creator.</p></a>
+  <a class="card" href="wild/index.html"><h2>Wild combos</h2><p>Box + Wear + Scale + Fibers todos combinados.</p></a>
+</div>
+</body></html>

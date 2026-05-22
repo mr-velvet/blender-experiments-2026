@@ -1,0 +1,9 @@
+[
+  {"name": "shape_cube",    "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0}},
+  {"name": "shape_tall",    "box": {"Width": 0.6, "Length": 0.6, "Height": 1.6}},
+  {"name": "shape_flat",    "box": {"Width": 1.6, "Length": 1.2, "Height": 0.3}},
+  {"name": "shape_long",    "box": {"Width": 0.5, "Length": 2.0, "Height": 0.6}},
+  {"name": "shape_smallflap","box": {"Width": 1.0, "Length": 1.0, "Height": 1.0, "Flap Length": 0.03}},
+  {"name": "shape_bigflap",  "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0, "Flap Length": 0.30}},
+  {"name": "shape_biggap",   "box": {"Width": 1.0, "Length": 1.0, "Height": 1.0, "Gaps (Length)": 0.18, "Gap (Width)": 0.18}}
+]

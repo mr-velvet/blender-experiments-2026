@@ -1,16 +1,11 @@
 # Asset comercial Easy Cardboard 3.1 — licensiado, nao versionar
 assets/*.blend
 
-# Output pesado (esta no GCS / pode ser regenerado pelo pipeline)
-output/*.blend
-output/*.blend1
-output/*.glb
-output/cardboard_color.png
-output/cardboard_normal.png
-output/cardboard_roughness.png
+# Output (renders/bakes/blends — regenerar via pipeline)
+output/
 
-# GLB na pasta web tambem (esta no GCS)
+# GLBs em web/ (estao no GCS)
 web/*.glb
 
-# Screenshots de validacao (mantemos apenas os que vao no doc)
-output/demo-shot.png
+# PNGs em web2/ tambem (estao no GCS, regenerar via pipeline)
+web2/*/*.png

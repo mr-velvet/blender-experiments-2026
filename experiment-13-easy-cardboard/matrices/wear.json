@@ -1,0 +1,8 @@
+[
+  {"name": "wear_00", "cb": {"Wear ⏰": 0.0}},
+  {"name": "wear_15", "cb": {"Wear ⏰": 0.15}},
+  {"name": "wear_30", "cb": {"Wear ⏰": 0.30}},
+  {"name": "wear_50", "cb": {"Wear ⏰": 0.50}},
+  {"name": "wear_70", "cb": {"Wear ⏰": 0.70}},
+  {"name": "wear_90", "cb": {"Wear ⏰": 0.90}}
+]
