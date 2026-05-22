@@ -146,7 +146,18 @@
 - v2 reaproveita GLB da v1 via URL absoluta (`location.hostname.includes("did.lu") ? URL_V1 : "./out/glb/..."`) — economiza 360KB de upload
 - **Hospedado:** https://st.did.lu/blender-shatter/v2/index.html
 
-### Experimento 11: grama alta com esqueleto + wind dinamico (2026-05-21 sessao 7)
+### Experimento 11: grama alta com esqueleto + wind dinamico (2026-05-21 sessao 7) — **INVALIDADO**
+
+> ⚠️ **EXPERIMENTO INVALIDADO PELO USER.** Nao usar como referencia em nada.
+>
+> O experimento eh lixo porque pulou exatamente as etapas que existia pra validar:
+> 1. Nao usou plugin sofisticado de grama — eu fiz um triangulo quad-strip de 12 tris a mao
+> 2. Nao consumiu a animacao do Blender em JS — eu reescrevi sin/cos em JS e ignorei o AnimationMixer
+> 3. Slider de "direcao" girava o asset no eixo Y (vento nao gira asset, vento empurra) — gambiarra
+>
+> Ver `CLAUDE.md` na raiz da workspace pras regras que evitam este tipo de erro.
+> Demo continua hospedada como evidencia do erro, NAO como referencia tecnica.
+
 - Pasta `grass/` — pipeline 100% autonoma: gera blade com 3 bones, anima wind sway, exporta GLB pequeno (12KB), player Three.js clona em N instances com wind controlavel em runtime
 - **Goal do user:** "vegetacao alta com esqueleto dentro pra balancar... que possa ser dinamicamente influenciado dentro de uma simulacao html/javascript"
 - **Pipeline (`grass/scripts/build_grass.py`):**
