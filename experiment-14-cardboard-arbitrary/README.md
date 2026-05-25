@@ -62,6 +62,35 @@ A densidade de detalhe depende da densidade de malha de entrada: o cone
 Scale` controla o tamanho das células de corrugação mas não compensa malha
 esparsa. Para uma forma arbitrária renderizar bem, vale subdividir antes.
 
+## Segunda fase — preset envelhecido + modelo 3D baixado (casa)
+
+Testamos o preset **AGED (papelão velho)** num modelo CC0 de terceiro: uma
+taverna medieval de enxaimel (GLB em `assets/model/tabern.glb`).
+
+### Achado: o parâmetro que estilhaça é o `Separation`
+
+O preset AGED de fábrica afasta cada ilha de UV da posição original
+(`Separation` + `Separation Noise Scale`) pra simular papelão se desmontando.
+Numa **caixa sólida** isso dá charme de velho. Numa **casca de parede fina**
+(a casa: 61% das arestas são borda, espessura zero) isso arranca cada painel
+e a casa vira um amontoado de cacos. Os outros sockets de envelhecimento
+(Wear, Displacement, Fibras, Roughness) **não entortam a estrutura** — só o
+`Separation` faz isso.
+
+### Sweep de `Separation` (`scripts/sweep_separation.py`)
+
+Mesma casa, todo o envelhecimento ligado, variando só o `Separation`:
+
+| Separation | Resultado |
+|---|---|
+| 0.0 | casa perfeita, totalmente legível, já com look de papelão velho |
+| 0.3 | muito legível, folgas leves entre painéis ("casinha montada à mão") |
+| 0.6 | começa a desmontar, painéis se afastando — teto do aceitável |
+| 1.0 (default) | estilhaçado em cacos — calibrado pra caixa sólida, não casca |
+
+**Conclusão:** pra modelo de parede fina, manter `Separation` entre 0.0 e 0.3.
+O resto do envelhecimento pode ficar forte sem prejuízo de legibilidade.
+
 ## Stack
 
 - Blender 5.1.2 headless, Cycles
