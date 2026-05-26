@@ -1,0 +1,18 @@
+[init] texangle sweep
+[b23 a0] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b23_a000.png
+[b23 a90] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b23_a090.png
+[b23 a180] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b23_a180.png
+[b23 a270] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b23_a270.png
+[b15 a0] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b15_a000.png
+[b15 a90] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b15_a090.png
+[b15 a180] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b15_a180.png
+[b15 a270] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b15_a270.png
+[b1 a0] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b01_a000.png
+[b1 a90] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b01_a090.png
+[b1 a180] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b01_a180.png
+[b1 a270] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b01_a270.png
+[b5 a0] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b05_a000.png
+[b5 a90] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b05_a090.png
+[b5 a180] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b05_a180.png
+[b5 a270] OK -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\texangle\b05_a270.png
+DONE

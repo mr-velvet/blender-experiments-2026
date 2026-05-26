@@ -1,0 +1,10 @@
+[init] angle sweep
+[b23 UP d=(0,50)] OK z 0.000/0.000 -> -0.051/0.544 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b23_UP.png
+[b23 RIGHT d=(50,0)] OK z 0.000/0.000 -> -0.051/0.544 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b23_RIGHT.png
+[b23 DOWN d=(0,-50)] OK z 0.000/0.000 -> -0.051/0.544 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b23_DOWN.png
+[b23 LEFT d=(-50,0)] OK z 0.000/0.000 -> -0.051/0.544 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b23_LEFT.png
+[b15 UP d=(0,50)] OK z 0.000/0.000 -> -0.345/0.032 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b15_UP.png
+[b15 RIGHT d=(50,0)] OK z 0.000/0.000 -> -0.345/0.032 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b15_RIGHT.png
+[b15 DOWN d=(0,-50)] OK z 0.000/0.000 -> -0.345/0.032 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b15_DOWN.png
+[b15 LEFT d=(-50,0)] OK z 0.000/0.000 -> -0.345/0.032 -> C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\angle\b15_LEFT.png
+DONE

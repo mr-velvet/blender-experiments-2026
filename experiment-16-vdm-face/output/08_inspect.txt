@@ -1,0 +1,62 @@
+
+=== brush 01: Human Face VDM 01 ===
+  sculpt_tool=DRAW
+  stroke_method=ANCHORED
+  direction=DEFAULT
+  texture_slot.map_mode=
+  texture_slot.angle=0.0
+  texture_slot.use_rake=False
+  texture_slot.use_random=False
+  texture_slot.tex_paint_map_mode=None
+  texture=Texture.001 type=IMAGE
+    image=Map_ (1).exr size=(512, 512) colorspace=Linear Rec.709
+  use_anchor=True
+  cursor_overlay_alpha=33
+  texture_overlay_alpha=33
+
+=== brush 05: Human Face VDM 05 ===
+  sculpt_tool=DRAW
+  stroke_method=ANCHORED
+  direction=DEFAULT
+  texture_slot.map_mode=
+  texture_slot.angle=0.0
+  texture_slot.use_rake=False
+  texture_slot.use_random=False
+  texture_slot.tex_paint_map_mode=None
+  texture=Texture.002 type=IMAGE
+    image=Map_ (5).exr size=(512, 512) colorspace=Linear Rec.709
+  use_anchor=True
+  cursor_overlay_alpha=33
+  texture_overlay_alpha=33
+
+=== brush 15: Human Face VDM 15 ===
+  sculpt_tool=DRAW
+  stroke_method=ANCHORED
+  direction=DEFAULT
+  texture_slot.map_mode=
+  texture_slot.angle=0.0
+  texture_slot.use_rake=False
+  texture_slot.use_random=False
+  texture_slot.tex_paint_map_mode=None
+  texture=Texture.003 type=IMAGE
+    image=Map_ (15).exr size=(257, 257) colorspace=Linear Rec.709
+  use_anchor=True
+  cursor_overlay_alpha=33
+  texture_overlay_alpha=33
+
+=== brush 23: Human Face VDM 23 ===
+  sculpt_tool=DRAW
+  stroke_method=ANCHORED
+  direction=DEFAULT
+  texture_slot.map_mode=
+  texture_slot.angle=0.0
+  texture_slot.use_rake=False
+  texture_slot.use_random=False
+  texture_slot.tex_paint_map_mode=None
+  texture=Texture.004 type=IMAGE
+    image=Map_ (23).exr size=(512, 512) colorspace=Linear Rec.709
+  use_anchor=True
+  cursor_overlay_alpha=33
+  texture_overlay_alpha=33
+
+DONE

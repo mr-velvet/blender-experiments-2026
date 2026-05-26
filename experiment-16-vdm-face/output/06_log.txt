@@ -1,0 +1,11 @@
+[init] face builder
+[cube] verts=98306
+[proj] centro face +Y -> <Vector (847.7432, 473.5737)>
+ERR Traceback (most recent call last):
+  File "C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\scripts\06_face.py", line 160, in tick
+    try: build()
+         ^^^^^^^
+  File "C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\scripts\06_face.py", line 89, in build
+    for name, bidx, x, z, size, rot in FACE_PLAN:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 6, got 5)

@@ -1,0 +1,11 @@
+[init] v5
+[cube] verts=98306
+[proj] centro face +Y -> <Vector (847.7432, 473.5737)>
+[proj] +Z(0.5) -> <Vector (848.0134, 500.7926)> (deve ter y MAIOR que centro)
+[olho_esq] b25 @(-0.45,0.35) ang=0 y_max 1.000->1.108
+[olho_dir] b25 @(0.45,0.35) ang=0 y_max 1.108->1.108
+[nariz] b28 @(0.0,-0.05) ang=0 y_max 1.108->1.543
+[boca] b17 @(0.0,-0.55) ang=0 y_max 1.543->1.543
+[viewport] C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\face_v5_viewport.png
+[diag] C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\face_v5_diag.png
+[saved]

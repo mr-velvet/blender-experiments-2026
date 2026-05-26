@@ -1,0 +1,26 @@
+[init]
+[b28 a0] ok
+[b28 a45] ok
+[b28 a90] ok
+[b28 a135] ok
+[b28 a180] ok
+[b28 a225] ok
+[b28 a270] ok
+[b28 a315] ok
+[b25 a0] ok
+[b25 a45] ok
+[b25 a90] ok
+[b25 a135] ok
+[b25 a180] ok
+[b25 a225] ok
+[b25 a270] ok
+[b25 a315] ok
+[b17 a0] ok
+[b17 a45] ok
+[b17 a90] ok
+[b17 a135] ok
+[b17 a180] ok
+[b17 a225] ok
+[b17 a270] ok
+[b17 a315] ok
+DONE

@@ -1,0 +1,10 @@
+[init] calib
+[A b1] OK
+[B b1] OK
+[C b1] OK
+[D b1] OK
+[A b15] OK
+[C b15] OK
+[A b30] OK
+[C b30] OK
+DONE

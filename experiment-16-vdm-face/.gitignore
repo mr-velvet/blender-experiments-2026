@@ -1,0 +1,2 @@
+# .blend são regeneráveis pelos scripts e pesam 12-31MB cada (> limite de 5MB)
+output/*.blend

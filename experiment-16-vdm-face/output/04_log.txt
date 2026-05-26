@@ -1,0 +1,32 @@
+[init] catalogo v2 iniciado
+[1] Human Face VDM 01  d=0.619
+[2] Human Face VDM 02  d=0.598
+[3] Human Face VDM 03  d=0.351
+[4] Human Face VDM 04  d=0.279
+[5] Human Face VDM 05  d=0.540
+[6] Human Face VDM 06  d=0.507
+[7] Human Face VDM 07  d=0.578
+[8] Human Face VDM 08  d=0.409
+[9] Human Face VDM 09  d=0.410
+[10] Human Face VDM 10  d=0.410
+[11] Human Face VDM 11  d=0.280
+[12] Human Face VDM 12  d=0.318
+[13] Human Face VDM 13  d=0.291
+[14] Human Face VDM 14  d=0.295
+[15] Human Face VDM 15  d=0.031
+[16] Human Face VDM 16  d=0.037
+[17] Human Face VDM 17  d=0.039
+[18] Human Face VDM 18  d=0.037
+[19] Human Face VDM 19  d=0.342
+[20] Human Face VDM 20  d=0.288
+[21] Human Face VDM 21  d=0.142
+[22] Human Face VDM 22  d=0.337
+[23] Human Face VDM 23  d=0.544
+[24] Human Face VDM 24  d=0.345
+[25] Human Face VDM 25  d=0.105
+[26] Human Face VDM 26  d=0.243
+[27] Human Face VDM 27  d=0.453
+[28] Human Face VDM 28  d=0.560
+[29] Human Face VDM 29  d=0.450
+[30] Human Face VDM 30  d=0.652
+=== DONE ===

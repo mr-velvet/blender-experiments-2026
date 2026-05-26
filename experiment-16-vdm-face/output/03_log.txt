@@ -1,0 +1,8 @@
+[init] timer registrado
+=== timer fired ===
+[target] verts=24578
+[brush] Human Face VDM 01 tool=DRAW stroke=ANCHORED
+[view3d] area=<bpy_struct, Area at 0x0000021E007BC120> region=<bpy_struct, Region at 0x0000021E007B3620> rv3d=<bpy_struct, RegionView3D at 0x0000021E007DE420>
+[proj] target <Vector (1.0000, 0.0000, 0.0000)> -> 2d <Vector (818.9204, 435.8394)>
+RESULT: STROKE_OK
+[saved] C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\03_result.blend

@@ -1,0 +1,5 @@
+[init]
+[control_noangle] zmax=0.544 angle=None
+[angle_0] zmax=0.544 angle=0
+[angle_90] zmax=0.544 angle=90
+DONE

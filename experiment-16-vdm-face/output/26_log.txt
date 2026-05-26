@@ -1,0 +1,7 @@
+[init]
+b15 ok
+b16 ok
+b17 ok
+b18 ok
+b25 ok
+DONE

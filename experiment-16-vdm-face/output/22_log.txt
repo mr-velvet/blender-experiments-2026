@@ -1,0 +1,10 @@
+[init]
+[b28 roll0] ok
+[b28 roll90] ok
+[b28 roll180] ok
+[b28 roll270] ok
+[b17 roll0] ok
+[b17 roll90] ok
+[b25 roll0] ok
+[b25 roll90] ok
+DONE

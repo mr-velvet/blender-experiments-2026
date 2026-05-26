@@ -1,0 +1,6 @@
+[init]
+b28: n=10092 centroid=(-0.033,0.015) pca_ang=-23.9 len_major=1.059 len_minor=0.746 bbox_w=0.993 bbox_h=0.800
+b25: poucos pts (0)
+b17: n=68 centroid=(-0.001,-0.004) pca_ang=21.7 len_major=0.082 len_minor=0.065 bbox_w=0.079 bbox_h=0.068
+b16: n=68 centroid=(-0.000,-0.005) pca_ang=1.0 len_major=0.078 len_minor=0.051 bbox_w=0.078 bbox_h=0.051
+DONE

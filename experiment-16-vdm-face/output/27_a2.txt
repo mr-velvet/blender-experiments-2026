@@ -1,0 +1,12 @@
+[init] a2
+  stamp nariz b28 r=0.45 z[-0.011,0.560] cut_r=0.47 verts=12639
+  place nariz rotz=115 pos=(0.0,-0.02) scale=0.62 mirror=False
+  stamp olho_esq b25 r=0.55 z[-0.093,0.105] cut_r=0.58 verts=21573
+  place olho_esq rotz=0 pos=(-0.34,0.3) scale=0.42 mirror=False
+  stamp olho_dir b25 r=0.55 z[-0.093,0.105] cut_r=0.58 verts=21573
+  place olho_dir rotz=0 pos=(0.34,0.3) scale=0.42 mirror=True
+  stamp boca b15 r=0.42 z[-0.345,0.032] cut_r=0.44 verts=13237
+  place boca rotz=-78 pos=(0.0,-0.42) scale=0.55 mirror=False
+[front] ok
+[3q] ok
+[saved]
