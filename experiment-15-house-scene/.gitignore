@@ -1,0 +1,14 @@
+# Assets baixados da API PolyHaven (reproduziveis por download_assets.py / download_textures.py)
+assets/*/
+# manifests sao versionados (registram o que baixar)
+!assets/_manifest.json
+!assets/_dims.json
+
+# .blend gerado por build_house.py (43MB, reproduzivel)
+output/*.blend
+output/*.blend1
+
+# cache python
+scripts/__pycache__/
+
+# renders sao versionados (produto visual, ~2MB cada) -> NAO ignorar output/renders/

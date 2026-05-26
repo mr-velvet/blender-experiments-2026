@@ -1,0 +1,19 @@
+00:01.578  blend            | Read blend: "C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\house.blend"
+01:30.938  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\overview_sw.png'
+03:00.391  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\overview_se.png'
+05:23.703  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\overview_top.png'
+07:55.375  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\living.png'
+10:22.359  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\kitchen.png'
+12:56.172  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\bedroom.png'
+15:32.141  render           | Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-15-house-scene\output\renders\office.png'
+render overview_sw OK
+render overview_se OK
+render overview_top OK
+render living OK
+render kitchen OK
+render bedroom OK
+render office OK
+DONE
+Blender 5.1.2 (hash ec6e62d40fa9 built 2026-05-19 01:37:34)
+
+Blender quit
