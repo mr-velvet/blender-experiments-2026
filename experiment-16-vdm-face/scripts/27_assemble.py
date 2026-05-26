@@ -109,6 +109,15 @@ def build():
         bpy.context.view_layer.objects.active=base
         bpy.ops.object.join()
         face=bpy.context.view_layer.objects.active; face.name="Face"
+        # solda vertices coincidentes das bordas dos discos com a base
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.remove_doubles(threshold=0.004)
+        bpy.ops.mesh.normals_make_consistent(inside=False)
+        bpy.ops.object.mode_set(mode='OBJECT')
+        # smooth corretivo leve pra suavizar o degrau nas juntas
+        sm=face.modifiers.new("smooth","SMOOTH"); sm.factor=0.5; sm.iterations=8
+        bpy.ops.object.modifier_apply(modifier=sm.name)
         bpy.ops.object.shade_smooth()
 
     mat=bpy.data.materials.new("clay"); mat.use_nodes=True
