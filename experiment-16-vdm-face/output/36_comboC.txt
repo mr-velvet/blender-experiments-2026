@@ -1,0 +1,14 @@
+[init] comboC
+clay verts=263169 | eye_b25 nose_b28 mouth_b17 protrude=1.0 eyeP=1.4 mouthP=1.6
+  stamp nariz b28 r=0.4 pos=(0.0, -0.04) rotmesh=0
+  stamp olho_esq b25 r=0.46 pos=(-0.42, 0.4) rotmesh=90
+  stamp olho_dir b25 r=0.46 pos=(0.42, 0.4) rotmesh=-90
+  stamp boca b17 r=0.42 pos=(0.0, -0.56) rotmesh=0
+boca FLIP aplicado
+apos protrude z[-0.277,0.779]
+[vp 3q] ok
+[vp front] ok
+[vp side] ok
+[render 3q] ok
+[render side] ok
+[saved]

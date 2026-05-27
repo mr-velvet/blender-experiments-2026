@@ -1,0 +1,12 @@
+[init] v3_m16
+clay verts=263169
+  stamp nariz b28 r=0.4 pos=(0.0, -0.04) rotmesh=0 z[-0.011,0.560]
+  stamp olho_esq b25 r=0.46 pos=(-0.42, 0.4) rotmesh=90 z[-0.096,0.560]
+  stamp olho_dir b25 r=0.46 pos=(0.42, 0.4) rotmesh=-90 z[-0.096,0.560]
+  stamp boca b16 r=0.42 pos=(0.0, -0.56) rotmesh=0.0 z[-0.341,0.560]
+[viewport 3q] ok
+[viewport front] ok
+[viewport side] ok
+[render 3q] ok
+[render front] ok
+[saved]

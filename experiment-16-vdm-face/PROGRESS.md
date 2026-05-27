@@ -1,6 +1,6 @@
 # experiment-16-vdm-face — PROGRESS
 
-Última atualização: 2026-05-26
+Última atualização: 2026-05-27
 
 ## Objetivo (literal do user)
 Usar os pincéis VDM de rosto humano (pack "Human Face VDM") para DESENHAR um
@@ -85,8 +85,33 @@ LIMITE confirmado da BOCA: testei b15/b16/b17 (sc_v1/v3/v4) — todas saem como
 projecao VERTICAL de labio. O pack NAO tem boca horizontal classica.
 Comparativo: `output/mouth_compare_sculpt.png`. Aguardando user decidir tratamento.
 
+## RODADA 2026-05-27 (noite) — outros brushes + mais protrusao
+User pediu: testar outras bocas/olhos/narizes e deixar olhos+boca mais saltados.
+
+`scripts/35_candidates.py` — carimba lista de brushes isolados e renderiza em 3/4
+(perfil revela protrusao). Env: CAND_LIST (csv), CAND_FLIP, CAND_RADIUS, CAND_TAG.
+Rodar 1 brush por processo (sem --background) senao crasha. Saidas em output/cand/.
+Mosaicos: output/cand/eyes_mosaic, noses_mosaic, mouths_mosaic.
+
+`scripts/36_sculpt_protrude.py` — rosto no cubo (herda 34) PARAMETRIZAVEL:
+EYE_BRUSH/NOSE_BRUSH/MOUTH_BRUSH, PROTRUDE (mult Z global do relevo+),
+EYE_PROTRUDE/MOUTH_PROTRUDE (mult Z por regiao), EYE/NOSE/MOUTH_RADIUS, MOUTH_FLIP
+(inverte o Z negativo da faixa da boca -> boca salta em vez de afundar), TAG.
+Combos gerados: output/sc_comboA/B/C_* . Melhor = comboC (olho b25 prot1.4,
+nariz b28 carnudo, boca b17 flip).
+
+### Achados duros desta rodada (LIMITES do pack, confirmados visualmente)
+- PROTRUSAO resolvida: multiplicar Z>0 da malha apos esculpir. 1.4-1.5 bom, 2.0 vira bola.
+- OLHOS sem variedade: b21/b25/b26 sao o MESMO olho (globo+palpebra) com variacao
+  minima. b25 e o melhor. O pack nao tem outros formatos de olho.
+- BOCA: brushes 15-18 sao CONCAVOS (zmin ~-0.34) -> afundam a malha, por isso pareciam
+  furo/sem volume. Flip (inverter Z) faz saltar, mas vira protuberancia/bola, nao boca
+  de 2 labios. O pack NAO tem boca de verdade. Teto confirmado.
+- O pack inteiro e majoritariamente NARIZES e ORELHAS. Forte em nariz, fraco em olho,
+  sem boca.
+
 ## A fazer (aguardando user)
-- BOCA: escolher (a) aceitar vertical b15, (b) 2 carimbos lado a lado, (c) so olhos+nariz.
+- Fechar com combo C, OU tentar boca por 2 carimbos (labio sup+inf), OU FASE 2.
 - FASE 2: pintar rosto em asset gratuito (download de modelo + carimbar nas faces).
 
 ## Scripts-chave

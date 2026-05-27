@@ -1,0 +1,8 @@
+b15 z[-0.345,0.032] flip=False
+[rendered b15]
+b16 z[-0.345,0.038] flip=False
+[rendered b16]
+b17 z[-0.345,0.039] flip=False
+[rendered b17]
+b18 z[-0.345,0.038] flip=False
+[rendered b18]
