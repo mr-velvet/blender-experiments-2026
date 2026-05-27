@@ -67,13 +67,32 @@ Plantio no cubo: placa XY rotaciona +90 em X (relevo +Z -> -Y) e cola na face -Y
 - Crash EXCEPTION_ACCESS_VIOLATION no quit_blender e cosmetico — todos os renders
   saem antes. Rodar 1 brush/feature por processo evita crash por acumulo de estado.
 
+## RODADA 2026-05-27 (tarde) — esculpir na MESMA malha (resolveu o "furo")
+User apontou: olhos/boca estavam CHAPADOS e "furando a malha" (efeito do approach de
+placas recortadas + join). Pediu pra esculpir DIRETO numa malha subdividida.
+
+`scripts/34_sculpt_unified.py` — NOVO approach, resolveu o problema central:
+- 1 plano denso (subsurf SIMPLE lvl9 = 263k verts), entra em SCULPT mode UMA vez,
+  carimba os 4 brushes em coords diferentes da MESMA superficie. VDM desloca a massa
+  existente pra fora -> relevo CONTINUO, sem furo, sem recorte, sem degrau.
+- Encolhimento resolvido: reseto `unprojected_radius` antes de cada stroke.
+- Olho a 90deg sem encolher: giro a MALHA 90deg em Z em torno do pivot do olho antes
+  do stroke e desfaco depois (girar textura/view encolhia o stamp).
+- Resultado: `output/sc_v1_*` (vp_3q, vp_front, vp_side, r_3q, r_front, .blend).
+  Olhos amendoa horizontal corretos, nariz protrui, tudo brotando da massa.
+
+LIMITE confirmado da BOCA: testei b15/b16/b17 (sc_v1/v3/v4) — todas saem como
+projecao VERTICAL de labio. O pack NAO tem boca horizontal classica.
+Comparativo: `output/mouth_compare_sculpt.png`. Aguardando user decidir tratamento.
+
 ## A fazer (aguardando user)
-- Confirmar angulo dos olhos (0/45/90) e se troca o brush da boca.
-- Suavizar serrilhado das bordas dos olhos via shrinkwrap (se user quiser).
+- BOCA: escolher (a) aceitar vertical b15, (b) 2 carimbos lado a lado, (c) so olhos+nariz.
 - FASE 2: pintar rosto em asset gratuito (download de modelo + carimbar nas faces).
 
 ## Scripts-chave
 - 12_catalog_clean / 13_measure — identificação dos brushes (antigo)
 - 27_assemble — rosto por objetos rotacionados num PLANO (gerou o asm_a2 aprovado)
 - 31_single_feat — carimba 1 brush isolado, parametrizavel (FEAT_BRUSH/ROT/CAM/OUT)
-- 33_cube_final — ROSTO NO CUBO, versao atual (EYE_ROT/MOUTH_BRUSH/MOUTH_ROT/TAG)
+- 33_cube_final — ROSTO NO CUBO por placas recortadas (approach antigo, gerava furo)
+- 34_sculpt_unified — ROSTO esculpido na MESMA malha (atual, resolveu o furo). Env:
+  MOUTH_BRUSH, MOUTH_ROT, TAG.
