@@ -110,6 +110,37 @@ nariz b28 carnudo, boca b17 flip).
 - O pack inteiro e majoritariamente NARIZES e ORELHAS. Forte em nariz, fraco em olho,
   sem boca.
 
+## RODADA 2026-05-27 (fim) — CUBO DE OLHOS + GLOBO OCULAR (so propriedade do pincel)
+User apontou (correto): a "protrusao" exagerada do olho na rodada anterior NAO era do
+pincel — o script 36 multiplicava v.co.z e invertia Z na boca (flip). Isso e mexer na
+malha, PROIBIDO. REGRA TRAVADA agora: so carimbo VDM + so propriedades do pincel.
+Zero manipulacao de vertice pos-carimbo.
+
+Pedido novo: cubo com olho em CADA face, cada face variando PROPRIEDADE do pincel; por
+uma ESFERA (globo ocular) no meio de um olho, do tamanho do pincel; varios cubos.
+
+`scripts/37_inspect_eye.py` — dump das props do brush b25. Achados (medidos):
+- unprojected_radius -> TAMANHO do olho. funciona (0.36..0.58 testado).
+- strength -> INTENSIDADE/profundidade do relevo. funciona (1.0 -> z0.105; 0.55 -> z0.032).
+- height (param VDM) -> NAO reescala (image-based VDM ignora). 0.40 e 0.62 dao mesmo z.
+- rotacao do olho: giro a MALHA antes do carimbo (rigido) e desfaco. 90deg=horizontal.
+- TETO de relevo do pincel ~z0.10 no raio cheio. Nao da "mais saltado" sem inflar a
+  malha (proibido). So da mais RASO via strength. Reportado ao user.
+
+`scripts/38_eye_cube.py` — CUBO com olho VDM b25 carimbado em cada uma das 6 faces.
+Approach: 1 placa densa (subsurf simple lvl8) por face, sculpt mode top-down, 1 carimbo,
+depois planta a placa orientada na face do cubo (transform_apply). Variacao por face =
+(radius, strength, eye_rot). ESFERA(s) globo ocular: acho o centro real da concavidade
+do olho (vertice mais baixo perto da origem), transformo pra mundo via matrix_world da
+placa, posiciono a esfera (raio ~0.38*raio_olho) aflorando na palpebra. Env: TAG,
+SPHERE_FACES (csv de indices 0-5) ou SPHERE_FACE.
+- Cubo 1 (TAG=eyecube, SPHERE_FACE=1): `38_eyecube_r_eyeball.png` (close: olho+globo
+  encaixado PERFEITO), `_r_3q.png`, `_vp_3q/front/top.png`, `.blend`.
+- Cubo 2 (TAG=eyecube2, SPHERE_FACES=1,2,4): 3 globos em 3 faces, tamanhos distintos.
+  `38_eyecube2_r_3q.png` etc.
+RESULTADO: olho = 100% pincel VDM, zero deformacao manual. Esfera = unico objeto extra,
+encaixada no centro real do olho. Pedido cumprido literalmente.
+
 ## A fazer (aguardando user)
 - Fechar com combo C, OU tentar boca por 2 carimbos (labio sup+inf), OU FASE 2.
 - FASE 2: pintar rosto em asset gratuito (download de modelo + carimbar nas faces).

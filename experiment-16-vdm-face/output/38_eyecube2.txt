@@ -1,0 +1,18 @@
+[init] eyecube2
+[build eyecube2] sphere_faces=[1, 2, 4]
+  plate eye_+Y_frente r=0.5 str=1.0 rot=90 -> z[-0.093,0.105] center=(-0.063, -0.057, -0.093)
+  plate eye_-Y_tras r=0.42 str=1.0 rot=90 -> z[-0.093,0.105] center=(-0.063, -0.057, -0.093)
+  plate eye_+X_dir r=0.36 str=1.0 rot=90 -> z[-0.093,0.105] center=(-0.063, -0.057, -0.093)
+  plate eye_-X_esq r=0.58 str=1.0 rot=90 -> z[-0.093,0.105] center=(-0.063, -0.057, -0.093)
+  plate eye_+Z_topo r=0.5 str=0.55 rot=90 -> z[-0.028,0.032] center=(-0.068, -0.088, -0.028)
+  plate eye_-Z_base r=0.5 str=1.0 rot=0 -> z[-0.093,0.105] center=(0.057, -0.063, -0.093)
+plates plantadas: 6
+esfera (globo) na face -Y_tras r=0.153 em (-0.061, -1.011, -0.054)
+esfera (globo) na face +X_dir r=0.131 em (0.997, -0.061, -0.054)
+esfera (globo) na face +Z_topo r=0.182 em (-0.065, -0.084, 1.092)
+[vp 3q] ok
+[vp front] ok
+[vp top] ok
+[render 3q] ok
+[render eyeball] ok
+[saved]
