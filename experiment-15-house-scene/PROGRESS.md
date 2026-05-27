@@ -61,9 +61,33 @@ parede).
 - house.blend: OK, auditavel
 - 7 renders: OK em output/renders/ (3 overviews + 4 closes corrigidos)
 
+### 2026-05-26 sessao 3 (fix lustre + escritorio + curadoria de adensamento)
+PROBLEMA 1: lustre da sala (Chandelier_01) pousava EM CIMA da mesa de centro
+em vez de pender do teto. Causa: place(on_floor=False, z_offset=2.0) movia a
+ORIGEM do handle pra 2.0, nao o topo do bbox. Como o lustre nao tem teto pra
+ancorar e a origem ficava baixa, ele assentava na mesa.
+FIX: novo helper scene_lib.hang_from_ceiling(handle, x, y, ceiling_z) que
+encosta o TOPO do bbox no pe-direito e deixa o corpo pender. Aplicado nas 2
+luminarias de teto (Chandelier_01 + modern_ceiling_lamp_01).
+PROBLEMA 2: escritorio espalhado. FIX leve: sofa de leitura aproximado do
+conjunto escrivaninha (x=3.0,y=3.4,rot=200).
+Casa rebuildada (house.blend 14:53). Render da sala revalidado.
+
+## Curadoria de adensamento (opcao b — assets pequenos CC0 PolyHaven)
+Pesquisados via API. NAO existe rug/carpet no PolyHaven. Selecionados:
+- SALA: throw_pillows_01, book_encyclopedia_set_01, ceramic_vase_01,
+  fancy_picture_frame_01, mantel_clock_01
+- COZINHA: wooden_bowl_01, food_apple_01, food_pears_asian_01, metal_jug,
+  wicker_basket_01
+- QUARTO: alarm_clock_01, decorative_book_set_01, potted_plant_02,
+  wooden_stool_01
+- ESCRITORIO: book_encyclopedia_set_01, brass_candleholders, ceramic_vase_02,
+  wooden_lantern_01
+Lista em download_assets.py (DENSIFY). Baixar + posicionar quando user
+confirmar opcao (b).
+
 ## Pendente / proximos passos (aguardando decisao do user)
 - **Adensar layout**: comodos de 6x4.5m com mobilia encostada nas paredes ->
-  centro vazio. Nao e falta de asset (25/27 usados); e que os comodos sao
-  grandes. Para adensar: encolher comodos OU reposicionar mobilia pro centro
-  OU baixar mais assets pequenos (tapetes, quadros, objetos de mesa). Exige
-  re-montar a casa. NAO feito ainda — depende de o user querer.
+  centro vazio. 4 caminhos oferecidos ao user: (a) encolher comodos, (b)
+  baixar assets pequenos [RECOMENDADO, curadoria acima pronta], (c) reagrupar
+  em ilhas centrais, (d) deixar como esta. Aguardando letra.

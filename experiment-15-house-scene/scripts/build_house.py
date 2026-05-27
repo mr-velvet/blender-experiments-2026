@@ -154,15 +154,16 @@ L.place_on(desklamp, desk, x=4.9, y=0.7)
 # garrafas de vinho decoram a escrivaninha
 wine = A("wine_bottles_01")
 L.place_on(wine, desk, x=4.9, y=2.0)
-# poltrona/sofa de leitura no canto NW do escritorio
+# sofa de leitura: virado pra escrivaninha, formando um canto de trabalho coeso
 sofa2 = A("sofa_02")
-L.place(sofa2, x=2.5, y=3.6, rot_z_deg=180)
+L.place(sofa2, x=3.0, y=3.4, rot_z_deg=200)
 
 # ============================================================ LUMINARIAS DE TETO
+# penduradas pelo TOPO do bbox no pe-direito (corpo pende pra baixo)
 chand = A("Chandelier_01")
-L.place(chand, x=-3.2, y=-2.6, on_floor=False, z_offset=WALL_H - 0.8)
+L.hang_from_ceiling(chand, x=-3.2, y=-2.6, ceiling_z=WALL_H - 0.02)
 ceil = A("modern_ceiling_lamp_01")
-L.place(ceil, x=3.2, y=-2.6, on_floor=False, z_offset=WALL_H - 0.95)
+L.hang_from_ceiling(ceil, x=3.2, y=-2.6, ceiling_z=WALL_H - 0.02)
 
 
 # ============================================================ LUZ + CAMERA + RENDER

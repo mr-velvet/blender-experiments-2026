@@ -180,17 +180,21 @@ def set_input(socket_name, value):
     log(f"  socket '{socket_name}' nao encontrado")
     return False
 
-set_input('Thickness', 0.003)
+# === preset ENVELHECIDO (AGED) — identico ao 16_aged_box do exp 13 ===
+set_input('Thickness', 0.005)
 set_input('Global Scale', 0.5)
-set_input('Wear ⏰', 0.08)
+set_input('Wear ⏰', 0.7)
 set_input('Seed \U0001F3B2', 7)
-set_input('Strength', 0.3)
-set_input('Roughness ', 0.75)
+set_input('Split Angle', math.radians(30))
+set_input('Strength', 0.5)
+set_input('Separation', 1.5)
+set_input('Separation Noise Scale', 2.0)
+set_input('Roughness ', 0.85)
 set_input('Metallic', 0.0)
-set_input('Normal Strength', 0.8)
-set_input('Displacement Strength', 0.15)
-set_input(' Fibers Density', 1.0)
-set_input('Fibers Size', 0.4)
+set_input('Normal Strength', 1.0)
+set_input('Displacement Strength', 0.6)
+set_input(' Fibers Density', 10.0)
+set_input('Fibers Size', 0.02)
 
 bpy.context.view_layer.update()
 
@@ -260,25 +264,41 @@ bpy.context.collection.objects.link(cam)
 scene.camera = cam
 cam_data.lens = 50
 
-# ---- 8. renderiza N angulos orbitando ----
-angles = [0, 60, 130, 220]  # graus em azimute
-elev = math.radians(22)
-n = 0
-for az_deg in angles:
-    az = math.radians(az_deg)
-    cx = radius * math.cos(az) * math.cos(elev)
-    cy = radius * math.sin(az) * math.cos(elev)
-    cz = radius * math.sin(elev)
-    cam.location = Vector((cx, cy, cz))
-    # mira na origem
-    look = -Vector((cx, cy, cz))
-    cam.rotation_euler = look.to_track_quat('-Z', 'Y').to_euler()
+# ---- 8. renderiza ----
+def shoot(name, cam_loc, lens, look_at):
+    cam_data.lens = lens
+    cam.location = cam_loc
+    cam.rotation_euler = (look_at - cam_loc).to_track_quat('-Z', 'Y').to_euler()
     bpy.context.view_layer.update()
-    out = os.path.join(OUTPUT_DIR, f"{SHAPE}_a{n}.png")
+    out = os.path.join(OUTPUT_DIR, f"{SHAPE}_{name}.png")
     scene.render.filepath = out
-    log(f"Render angle {az_deg}deg -> {out}")
+    log(f"Render {name} -> {out}")
     bpy.ops.render.render(write_still=True)
-    n += 1
 
-log(f"DONE shape={SHAPE} ({n} renders)")
+# 6 angulos orbitais (visao geral) — mais que os 4 de antes
+elev = math.radians(22)
+for n, az_deg in enumerate([0, 60, 120, 180, 240, 300]):
+    az = math.radians(az_deg)
+    c = Vector((radius * math.cos(az) * math.cos(elev),
+                radius * math.sin(az) * math.cos(elev),
+                radius * math.sin(elev)))
+    shoot(f"orbit{n}", c, 50, Vector((0, 0, 0)))
+
+# 3 CLOSE-UPS rasantes nas bordas — onde aparece a corrugacao (ondinhas
+# do miolo entre os cortes). Lente 90mm, camera perto, mira em quinas.
+top = max(p[2] for p in bb) * 0.5
+close_targets = [
+    Vector((maxdim*0.20, -maxdim*0.20, top)),
+    Vector((-maxdim*0.22, maxdim*0.05, maxdim*0.05)),
+    Vector((maxdim*0.02, maxdim*0.24, -maxdim*0.05)),
+]
+cr = maxdim * 0.7
+for i, tgt in enumerate(close_targets):
+    az = math.radians(40 + i*120); el = math.radians(8)
+    c = tgt + Vector((cr*math.cos(az)*math.cos(el),
+                      cr*math.sin(az)*math.cos(el),
+                      cr*math.sin(el)))
+    shoot(f"close{i}", c, 90, tgt)
+
+log(f"DONE shape={SHAPE}")
 print("[ARB] === SUCCESS ===", flush=True)

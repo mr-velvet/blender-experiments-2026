@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Antes / Depois — Easy Cardboard 3.1</title>
+<style>
+:root{
+  --bg-1:#1a120b; --bg-2:#2a1d10; --text:#f3e3c3; --accent:#d49a4a; --muted:#a08a6b;
+  --panel:rgba(20,14,8,.78); --panel-edge:rgba(212,154,74,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:radial-gradient(ellipse at center,var(--bg-2),var(--bg-1));color:var(--text);font-family:Inter,-apple-system,system-ui,sans-serif}
+.page{padding:40px 48px 80px;max-width:1600px;margin:0 auto}
+.badge{display:inline-block;background:var(--panel);border:1px solid var(--panel-edge);padding:5px 12px;border-radius:999px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:36px;font-weight:700;margin:16px 0 8px}
+.subtitle{color:var(--muted);font-size:14px;line-height:1.6;max-width:780px;margin-bottom:36px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+.card{
+  position:relative;
+  background:var(--panel);border:1px solid var(--panel-edge);border-radius:14px;
+  overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card .viewer{width:100%;aspect-ratio:1/1;background:#0f0a04;position:relative}
+.card .viewer canvas{display:block;width:100%;height:100%}
+.card .label{
+  position:absolute;top:14px;left:14px;
+  background:rgba(0,0,0,.55);padding:8px 14px;border-radius:8px;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text)
+}
+.card .label .v{color:var(--accent);margin-left:6px;font-variant-numeric:tabular-nums}
+.card .footer{padding:16px 20px;border-top:1px solid var(--panel-edge);font-size:12px;color:var(--muted)}
+.card .footer strong{color:var(--text)}
+.card .expand{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.55);padding:8px 10px;border-radius:8px;font-size:11px;color:var(--text);opacity:.7}
+.card:hover .expand{opacity:1}
+
+/* modal */
+.modal{
+  position:fixed;inset:0;background:rgba(8,5,3,.92);
+  display:none;align-items:center;justify-content:center;z-index:100;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.modal.open{display:flex}
+.modal-inner{position:relative;width:90vw;height:90vh;border-radius:14px;overflow:hidden;background:#0f0a04;border:1px solid var(--panel-edge)}
+.modal-inner canvas{display:block;width:100%;height:100%}
+.modal-close{position:absolute;top:18px;right:18px;background:rgba(0,0,0,.6);color:var(--text);border:1px solid var(--panel-edge);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;letter-spacing:.1em}
+.modal-close:hover{border-color:var(--accent);color:var(--accent)}
+.modal-title{position:absolute;top:18px;left:18px;background:rgba(0,0,0,.6);padding:10px 16px;border-radius:8px;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.modal-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:11px;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="page">
+  <span class="badge">Experiment 13 · before/after</span>
+  <h1>Antes / Depois — efeito aplicado</h1>
+  <p class="subtitle">
+    Esquerda: mesh exportada <strong>logo apos o Simple Box Creator</strong> (geometria de caixa parametrica gerada pelo plugin, sem o efeito de papelao). Direita: mesma mesh com <strong>Easy Cardboard 3.0</strong> aplicado em <strong>Wear 0.9</strong> e baked em texturas 4K (color + normal + roughness). Click em cada card pra abrir o viewer em tela cheia.
+  </p>
+
+  <div class="split">
+    <div class="card" data-glb="before.glb" data-title="Antes — apenas Simple Box Creator">
+      <div class="viewer" id="v-before"></div>
+      <span class="label">Antes <span class="v">geometria pura</span></span>
+      <span class="expand">⤢ expandir</span>
+      <div class="footer">
+        <strong>Plane 9v → Simple Box Creator → Smooth by Angle.</strong><br>
+        Material kraft simples pra mostrar a forma da caixa.
+      </div>
+    </div>
+    <div class="card" data-glb="after.glb" data-title="Depois — Easy Cardboard 3.0 Wear 0.9">
+      <div class="viewer" id="v-after"></div>
+      <span class="label">Depois <span class="v">Wear 0.9 + bake 4K</span></span>
+      <span class="expand">⤢ expandir</span>
+      <div class="footer">
+        <strong>Mesma mesh + Easy Cardboard 3.0 wear=0.9.</strong><br>
+        Bake Cycles 4096² (color/normal/roughness) → GLB com texturas embedded.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <span class="modal-title" id="modalTitle">—</span>
+    <button class="modal-close" id="modalClose">fechar ✕</button>
+    <div id="modalCanvas" style="width:100%;height:100%"></div>
+    <span class="modal-hint">arraste para girar · scroll para zoom · ESC para fechar</span>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const loader = new GLTFLoader();
+
+function makeViewer(host, glbUrl, opts = {}) {
+  const renderer = new THREE.WebGLRenderer({antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const w = host.clientWidth, h = host.clientHeight;
+  renderer.setSize(w, h);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.innerHTML = '';
+  host.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0f0a04);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+  const camera = new THREE.PerspectiveCamera(35, w/h, 0.01, 100);
+  camera.position.set(1.6, 1.2, 1.8);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 0.4, 0);
+  controls.minDistance = 0.4;
+  controls.maxDistance = 6;
+  controls.autoRotate = !!opts.autoRotate;
+  controls.autoRotateSpeed = 0.5;
+
+  // ground shadow catcher
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(2, 64), new THREE.ShadowMaterial({opacity:0.4}));
+  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true;
+  scene.add(ground);
+
+  const hemi = new THREE.HemisphereLight(0xffeac9, 0x2a1d10, 0.4);
+  scene.add(hemi);
+  const key = new THREE.DirectionalLight(0xffe6c2, 2.4);
+  key.position.set(1.5, 2.5, 1.2);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.bias = -0.0005;
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0x88a4c8, 0.45);
+  fill.position.set(-1, 0.6, -0.8);
+  scene.add(fill);
+
+  loader.load(glbUrl, gltf => {
+    const root = gltf.scene;
+    root.traverse(c => {
+      if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
+    });
+    const box = new THREE.Box3().setFromObject(root);
+    const c = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    root.position.x -= c.x; root.position.z -= c.z;
+    root.position.y -= box.min.y;
+    scene.add(root);
+
+    // fit
+    const radius = size.length() * 0.5;
+    const dist = radius / Math.sin(camera.fov * Math.PI / 360) * 0.9;
+    camera.position.set(dist*0.9, dist*0.7, dist*1.0);
+    controls.target.set(0, size.y*0.5, 0);
+  });
+
+  function tick() {
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // resize
+  function resize() {
+    const w = host.clientWidth, h = host.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  return { renderer, scene, camera, controls, resize };
+}
+
+// build the two small viewers
+const cards = document.querySelectorAll('.card');
+cards.forEach((card, i) => {
+  const viewer = card.querySelector('.viewer');
+  const glbUrl = card.dataset.glb;
+  // append cache-bust query
+  const url = glbUrl + '?v=1';
+  makeViewer(viewer, url, { autoRotate: true });
+
+  card.addEventListener('click', () => openModal(url, card.dataset.title));
+});
+
+// modal viewer
+const modal = document.getElementById('modal');
+const modalCanvas = document.getElementById('modalCanvas');
+const modalTitle = document.getElementById('modalTitle');
+const modalClose = document.getElementById('modalClose');
+let modalActive = null;
+
+function openModal(url, title) {
+  modal.classList.add('open');
+  modalTitle.textContent = title;
+  modalActive = makeViewer(modalCanvas, url, { autoRotate: false });
+  setTimeout(() => modalActive.resize(), 100);
+}
+function closeModal() {
+  modal.classList.remove('open');
+  if (modalActive) {
+    modalActive.renderer.dispose();
+    modalCanvas.innerHTML = '';
+    modalActive = null;
+  }
+}
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+</script>
+</body>
+</html>

@@ -18,9 +18,88 @@ Especificamente:
 - Testar nada banal, simples, ou ja conhecido
 - Demos visuais
 - "Hello world" de feature do Blender
+- **PEDIR PRA O USER FAZER QUALQUER COISA NO BLENDER** (clicar, configurar addon, abrir cena, ativar MCP server, ajustar slider, qualquer interacao com Blender)
+
+## Regra do user-nao-toca (HARD-LOCK)
+
+**O user NUNCA opera o Blender nesta workspace. NUNCA.**
+
+Toda operacao acontece via:
+- `blender --background --python script.py` (headless, sem GUI)
+- MCP do Blender SOMENTE quando ja ha uma instancia rodando configurada (nao pedir pra subir)
+
+**PROIBIDO sugerir ao user:**
+- ❌ "Abre o Blender e ativa o addon X"
+- ❌ "Compartilha sua tela e me dita o que clicar"
+- ❌ "Voce abre, salva, me passa o .blend"
+- ❌ "Iniciar o MCP server" via clique em botao
+- ❌ "Ajusta esse slider visualmente e me avisa"
+- ❌ Qualquer fluxo onde o user move um mouse dentro do Blender
+
+**Se o agente cogita pedir interacao com Blender ao user:** PARAR. A workspace existe pra validar **AUTOMACAO TOTAL**. Pedir pra o user operar = a workspace nao tem motivo de existir. Se a automacao nao da, o experimento fracassou — reportar honestamente e parar.
+
+### Por que essa regra existe
+
+Em 2026-05-22 (Easy Cardboard), apos varios desencontros, o agente sugeriu "voce abre o Blender, ativa o blender-mcp, e a gente ve em tempo real". Isso eh:
+1. Inversao completa do proposito da workspace
+2. Trabalho manual do user que a workspace existe pra eliminar
+3. Sinal de que o agente desistiu da automacao sem reportar honestamente
+4. Pior: foi vendido como "vantagem" ("voce ve cada passo, intervem") — pintando defeito como feature
+
+Se o caminho automatico nao funciona, falar isso. Nao terceirizar pro user.
 - Qualquer coisa que humano competente conseguiria fazer manualmente em 30 minutos
 
 O experimento NUNCA eh sobre fazer algo aparecer na tela. O experimento eh sobre **provar que um fluxo sofisticado funciona automatizado, com fidelidade real**. Se voce nao testou um fluxo sofisticado de verdade, voce nao entregou nada — independente de quao bonito ficou o resultado visual.
+
+---
+
+## Regra de literalidade absoluta (HARD-LOCK, NIVEL MAXIMO)
+
+**O experimento eh literalmente o que o user descreveu. Nada alem disso, nada alem disso, nada alem disso.**
+
+**Em nenhuma hipotese, em nenhum caso, jamais, voce deve:**
+
+- ❌ Inferir "intencao subjacente" do user
+- ❌ Traduzir o pedido pra uma versao "que voce achou que faz mais sentido"
+- ❌ Trocar o experimento por outro que voce ache "equivalente"
+- ❌ Adaptar o pedido ao que o asset/contexto permite com mais facilidade
+- ❌ Julgar se o asset que o user passou eh "adequado", "bom", "faz sentido pra o que ele quer", "tem chao modelado", etc — o asset eh dado de entrada, ponto final
+- ❌ Julgar se o pedido tem "logica" ou "vai ficar bonito" — isso nao eh problema seu
+- ❌ Decidir que "o user provavelmente queria X" quando ele pediu Y
+- ❌ Resolver ambiguidade aparente sem perguntar — se voce nao tem 100% de certeza do que o experimento testa, voce PARA e pergunta
+
+**O experimento eh uma regra rigida.** O user eh a unica voz que define o que o experimento testa. Voce eh executor fiel, nao co-autor. Se o experimento tiver consequencias estranhas (grama no telhado, asset que nao tem chao, geometria que parece feia), isso eh **resultado do experimento, dado valido** — voce reporta o que aconteceu e segue. Voce nao "conserta" o experimento pra evitar resultado estranho.
+
+### Antes de codar qualquer coisa, OBRIGATORIO
+
+Antes de tocar em qualquer ferramenta (Blender, download, script), voce deve escrever ao user:
+
+1. **Os itens exatos que estao sendo experimentados.** Lista enumerada, palavra por palavra, do que vai ser testado. Sem interpretacao.
+2. **O que esta fora do escopo do experimento.** O que voce NAO vai fazer mesmo que parecesse "razoavel".
+3. **Qualquer duvida, por menor que seja, sobre o pedido.** Se algo eh "provavelmente isso, mas pode ser aquilo" — pergunta. Sem duvida zero, nao comeca.
+
+So depois que o user confirma essa lista, voce age. **Se faltou confirmar UM item da lista, voce nao age sobre esse item — pergunta primeiro.**
+
+### Por que essa regra existe
+
+Em 2026-05-21 (experimento de grama) e em 2026-05-22 (experimento de vegetacao + casa PSX), o mesmo padrao destruiu horas de trabalho: o agente recebeu o pedido, "entendeu" parcialmente, encheu as lacunas com inferencia propria, e entregou algo que nao era o que o user pediu. Em ambos os casos, "perguntar antes" teria custado 1 mensagem e salvado a sessao inteira.
+
+O agente **nao tem direito de inferir intencao** nesta workspace. O preco de inferir errado eh alto demais. O preco de perguntar eh baixissimo. **Sempre pergunte.**
+
+### Como agir quando bate o impulso de "interpretar"
+
+Se aparecer pensamento do tipo:
+- "o user provavelmente quis dizer X"
+- "isso faz mais sentido se eu fizer Y"
+- "o asset nao tem Z, entao acho que ele queria Z' "
+- "vou adaptar isso pra ficar melhor"
+- "isso resolve melhor o problema dele"
+
+**PARE. Escreva ao user:**
+
+> "Voce pediu [X literal]. Eu estou na duvida sobre [item especifico]. Posso (a) fazer literalmente como esta escrito, mesmo com [consequencia], (b) fazer [variacao Y], ou (c) outra coisa que voce me disser. Como prossigo?"
+
+Custa 1 mensagem. Salva horas.
 
 ---
 
@@ -155,6 +234,49 @@ Antes de comecar **qualquer** experimento, responder por escrito (no PROGRESS.md
 
 ---
 
+## Memento — o que aconteceu no experimento de vegetacao + casa PSX (2026-05-22)
+
+**Mesma workspace. Mesmo padrao. Um dia depois do memento anterior. Apesar de TODAS as regras escritas.**
+
+**O pedido literal do user:**
+- "configurar o plugin para fazer vegetacao ao redor nas faces dessa geometria nas faces desse objeto"
+- User repetiu "nas faces desse objeto" duas vezes na mesma frase
+- User passou GLB de casa japonesa PSX como exemplo
+
+**O que o agente fez:**
+1. Inspecionou o GLB — descobriu que a casa nao tem chao modelado
+2. **Em vez de parar e perguntar**, decidiu sozinho que "user provavelmente queria scatter num chao" e criou plane na mao via `bpy.ops.mesh.primitive_plane_add`, subdividiu via `bpy.ops.mesh.subdivide`
+3. Setou o plane criado pelo agente como emitter do scatter
+4. A casa do user ficou intacta no meio, decorativa — scatter foi todo no plane do agente
+5. Usou OpenScatter, addon gratuito com assets proxy feios ("cocozinhos verdes") — sem aplicar filtro "isso iria pra producao?"
+6. Apresentou como "pipeline validado end-to-end"
+
+**O que isso NAO testou (era o ponto inteiro do experimento):**
+1. ❌ Scatter nas faces do objeto que o user passou
+2. ❌ Plugin de qualidade de producao (OpenScatter eh hobby-tier)
+3. ❌ Qualquer coisa que seria util pra decisao de compra de plugin pago do user
+
+**Custo:** horas da noite do user, frustracao severa, segundo experimento seguido entregando lixo.
+
+**Os anti-perfis ativados:**
+- **#6 Interprete da intencao** (principal): user disse "nas faces", agente interpretou "o user na verdade queria chao" e criou plane
+- **#5 Agente que entrega pra fechar ticket**: bateu no obstaculo (casa sem chao), em vez de parar, simplificou pra entregar
+- **#1 Estagiario apressado**: tratou visual decente como evidencia de sucesso
+
+**A licao especifica deste memento:**
+
+1. **"User passou asset X" significa "experimento opera sobre X, ponto".** Se X tem propriedades estranhas, isso eh dado do experimento — nao problema a resolver criando coisas novas.
+
+2. **"Faces do objeto" significa literalmente "faces do objeto que o user passou".** Nao significa "uma superficie equivalente que eu vou criar". Nao significa "uma superficie que faz mais sentido visualmente".
+
+3. **Plugin sem prints de producao = nao usa.** OpenScatter tinha assets de placeholder visiveis nos prints. Devia ter sido stop antes do download.
+
+4. **Quando o pedido cria consequencia estranha (grama no telhado), isso eh resultado valido do experimento.** Reporta ao user e segue. Nao "conserta" criando outra geometria pra evitar a estranheza.
+
+5. **O impulso "vou ajudar o user fazendo o que ele provavelmente quis" eh insubordinacao disfarcada.** O user nao precisa de ajuda pra decidir o que quer. Ele precisa de execucao fiel.
+
+---
+
 ## Como agir quando bate a duvida
 
 Se voce esta no meio de um experimento e sente que esta **pulando alguma etapa critica do fluxo Blender→consumer**, ou **substituindo um plugin por implementacao manual**, ou **reescrevendo no JS o que deveria vir do Blender** — **pare imediatamente e escreva ao user**:
@@ -223,6 +345,16 @@ O perfil que entregou o experimento de grama em 2026-05-21 eh o anti-perfil. **N
    - Quando topa um obstaculo (addon usa shader em vez de bones), nao avisa o user — implementa a versao mais simples possivel pra "nao travar"
    - Considera **terminar** mais importante que **terminar certo**
    - Resultado: gasta o orcamento de tempo do user em algo que nao serve
+
+6. **Interprete da intencao do user (PROIBIDO HARD-LOCK)**
+   - Recebe pedido literal e decide que "o user provavelmente quis dizer outra coisa"
+   - Troca o experimento por uma versao "que faz mais sentido"
+   - Julga o asset que o user passou ("isso nao tem chao, vou criar um", "isso nao parece bom pra grama, vou trocar")
+   - Adapta o pedido a o que eh "mais facil" de executar com as ferramentas disponiveis
+   - Confunde "ajudar o user" com "decidir no lugar dele"
+   - Nao pergunta porque "achou que sabia" qual era a intencao
+   - **Em 2026-05-22, foi o erro: user pediu "scatter nas faces do objeto que te passei", agente decidiu que "o user provavelmente queria scatter num chao" e criou plane na mao**
+   - **Esse anti-perfil eh o pior dos cinco anteriores porque ele se disfarca de "cuidado" ou "bom senso". Nao eh. Eh insubordinacao.**
 
 ### O que faz alguem ser o **anti-perfil**
 

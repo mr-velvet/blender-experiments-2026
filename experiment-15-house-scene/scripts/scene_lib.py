@@ -130,6 +130,18 @@ def place(handle, x, y, rot_z_deg=0.0, scale=None,
     return handle
 
 
+def hang_from_ceiling(handle, x, y, ceiling_z, rot_z_deg=0.0,
+                      target_height=None, scale=None):
+    """Pendura uma luminaria de teto: o TOPO do bbox encosta em ceiling_z,
+    o corpo pende pra baixo. Evita o bug de assentar a luminaria na mesa."""
+    place(handle, x, y, rot_z_deg=rot_z_deg, target_height=target_height,
+          scale=scale, on_floor=False)
+    mn, mx = world_bbox(handle)
+    handle.location.z += (ceiling_z - mx.z)
+    bpy.context.view_layer.update()
+    return handle
+
+
 def place_on(handle, support_handle, x=None, y=None, rot_z_deg=0.0,
              target_height=None, scale=None):
     """Coloca handle EM CIMA de support_handle (ex: vaso na mesa)."""

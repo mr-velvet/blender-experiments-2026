@@ -42,6 +42,23 @@ MANIFEST = [
 ]
 
 
+# Assets pequenos pra adensar os comodos (opcao b). Baixar com:
+#   python download_assets.py --densify
+DENSIFY = [
+    # sala
+    "throw_pillows_01", "book_encyclopedia_set_01", "ceramic_vase_01",
+    "fancy_picture_frame_01", "mantel_clock_01",
+    # cozinha
+    "wooden_bowl_01", "food_apple_01", "food_pears_asian_01", "metal_jug",
+    "wicker_basket_01",
+    # quarto
+    "alarm_clock_01", "decorative_book_set_01", "potted_plant_02",
+    "wooden_stool_01",
+    # escritorio
+    "brass_candleholders", "ceramic_vase_02", "wooden_lantern_01",
+]
+
+
 def fetch_json(url):
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=60) as r:
@@ -82,7 +99,12 @@ def get_asset(slug):
 
 
 def main():
-    slugs = sys.argv[1:] or MANIFEST
+    args = sys.argv[1:]
+    if "--densify" in args:
+        args = [a for a in args if a != "--densify"]
+        slugs = DENSIFY
+    else:
+        slugs = args or MANIFEST
     # dedup preservando ordem
     seen, uniq = set(), []
     for s in slugs:
@@ -90,7 +112,9 @@ def main():
             seen.add(s)
             uniq.append(s)
     print(f"Baixando {len(uniq)} assets (res {RES}) do PolyHaven...")
-    results = {}
+    # merge com manifest existente pra nao perder os ja baixados
+    mpath = ASSETS / "_manifest.json"
+    results = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {}
     for slug in uniq:
         try:
             p = get_asset(slug)
@@ -98,9 +122,7 @@ def main():
         except Exception as e:
             print(f"  [ERR] {slug}: {e}")
             results[slug] = None
-    (ASSETS / "_manifest.json").write_text(
-        json.dumps(results, indent=2), encoding="utf-8"
-    )
+    mpath.write_text(json.dumps(results, indent=2), encoding="utf-8")
     ok = sum(1 for v in results.values() if v)
     print(f"\nConcluido: {ok}/{len(uniq)} assets disponiveis.")
 

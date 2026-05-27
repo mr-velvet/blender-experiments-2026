@@ -1,0 +1,38 @@
+=== BRUSH b25 (olho) ===
+name: Human Face VDM 25
+  sculpt_tool = DRAW
+  strength = 1.0
+  normal_radius_factor = 0.5
+  hardness = 0.0
+  auto_smooth_factor = 0.0
+  stroke_method = ANCHORED
+  use_frontface = False
+  tip_roundness = 1.0
+  crease_pinch_factor = 0.5
+  normal_weight = 0.0
+  use_original_normal = False
+  plane_offset = 0.0
+  height = 0.4000000059604645
+  tilt_strength_factor = 0.0
+--- texture_slot ---
+  ts.map_mode = 
+  ts.angle = 0.0
+  ts.scale = <Vector (1.0000, 1.0000, 1.0000)>
+  ts.offset = <Vector (0.0000, 0.0000, 0.0000)>
+  ts.tex_blend_mode = <n/a>
+  ts.use_random_rotation = <n/a>
+  ts.random_angle = 6.2831854820251465
+--- texture ---
+  type: IMAGE
+  image: Map_ (25).exr size: (513, 513) depth: 96 colorspace: Linear Rec.709
+--- todas props numericas != default candidatas (curve/falloff) ---
+  curve_preset: SMOOTH
+  use_custom_icon: True
+
+=== CANDIDATAS A VARIAR (so propriedade do pincel) ===
+1. unprojected_radius (via unified) -> TAMANHO do olho
+2. strength -> INTENSIDADE do deslocamento (relevo mais/menos saliente)
+3. texture_slot.scale -> escala da textura VDM dentro do stamp
+4. texture_slot.angle -> rotacao do stamp (sabido: encolhe; evitar)
+5. rotacao da MALHA antes do stroke -> orientacao sem encolher (legitimo)
+[done]
