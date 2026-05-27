@@ -1,0 +1,23 @@
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_front.png'
+Time: 00:07.87 (Saving: 00:00.19)
+
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_3q.png'
+Time: 00:07.98 (Saving: 00:00.09)
+
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_side.png'
+Time: 00:07.62 (Saving: 00:00.08)
+
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_side2.png'
+Time: 00:08.70 (Saving: 00:00.10)
+
+Error   : EXCEPTION_ACCESS_VIOLATION
+Address : 0x00007FF6863044D5
+Module  : blender.exe
+Thread  : 0000a538
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_front.png'
+OpenGL Render written to 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_front.png'
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_side.png'
+OpenGL Render written to 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_side.png'
+Saved: 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_3q.png'
+OpenGL Render written to 'C:\Users\manu\ved\blender-experiments-2026\experiment-16-vdm-face\output\cube_c1_vp_3q.png'
+Writing: C:\Users\manu\AppData\Local\Temp\cube_c1.crash.txt

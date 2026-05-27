@@ -1,0 +1,1 @@
+done b25 rot=45.0 mirror=False

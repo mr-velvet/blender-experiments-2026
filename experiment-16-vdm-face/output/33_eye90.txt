@@ -1,0 +1,16 @@
+[init] eye90
+  stamp nariz b28 r=0.45 z[-0.011,0.560] verts=12639
+  place nariz rotz=115 pos=(0.0,-0.02) scale=0.62 mirror=False
+  stamp olho_esq b25 r=0.55 z[-0.093,0.105] verts=21573
+  place olho_esq rotz=90.0 pos=(-0.34,0.3) scale=0.42 mirror=False
+  stamp olho_dir b25 r=0.55 z[-0.093,0.105] verts=21573
+  place olho_dir rotz=-90.0 pos=(0.34,0.3) scale=0.42 mirror=True
+  stamp boca b15 r=0.42 z[-0.345,0.032] verts=13237
+  place boca rotz=-78.0 pos=(0.0,-0.44) scale=0.55 mirror=False
+[render front] ok
+[render 3q] ok
+[render side] ok
+[viewport front] ok
+[viewport side] ok
+[viewport 3q] ok
+[saved]

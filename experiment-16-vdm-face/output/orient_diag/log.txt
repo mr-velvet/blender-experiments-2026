@@ -1,0 +1,3 @@
+[init]
+  olho_b25 b25 z[-0.093,0.105] relief_spanX=0.589 relief_spanY=0.524 (X>Y=horizontal)
+  rendered olho_b25

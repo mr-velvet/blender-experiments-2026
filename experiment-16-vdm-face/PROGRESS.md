@@ -40,21 +40,40 @@ textura EXR. sculpt_tool=DRAW, stroke_method=ANCHORED, map_mode interno=AREA_PLA
    seguintes encolhem. Por isso a abordagem por objetos isolados (27) é a robusta.
 4. As bocas, em roll 0 no plano, saem VERTICAIS (orientação natural). Giro via objeto.
 
-## Estado atual (melhor resultado)
-`scripts/27_assemble.py` → `output/asm_a2.blend` + renders:
-- `output/asm_a2_viewport_tilt.png` (print viewport, sem Cycles) ← melhor
-- `output/asm_a2_front.png`, `asm_a2_3q.png` (Cycles)
-Rosto reconhecível: 2 olhos (b25) + nariz (b28) + boca (b15). Layout via ASM_PLAN
-(env var JSON ou _default no script).
+## Estado atual (melhor resultado) — 2026-05-27
+`scripts/33_cube_final.py` → rosto plantado numa FACE de um CUBO (pedido literal do
+user). Parametrizavel por env: EYE_ROT (graus olho), MOUTH_BRUSH, MOUTH_ROT, TAG.
+- `output/cube_a2cube_front.png` / `_3q.png` / `_side.png` (render Cycles)
+- `output/cube_a2cube_vp_3q.png` (print viewport solid+cavity, sem Cycles)
+- `output/cube_a2cube.blend`
+Receita aprovada (do asm_a2): olho b25 rotz=0, nariz b28 rotz=115, boca b15 rotz=-78.
+LUZ suave (angle 0.5-0.8) — luz rasante dura estraga os olhos. Smooth 0.5/8.
+Plantio no cubo: placa XY rotaciona +90 em X (relevo +Z -> -Y) e cola na face -Y.
 
-## A fazer
-- Suavizar o degrau na borda dos discos das features (shrinkwrap/blend em vez de
-  join cru) — hoje aparece sombra dura acima dos olhos.
-- Refinar proporções / testar outros olhos.
+### Comparativos gerados (em output/ e output/orient_diag/)
+- `catalog30_top.png` — TODOS os 30 brushes top-down, luz rasante (reidentificacao)
+- `eye_compare.png` (orient_diag) — olho b25 isolado 0/45/90deg
+- `cube_eye_compare.png` — olho 0/45/90deg JA NO ROSTO no cubo (mais util)
+- `mouth_compare_3q.png` (orient_diag) — bocas 15/16/17/18 em 3/4
+
+### Achados desta rodada
+- Olho b25 isolado: 90deg = horizontal anatomico. MAS no rosto montado no cubo
+  (placa rotacionada 90 em X), 0deg le mais natural. A rotacao da placa inverte a
+  percepcao. → user precisa escolher o angulo (perguntado).
+- "Bocas" 15-18 NAO sao bocas classicas (sem 2 labios+sulco), sao projecoes tipo
+  labio. b15 usado. user pode indicar outro brush do catalogo.
+- FALLOFF radial no Z pra suavizar bordas: TESTADO, PIOROU (sombras piores). Mantido
+  recorte simples em disco. Bordas serrilhadas dos olhos = defeito conhecido tolerado.
+- Crash EXCEPTION_ACCESS_VIOLATION no quit_blender e cosmetico — todos os renders
+  saem antes. Rodar 1 brush/feature por processo evita crash por acumulo de estado.
+
+## A fazer (aguardando user)
+- Confirmar angulo dos olhos (0/45/90) e se troca o brush da boca.
+- Suavizar serrilhado das bordas dos olhos via shrinkwrap (se user quiser).
 - FASE 2: pintar rosto em asset gratuito (download de modelo + carimbar nas faces).
 
 ## Scripts-chave
-- 12_catalog_clean / 13_measure — identificação dos brushes
-- 25_face_final — rosto num plano único (unprojected_radius); tem o problema do (3)
-- 27_assemble — rosto por objetos rotacionados (ABORDAGEM BOA)
-- 28_viewport_shot — print de viewport sem render
+- 12_catalog_clean / 13_measure — identificação dos brushes (antigo)
+- 27_assemble — rosto por objetos rotacionados num PLANO (gerou o asm_a2 aprovado)
+- 31_single_feat — carimba 1 brush isolado, parametrizavel (FEAT_BRUSH/ROT/CAM/OUT)
+- 33_cube_final — ROSTO NO CUBO, versao atual (EYE_ROT/MOUTH_BRUSH/MOUTH_ROT/TAG)
