@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Assets de Geometria — Blender</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23f4a14e'/><text y='72' x='50' font-size='62' text-anchor='middle' fill='%231a1206'>◆</text></svg>">
+<style>
+  :root{
+    --bg:#0e0f13; --bg2:#15171d; --panel:#191c24; --panel2:#1f232d;
+    --line:#2a2f3a; --line2:#363c49;
+    --txt:#e7e9ee; --txt2:#9aa1b1; --txt3:#6b7283;
+    --accent:#f4a14e; --accent2:#ffb968; --free:#5ec98a; --paid:#7aa2ff;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+  body{
+    background:radial-gradient(1200px 700px at 70% -10%,#1b1e27 0%,var(--bg) 55%) fixed;
+    color:var(--txt); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
+  ::-webkit-scrollbar-thumb:hover{background:#454c5b}
+  ::-webkit-scrollbar-track{background:transparent}
+  a{color:inherit;text-decoration:none}
+
+  header{
+    padding:34px 28px 22px; max-width:1320px; margin:0 auto;
+  }
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  h1{font-size:30px;font-weight:700;margin:8px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--txt2);font-size:15px;max-width:760px}
+  .stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px}
+  .stat{display:flex;flex-direction:column;gap:2px}
+  .stat b{font-size:22px;font-weight:700;letter-spacing:-.02em}
+  .stat span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3)}
+
+  .bar{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:rgba(14,15,19,.82); border-bottom:1px solid var(--line);
+  }
+  .bar-in{max-width:1320px;margin:0 auto;padding:12px 28px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .tabs{display:flex;gap:6px;background:var(--panel);padding:5px;border-radius:12px;border:1px solid var(--line)}
+  .tab{
+    padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;
+    color:var(--txt2);border:none;background:transparent;transition:.16s;white-space:nowrap;
+  }
+  .tab:hover{color:var(--txt)}
+  .tab.active{background:var(--accent);color:#1a1206;box-shadow:0 4px 14px rgba(244,161,78,.3)}
+  .search{
+    flex:1;min-width:200px;display:flex;align-items:center;gap:9px;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 14px;
+  }
+  .search svg{flex:none;opacity:.5}
+  .search input{
+    flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:14px;padding:11px 0;
+  }
+  .search input::placeholder{color:var(--txt3)}
+  .count{color:var(--txt3);font-size:13px;white-space:nowrap}
+
+  main{max-width:1320px;margin:0 auto;padding:18px 28px 80px}
+
+  .view{display:none}
+  .view.active{display:block}
+
+  /* accordion */
+  .acc{margin-bottom:14px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+  .acc-head{
+    display:flex;align-items:center;gap:12px;padding:15px 18px;cursor:pointer;user-select:none;
+    transition:background .15s;
+  }
+  .acc-head:hover{background:var(--panel2)}
+  .acc-head .chev{transition:transform .22s;opacity:.6;flex:none}
+  .acc.open .chev{transform:rotate(90deg)}
+  .acc-head h2{font-size:16px;font-weight:650;letter-spacing:-.01em;flex:1}
+  .pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--bg2);color:var(--txt2);border:1px solid var(--line2)}
+  .acc-body{display:none;padding:6px 18px 20px}
+  .acc.open .acc-body{display:block}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:16px}
+
+  .card{
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    display:flex;flex-direction:column;transition:.18s;position:relative;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:var(--shadow)}
+  .thumb{position:relative;aspect-ratio:16/10;background:#0a0b0e;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+  .card:hover .thumb img{transform:scale(1.05)}
+  .badge{
+    position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;
+    backdrop-filter:blur(6px);letter-spacing:.01em;
+  }
+  .badge.free{background:rgba(94,201,138,.92);color:#06210f}
+  .badge.paid{background:rgba(122,162,255,.94);color:#071230}
+  .card-body{padding:13px 14px 14px;display:flex;flex-direction:column;gap:7px;flex:1}
+  .card h3{font-size:15px;font-weight:650;letter-spacing:-.01em;line-height:1.25}
+  .card .cat{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .card p{font-size:12.5px;color:var(--txt2);line-height:1.45;flex:1}
+  .card-foot{display:flex;gap:8px;margin-top:4px}
+  .btn{
+    flex:1;text-align:center;padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line2);color:var(--txt);transition:.15s;cursor:pointer;
+  }
+  .btn:hover{background:var(--bg2);border-color:#48505f}
+  .btn.buy{background:var(--accent);color:#1a1206;border-color:transparent}
+  .btn.buy:hover{background:var(--accent2)}
+
+  /* tabela de indice de valores */
+  .idx-controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;color:var(--txt2);font-size:13px}
+  .seg{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:4px}
+  .seg button{padding:6px 13px;border-radius:6px;border:none;background:none;color:var(--txt2);cursor:pointer;font-size:13px;font-weight:600}
+  .seg button.on{background:var(--panel2);color:var(--txt)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  thead th{
+    text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);
+    padding:13px 16px;border-bottom:1px solid var(--line);font-weight:600;cursor:pointer;user-select:none;white-space:nowrap;
+  }
+  thead th:hover{color:var(--txt)}
+  tbody td{padding:11px 16px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--panel2)}
+  .tname{display:flex;align-items:center;gap:11px}
+  .tname img{width:46px;height:32px;object-fit:cover;border-radius:6px;flex:none;background:#0a0b0e}
+  .tname b{font-weight:600}
+  .price{font-weight:700;font-variant-numeric:tabular-nums}
+  .price.free{color:var(--free)}
+  .price.paid{color:var(--accent2)}
+  .tier{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-block}
+  .tier.t0{background:rgba(94,201,138,.15);color:var(--free)}
+  .tier.t1{background:rgba(122,162,255,.15);color:var(--paid)}
+  .tier.t2{background:rgba(244,161,78,.15);color:var(--accent2)}
+  .tier.t3{background:rgba(255,109,109,.15);color:#ff8d8d}
+  .tlink{color:var(--txt3);font-size:12px}
+  .tlink:hover{color:var(--accent)}
+
+  footer{max-width:1320px;margin:0 auto;padding:30px 28px 60px;color:var(--txt3);font-size:12.5px;line-height:1.7;border-top:1px solid var(--line)}
+  footer a{color:var(--txt2);text-decoration:underline;text-underline-offset:2px}
+  .empty{text-align:center;padding:60px 20px;color:var(--txt3)}
+
+  @media(max-width:640px){
+    header{padding:24px 16px 14px} .bar-in{padding:10px 16px} main{padding:14px 16px 60px}
+    h1{font-size:24px} .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+    .hide-sm{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Blender · Pesquisa de pipeline</div>
+  <h1>Catálogo de Assets de Geometria</h1>
+  <p class="sub">Curadoria de pincéis e plugins do Blender que <b>manipulam geometria</b> — geo nodes, scatter, hard-surface, sculpt/VDM, geradores, simulação. Cada card tem imagem real do efeito, preço e link. Varredura de Superhive, Gumroad, Blender Extensions oficial, GitHub e BlenderKit.</p>
+  <div class="stats">
+    <div class="stat"><b id="s-total">—</b><span>Assets</span></div>
+    <div class="stat"><b id="s-free" style="color:var(--free)">—</b><span>Gratuitos</span></div>
+    <div class="stat"><b id="s-paid" style="color:var(--paid)">—</b><span>Pagos</span></div>
+    <div class="stat"><b id="s-cat">—</b><span>Categorias</span></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="tabs">
+      <button class="tab active" data-view="free">Gratuitos</button>
+      <button class="tab" data-view="paid">Pagos</button>
+      <button class="tab" data-view="index">Índice de valores</button>
+    </div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="text" placeholder="Buscar por nome, categoria…" autocomplete="off">
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+</div>
+
+<main>
+  <div class="view active" id="view-free"></div>
+  <div class="view" id="view-paid"></div>
+  <div class="view" id="view-index">
+    <div class="idx-controls">
+      <span>Classificar:</span>
+      <div class="seg" id="sortSeg">
+        <button data-sort="price" class="on">Preço ↑</button>
+        <button data-sort="name">Nome</button>
+        <button data-sort="category">Categoria</button>
+      </div>
+      <span style="margin-left:auto" id="idxCount"></span>
+    </div>
+    <table id="idxTable">
+      <thead><tr>
+        <th data-sort="name">Asset</th>
+        <th data-sort="category" class="hide-sm">Categoria</th>
+        <th data-sort="price">Preço</th>
+        <th class="hide-sm">Faixa</th>
+        <th>Links</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>
+  <p><b>Sobre a curadoria.</b> Critério: assets que aplicam efeito na <b>geometria</b> (geram, deformam, fraturam ou esculpem malha) — não shaders puros. Asset sem imagem demonstrável do efeito foi descartado. Imagens hospedadas localmente a partir das páginas oficiais dos produtos; preços de packs em portais com proteção anti-bot (Superhive/ArtStation) são aproximados de listagens públicas e devem ser confirmados na página de compra. "Name your price" aparece como gratuito (US$ 0).</p>
+  <p style="margin-top:8px">Fontes: Superhive/Blender Market · Gumroad · extensions.blender.org · GitHub · BlenderKit · sites oficiais dos addons.</p>
+</footer>
+
+<script src="./data.js"></script>
+<script>
+const CAT_ORDER = ["Geometry Nodes","Scatter/Distribution","Generators","Hard Surface","Mesh Tools","Architecture","Terrain/Landscape","Trees/Vegetation","Sculpt/VDM Brushes","Cloth/Soft","Destruction/Fracture"];
+const data = window.CATALOG || [];
+const free = data.filter(a=>a.is_free);
+const paid = data.filter(a=>!a.is_free);
+
+// stats
+document.getElementById("s-total").textContent = data.length;
+document.getElementById("s-free").textContent = free.length;
+document.getElementById("s-paid").textContent = paid.length;
+document.getElementById("s-cat").textContent = new Set(data.map(a=>a.category)).size;
+
+function priceLabel(a){ return a.is_free ? "Grátis" : "US$ "+ (Number.isInteger(a.price_usd)? a.price_usd : a.price_usd.toFixed(2)); }
+function tier(a){
+  if(a.is_free) return {c:"t0",t:"Grátis"};
+  if(a.price_usd<=15) return {c:"t1",t:"≤ US$15"};
+  if(a.price_usd<=40) return {c:"t2",t:"US$16–40"};
+  return {c:"t3",t:"US$40+"};
+}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function card(a){
+  return `<div class="card">
+    <div class="thumb">
+      <img loading="lazy" src="${a.image}" alt="${esc(a.name)}" onerror="this.closest('.card').style.display='none'">
+      <span class="badge ${a.is_free?'free':'paid'}">${priceLabel(a)}</span>
+    </div>
+    <div class="card-body">
+      <div class="cat">${esc(a.category)}</div>
+      <h3>${esc(a.name)}</h3>
+      <p>${esc(a.desc)}</p>
+      <div class="card-foot">
+        <a class="btn buy" href="${a.product_url}" target="_blank" rel="noopener">${a.is_free?'Baixar':'Comprar'}</a>
+        <a class="btn" href="${a.more_url}" target="_blank" rel="noopener">Ver mais</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGrouped(container, list){
+  const byCat = {};
+  list.forEach(a=>{ (byCat[a.category]=byCat[a.category]||[]).push(a); });
+  const cats = CAT_ORDER.filter(c=>byCat[c]);
+  if(!cats.length){ container.innerHTML = `<div class="empty">Nenhum asset encontrado.</div>`; return; }
+  container.innerHTML = cats.map((c,i)=>`
+    <div class="acc${i===0?' open':''}">
+      <div class="acc-head" onclick="this.parentElement.classList.toggle('open')">
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        <h2>${esc(c)}</h2>
+        <span class="pill">${byCat[c].length}</span>
+      </div>
+      <div class="acc-body"><div class="grid">${byCat[c].map(card).join("")}</div></div>
+    </div>`).join("");
+}
+
+let sortKey="price", sortDir=1;
+function renderIndex(list){
+  const tb = document.querySelector("#idxTable tbody");
+  const sorted = [...list].sort((a,b)=>{
+    let r;
+    if(sortKey==="price") r=a.price_usd-b.price_usd;
+    else if(sortKey==="name") r=a.name.localeCompare(b.name);
+    else r=a.category.localeCompare(b.category)||a.price_usd-b.price_usd;
+    return r*sortDir;
+  });
+  document.getElementById("idxCount").textContent = sorted.length+" assets";
+  tb.innerHTML = sorted.map(a=>{
+    const t=tier(a);
+    return `<tr>
+      <td><div class="tname"><img loading="lazy" src="${a.image}" alt="" onerror="this.style.visibility='hidden'"><b>${esc(a.name)}</b></div></td>
+      <td class="hide-sm">${esc(a.category)}</td>
+      <td class="price ${a.is_free?'free':'paid'}">${priceLabel(a)}</td>
+      <td class="hide-sm"><span class="tier ${t.c}">${t.t}</span></td>
+      <td><a class="tlink" href="${a.product_url}" target="_blank" rel="noopener">comprar ↗</a> · <a class="tlink" href="${a.more_url}" target="_blank" rel="noopener">ver mais</a></td>
+    </tr>`;
+  }).join("");
+}
+
+let activeView="free", query="";
+function filt(list){
+  if(!query) return list;
+  const q=query.toLowerCase();
+  return list.filter(a=>(a.name+" "+a.category+" "+a.desc).toLowerCase().includes(q));
+}
+function rerender(){
+  const f=filt(free), p=filt(paid), all=filt(data);
+  renderGrouped(document.getElementById("view-free"), f);
+  renderGrouped(document.getElementById("view-paid"), p);
+  renderIndex(all);
+  const c = activeView==="free"?f.length : activeView==="paid"?p.length : all.length;
+  document.getElementById("count").textContent = c+" itens";
+}
+
+// tabs
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  activeView=t.dataset.view;
+  document.getElementById("view-"+activeView).classList.add("active");
+  rerender();
+});
+// search
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value;rerender();});
+// sort buttons
+document.querySelectorAll("#sortSeg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#sortSeg button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); sortKey=b.dataset.sort; sortDir=1; renderIndex(filt(data));
+});
+document.querySelectorAll("#idxTable thead th[data-sort]").forEach(th=>th.onclick=()=>{
+  if(sortKey===th.dataset.sort) sortDir*=-1; else {sortKey=th.dataset.sort;sortDir=1;}
+  renderIndex(filt(data));
+});
+
+rerender();
+</script>
+</body>
+</html>

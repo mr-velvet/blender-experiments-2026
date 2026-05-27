@@ -31,4 +31,9 @@ experiment-14-cardboard-arbitrary/assets/model/*.glb
 experiment-13-easy-cardboard/web3/node_modules/
 experiment-16-vdm-face/out/
 experiment-16-vdm-face/*.png
+experiment-17-asset-catalog/img/
+experiment-17-asset-catalog/.playwright-mcp/
+preview-*.jpeg
+hosted.jpeg
+cat-free.jpeg
 *.glb

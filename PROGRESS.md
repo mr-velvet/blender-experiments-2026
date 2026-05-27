@@ -1,7 +1,17 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-22 (sessao 9 — experimento 13: Easy Cardboard 3.1 com autonomia total)
+2026-05-27 (sessao 10 — experimento 17: catalogo de assets de geometria, tarefa de curadoria via agnts)
+
+## Experimento 17: catalogo de assets de geometria (2026-05-27, async via agnts)
+- Pasta `experiment-17-asset-catalog/` — **tarefa de curadoria, nao experimento de pipeline**. Varredura extensiva da web por pincéis/plugins do Blender que manipulam geometria, montados num catalogo HTML
+- **105 assets** com imagem real do efeito (39 free / 66 pagos), 11 categorias
+- 3 abas (Gratuitos / Pagos / Indice de valores com tabela ordenavel), categorias em accordions colapsaveis, busca, cards com imagem+preco+links compra/ver-mais
+- Metodo: 5 agentes de pesquisa em paralelo (Superhive, Gumroad, extensions.blender.org, GitHub, BlenderKit) -> validacao HTTP de cada imagem -> download local das imagens (evita hotlink/CORS quebrar no browser) -> asset sem imagem carregavel descartado
+- GIFs gigantes (Reptile VDM 116MB, Sorcar 13MB) reduzidos a 1 frame JPG
+- Front 100% custom (sem componentes nativos), validado via Playwright nas 3 abas
+- **Hospedado:** https://st.did.lu/blender-asset-catalog/v1/index.html
+- Caveat: precos de packs em portais anti-bot (Superhive/ArtStation) sao aproximados, confirmar na pagina de compra; imagem desses veio de mirror editorial/oficial
 
 ## O que ja foi feito
 
@@ -335,6 +345,7 @@ blender-experiments-2026/
 | Rigging v1 (humanoide com walk cycle procedural + 3 refs) | https://st.did.lu/blender-rigging/v1/index.html |
 | Fluid v1 (esfera virando agua + Mantaflow) | https://st.did.lu/blender-fluid/v1/index.html |
 | Grass v1 (grama alta com esqueleto dinamico + wind controlavel) | https://st.did.lu/blender-grass/v1/index.html |
+| Catalogo de assets de geometria v1 (105 assets, 3 abas) | https://st.did.lu/blender-asset-catalog/v1/index.html |
 
 ## Proximos experimentos planejados (sessao 6+)
 

@@ -1,0 +1,1062 @@
+[
+  {
+    "name": "Geo-Scatter (Scatter 5)",
+    "category": "Scatter/Distribution",
+    "price_usd": 99,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/scatter",
+    "more_url": "https://geoscatter.com/",
+    "image_url": "https://geoscatter.com/content/heroes/25_-_Bureau_Bruin_-_Natural_Atmospheres.jpg",
+    "desc": "Engine de scatter dedicado mais poderoso do Blender, distribui geometria instanciada real sobre superfícies com controle interativo total."
+  },
+  {
+    "name": "BagaPie",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/bagapie/",
+    "more_url": "https://www.youtube.com/c/BagaPieAddon",
+    "image_url": "https://extensions.blender.org/media/thumbnails/6a/6a35f58b5c6539e00942971115bc04a5319d76a1db85f2c632db9010bf9fb831_1920x1080.webp",
+    "desc": "Biblioteca de modifiers baseada em Geometry Nodes: arrays, scatter, prédios, muros e assets paramétricos instantâneos."
+  },
+  {
+    "name": "Curvify",
+    "category": "Geometry Nodes",
+    "price_usd": 30,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/curvify",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Curvify-1024x439.jpg",
+    "desc": "Biblioteca grande de geometria procedural guiada por curvas: correntes, vinhas, arame farpado, cercas-vivas, costuras, tijolos."
+  },
+  {
+    "name": "Cell Fluids",
+    "category": "Cloth/Soft",
+    "price_usd": 25,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/cell-fluids",
+    "more_url": "https://addons.cgdive.com/tools/cell-fluids",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Cell-Fluids-1024x439.jpg",
+    "desc": "Solver de fluido em tempo real via Geometry Nodes que simula e desloca uma malha grid, bakeável para geometria estática."
+  },
+  {
+    "name": "MESHmachine",
+    "category": "Mesh Tools",
+    "price_usd": 45,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/MESHmachine",
+    "more_url": "https://machin3.io/MESHmachine/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/09/Mesh-Machine-1024x439.jpg",
+    "desc": "Toolkit de hard-surface para fundir, desfundir e remodelar bevels e chanfros sem subdivision surfaces."
+  },
+  {
+    "name": "Hard Ops / Boxcutter Ultimate Bundle",
+    "category": "Hard Surface",
+    "price_usd": 38,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/hard-ops--boxcutter-ultimate-bundle",
+    "more_url": "https://masterxeon1001.gumroad.com/l/hopscutter",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/09/Hard-OPs-1024x439.jpg",
+    "desc": "Bundle hard-surface padrão da indústria para corte boolean, slicing e operações não-destrutivas no viewport."
+  },
+  {
+    "name": "Fluent: Power Trip",
+    "category": "Hard Surface",
+    "price_usd": 29.9,
+    "is_free": false,
+    "product_url": "https://cgthoughts.gumroad.com/l/fluent_power_trip",
+    "more_url": "https://superhivemarket.com/products/fluent",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2022/02/Fluent-Power-Trip-1024x439.jpg",
+    "desc": "Modelagem hard-surface não-destrutiva que desenha formas e empilha smart booleans, bevels, solidify e arrays."
+  },
+  {
+    "name": "DECALmachine",
+    "category": "Hard Surface",
+    "price_usd": 31,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/decalmachine",
+    "more_url": "https://machin3.io/DECALmachine/docs/",
+    "image_url": "https://machin3.io/DECALmachine/docs/img/hero.jpg",
+    "desc": "Adiciona decais de mesh não-destrutivos (geometria real) para detalhe de superfície sem UV e trabalho de painéis/trim."
+  },
+  {
+    "name": "The City Generator",
+    "category": "Generators",
+    "price_usd": 64,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/the-city-generator",
+    "more_url": "https://cinematiccookie.gumroad.com/l/jfhaw",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2025/02/The-City-Generator-1024x439.jpg",
+    "desc": "Gera cidades inteiras proceduralmente com layout de ruas, prédios, tráfego e cenas noturnas em segundos."
+  },
+  {
+    "name": "Buildify",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://paveloliva.gumroad.com/l/buildify",
+    "more_url": "https://blender-addons.org/buildify/",
+    "image_url": "https://blender-addons.org/app/uploads/2023/08/Buildify_02.jpg",
+    "desc": "Biblioteca de Geometry Nodes que gera prédios customizáveis a partir de kits de peças; name-your-price."
+  },
+  {
+    "name": "Procedural Building Generator",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://coan.gumroad.com/l/buildinggen",
+    "more_url": "https://superhivemarket.com/products/building-gen",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Procedural-Medieval-Castle-Generator-1024x439.jpg",
+    "desc": "Gerador de prédios via Geometry Nodes (Blender 3.2+) que monta fachadas, andares e telhados; name-your-price."
+  },
+  {
+    "name": "Procedural Medieval Castle Generator",
+    "category": "Generators",
+    "price_usd": 9.25,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Procedural-Medieval-Castle-Generator-1024x439.jpg",
+    "desc": "Gerador via Geometry Nodes que constrói castelos medievais completos com torres, muros e ameias parametricamente."
+  },
+  {
+    "name": "Procedural Alleys",
+    "category": "Architecture",
+    "price_usd": 18,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Procedural-Alleys-1024x439.jpg",
+    "desc": "Gerador via Geometry Nodes que cria geometria de becos urbanos detalhada com canos, props e entulho arquitetônico."
+  },
+  {
+    "name": "Procedural Signs",
+    "category": "Generators",
+    "price_usd": 18,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Procedural-Signs-1024x439.jpg",
+    "desc": "Sistema via Geometry Nodes para gerar geometria variada de placas de rua/loja proceduralmente."
+  },
+  {
+    "name": "Curves to Roads",
+    "category": "Generators",
+    "price_usd": 5,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Curves-to-Roads-1024x439.jpg",
+    "desc": "Converte curvas em geometria de estrada completa com faixas, marcações e meios-fios via Geometry Nodes."
+  },
+  {
+    "name": "Higgsas Geometry Nodes Toolset",
+    "category": "Geometry Nodes",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://higgsas.gumroad.com/l/wrusot",
+    "more_url": "https://higgsas-geo-nodes-manual.readthedocs.io/",
+    "image_url": "https://public-files.gumroad.com/w77zc7auf1dj76q09947vnlfts19",
+    "desc": "Pack de 250+ node groups avançados: deformadores, geradores, nodes SDF, distribuição e utilitários de simulação."
+  },
+  {
+    "name": "Geometry Nodes Procedural Stitches",
+    "category": "Geometry Nodes",
+    "price_usd": 14,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Geometry-Nodes-Procedural-Stitches-1024x439.jpg",
+    "desc": "Ferramenta via Geometry Nodes que gera geometria de costura/seam editável ao longo de edges e curvas."
+  },
+  {
+    "name": "OCD (One Click Damage)",
+    "category": "Mesh Tools",
+    "price_usd": 2,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/ocd",
+    "more_url": "https://vfxguide.gumroad.com/l/OCDaddon",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/OCD-One-Click-Damage-1024x439.jpg",
+    "desc": "Adiciona desgaste de aresta, lascas e geometria de dano à malha proceduralmente como modifiers em camadas."
+  },
+  {
+    "name": "Erode It",
+    "category": "Terrain/Landscape",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Erode-It-1024x439.jpg",
+    "desc": "Ferramenta de erosão via Geometry Nodes que deforma malhas de terreno com efeitos de erosão hidráulica/térmica; name-your-price."
+  },
+  {
+    "name": "Pipe Systems Generator",
+    "category": "Generators",
+    "price_usd": 6,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Pipe-System-Generator-1024x439.jpg",
+    "desc": "Gerador via Geometry Nodes que constrói redes de canos industriais ramificadas com conexões ao longo de curvas."
+  },
+  {
+    "name": "Cablerator",
+    "category": "Mesh Tools",
+    "price_usd": 14,
+    "is_free": false,
+    "product_url": "https://kritskiy.gumroad.com/l/cblrtr",
+    "more_url": "https://cablerator.readthedocs.io/",
+    "image_url": "https://public-files.gumroad.com/v0wzgexoxw5xjav79rdaufgts20p",
+    "desc": "Cria e edita interativamente cabos, fios e tubos pendurados clicando na geometria ou entre pontos de curva."
+  },
+  {
+    "name": "Laces Generator",
+    "category": "Geometry Nodes",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Laces-Generator-1024x439.jpg",
+    "desc": "Gerador via Geometry Nodes que cria geometria editável de cadarços/cordões passados por ilhoses."
+  },
+  {
+    "name": "Droplet Generator",
+    "category": "Geometry Nodes",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Droplet-Generator-1024x439.jpg",
+    "desc": "Ferramenta via Geometry Nodes que espalha geometria realista de gotas de água/condensação sobre qualquer superfície."
+  },
+  {
+    "name": "Wrap Master",
+    "category": "Mesh Tools",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2025/02/Wrap-Master-1024x439.jpg",
+    "desc": "Ferramenta via Geometry Nodes que faz shrink-wrap e conforma geometria sobre superfícies-alvo proceduralmente."
+  },
+  {
+    "name": "Procedural Crowds",
+    "category": "Scatter/Distribution",
+    "price_usd": 18,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Procedural-Crowds-1024x439.jpg",
+    "desc": "Sistema via Geometry Nodes que distribui e varia geometria de personagens de multidão por áreas."
+  },
+  {
+    "name": "Blooming Flowers",
+    "category": "Generators",
+    "price_usd": 20,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2025/02/Blooming-Flowers-1024x439.jpg",
+    "desc": "Gerador via Geometry Nodes que produz geometria de flores desabrochando procedural e animável."
+  },
+  {
+    "name": "Real Environments",
+    "category": "Scatter/Distribution",
+    "price_usd": 20,
+    "is_free": false,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/Real-Environments-1024x439.jpg",
+    "desc": "Sistema de ambiente via Geometry Nodes que espalha e gera geometria completa de cena natural."
+  },
+  {
+    "name": "GeoCables",
+    "category": "Geometry Nodes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://blenderhub.net/geometry-node-addons/",
+    "more_url": "https://blenderhub.net/geometry-node-addons/",
+    "image_url": "https://blenderhub.net/wp-content/uploads/2023/06/GeoCables-1024x439.jpg",
+    "desc": "Gerador de cabos via Geometry Nodes que constrói malhas de fio/cabo com sag entre pontos; name-your-price."
+  },
+  {
+    "name": "SurfacePsycho",
+    "category": "Geometry Nodes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/surfacepsycho/",
+    "more_url": "https://github.com/Aimsucram/SurfacePsycho",
+    "image_url": "https://extensions.blender.org/media/thumbnails/68/684735f0c839513a711e3a6f1dfbf77b6bcac40c3879d35f7bb305fda6b0b717_1920x1080.webp",
+    "desc": "Modelagem de superfícies NURBS/Bezier paramétrica estilo CAD, totalmente via Geometry Nodes."
+  },
+  {
+    "name": "Sorcar",
+    "category": "Geometry Nodes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://github.com/aachman98/Sorcar/releases",
+    "more_url": "https://github.com/aachman98/Sorcar/wiki",
+    "image_url": "https://github.com/aachman98/sc-img-data/raw/master/sc_visual_programming.gif",
+    "desc": "Sistema de modelagem procedural baseado em nodes inspirado no Houdini, com editor de nodes dedicado."
+  },
+  {
+    "name": "Tissue",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://github.com/alessandro-zomparelli/tissue/releases",
+    "more_url": "https://github.com/alessandro-zomparelli/tissue/wiki",
+    "image_url": "http://www.co-de-it.com/wordpress/wp-content/uploads/2015/07/tissue_graphics.jpg",
+    "desc": "Toolkit de computational design para tesselação, dual meshes e reaction-diffusion sobre superfícies."
+  },
+  {
+    "name": "A.N.T. Landscape",
+    "category": "Terrain/Landscape",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/antlandscape/",
+    "more_url": "https://docs.blender.org/manual/en/latest/addons/add_mesh/ant_landscape.html",
+    "image_url": "https://extensions.blender.org/media/thumbnails/a3/a30d1072b609bc92975ecc45b1fcac11469e6568d01ca94dab97791e9f2f694a_1920x1080.webp",
+    "desc": "Another Noise Tool: gerador de terreno e displacement de landscape baseado em ruído procedural."
+  },
+  {
+    "name": "Bolt Factory",
+    "category": "Hard Surface",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/boltfactory/",
+    "more_url": "https://docs.blender.org/manual/en/latest/addons/add_mesh/boltfactory.html",
+    "image_url": "https://extensions.blender.org/media/thumbnails/b3/b376da15717afd7a19c18f3c1b5832b85828e7870e76f8fcc3be982a004a8e3c_1920x1080.webp",
+    "desc": "Gerador paramétrico de parafusos, porcas e fixadores rosqueados com controle total de rosca."
+  },
+  {
+    "name": "Maze Generator",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/maze-generator/",
+    "more_url": "https://github.com/elfnor/mesh_maze",
+    "image_url": "https://extensions.blender.org/media/thumbnails/7b/7ba0dd83126db2d8b6db8731748d37bac870548358c456f256997b3b4dbd2223_1920x1080.webp",
+    "desc": "Gera malhas de labirinto aleatórias customizáveis com linhas, colunas, tamanho de célula e altura de parede ajustáveis."
+  },
+  {
+    "name": "MarchingCube",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/marchingcube/",
+    "more_url": "https://extensions.blender.org/add-ons/marchingcube/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/fe/fefe776d7f5191e19d6e6d22d634f9d293900a96c394c3610b9488aa2f72777a_1920x1080.webp",
+    "desc": "Constrói malhas de isossuperfície a partir de campos scalar/voxel usando o algoritmo marching cubes."
+  },
+  {
+    "name": "Modern Primitive",
+    "category": "Mesh Tools",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/modern-primitive/",
+    "more_url": "https://extensions.blender.org/add-ons/modern-primitive/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/c8/c86f47768bd30ded7decafea8001bd8b4246af916f26acd673fd1b9dbae34543_1920x1080.webp",
+    "desc": "Primitivas paramétricas não-destrutivas e totalmente editáveis, sustentadas por Geometry Nodes."
+  },
+  {
+    "name": "Non-Destructive Primitives",
+    "category": "Mesh Tools",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/non-destructive-primitives/",
+    "more_url": "https://extensions.blender.org/add-ons/non-destructive-primitives/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/fb/fb31e6ee296ce18c2e7d9112cd106be6326bef2186ffec574b5923e2368272e5_1920x1080.webp",
+    "desc": "Adiciona primitivas cujas dimensões e segmentos permanecem editáveis depois de criadas."
+  },
+  {
+    "name": "Bool Tool",
+    "category": "Hard Surface",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/bool-tool/",
+    "more_url": "https://docs.blender.org/manual/en/latest/addons/object/bool_tool.html",
+    "image_url": "https://extensions.blender.org/media/thumbnails/1d/1d00d91590c0cf2b1e56ef40aa79bb38cfb4ce8793b9f8042a335d245e8cea74_1920x1080.webp",
+    "desc": "Operações boolean interativas rápidas para corte e combinação hard-surface não-destrutiva."
+  },
+  {
+    "name": "ND (Non-Destructive)",
+    "category": "Hard Surface",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/nd/",
+    "more_url": "https://github.com/HugeMenace/nd",
+    "image_url": "https://extensions.blender.org/media/thumbnails/96/9669627e91f32ea0a5ab7e2f7dfdc86e7d5d3017e30abe5c7df6b806ea4fe36b_1920x1080.webp",
+    "desc": "Toolkit de workflow hard-surface não-destrutivo para bevels, booleans e detalhamento procedural."
+  },
+  {
+    "name": "EdgeFlow",
+    "category": "Mesh Tools",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/edgeflow/",
+    "more_url": "https://github.com/BenjaminSauder/EdgeFlow",
+    "image_url": "https://extensions.blender.org/media/thumbnails/4f/4f24f9e182577de49b1ce72b19629d3938eba089a1dada5d3410e93dc774e60f_1920x1080.webp",
+    "desc": "Ferramentas set-flow e edge-equalize para redistribuir e curvar edge loops suavemente."
+  },
+  {
+    "name": "Modular Tree",
+    "category": "Trees/Vegetation",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/modular-tree/",
+    "more_url": "https://github.com/MaximeHerpin/modular_tree",
+    "image_url": "https://extensions.blender.org/media/thumbnails/e8/e8cb1926ae81f83b97ae1ed8621a5a729873c2043bf199f729781fefd3767f87_1920x1080.webp",
+    "desc": "Gerador de árvore procedural baseado em nodes que produz geometria de tronco, galhos e ramos."
+  },
+  {
+    "name": "Real Snow",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/real-snow/",
+    "more_url": "https://docs.blender.org/manual/en/latest/addons/object/real_snow.html",
+    "image_url": "https://extensions.blender.org/media/thumbnails/2e/2e917ea001204abf8c36a8dad2c573b107c2e8d3ab709c4f403ec6c5bdebb6ae_1920x1080.webp",
+    "desc": "Gera malha realista de neve acumulada sobre qualquer objeto selecionado."
+  },
+  {
+    "name": "Easy Clouds",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/easy-clouds/",
+    "more_url": "https://extensions.blender.org/add-ons/easy-clouds/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/ea/ea137995c8e9fcfc3e59de824d191d9647b285e4bef0ce4ad1ef4b3f0186a62b_1920x1080.webp",
+    "desc": "Gerador de nuvens volumétricas procedural com presets rápidos e controles de forma."
+  },
+  {
+    "name": "Bonsai (BlenderBIM)",
+    "category": "Architecture",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/bonsai/",
+    "more_url": "https://docs.bonsaibim.org/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/df/dfab2aaaf651ac3a04af85b906749b0d31cbbec2c497250825738b4f9a2e13b0_1920x1080.webp",
+    "desc": "Toolkit completo de autoria IFC/BIM gerando geometria arquitetônica paramétrica (paredes, lajes, aberturas)."
+  },
+  {
+    "name": "Home Builder 5",
+    "category": "Architecture",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/home-builder-5/",
+    "more_url": "https://extensions.blender.org/add-ons/home-builder-5/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/08/0844e1160ac38268ed8af525fafc82ba780ce9bd609a2d1c2b7c426c6d4debb6_1920x1080.webp",
+    "desc": "Construtor arquitetônico paramétrico para paredes, cômodos, armários e layouts de interior."
+  },
+  {
+    "name": "HiFi Builder",
+    "category": "Architecture",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/hifi-builder/",
+    "more_url": "https://extensions.blender.org/add-ons/hifi-builder/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/5c/5ca514b3f65560aaeb2f4031028237dcca90373d4d497f23cf5f72ee79d649aa_1920x1080.webp",
+    "desc": "Gerador modular de prédios/ambientes para montar cenas arquitetônicas rapidamente."
+  },
+  {
+    "name": "Brushstroke Tools",
+    "category": "Scatter/Distribution",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/brushstroke-tools/",
+    "more_url": "https://extensions.blender.org/add-ons/brushstroke-tools/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/d0/d0195c9177930d737b4a5275408c012d7ae3a7d059f00608c6e928eb8c421503_1920x1080.webp",
+    "desc": "Sistema de brushstroke via Geometry Nodes para pintar e distribuir traços instanciados sobre superfícies."
+  },
+  {
+    "name": "T3D Geometry Nodes Presets",
+    "category": "Geometry Nodes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://extensions.blender.org/add-ons/t3d-gn-presets/",
+    "more_url": "https://extensions.blender.org/add-ons/t3d-gn-presets/",
+    "image_url": "https://extensions.blender.org/media/thumbnails/09/091e1f5ad3264a70be771adc9c10cb1af1de197ab644f4677d311a6996ed87d5_1920x1080.webp",
+    "desc": "Biblioteca de setups prontos de Geometry Nodes aplicados como presets de um clique."
+  },
+  {
+    "name": "Human Face VDM Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 19,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/human-face-vdm-brushes-for-blender",
+    "more_url": "https://www.youtube.com/watch?v=Mj_1WMYDukQ",
+    "image_url": "https://www.blendernation.com/wp-content/uploads/2023/05/1456humannn-2.jpg",
+    "desc": "30 brushes VDM para esculpir narizes, olhos, bocas e orelhas direto numa malha de rosto no Blender."
+  },
+  {
+    "name": "Blender VDM Dragon Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 19,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/blender-vdm-dragon-brushes",
+    "more_url": "https://www.blendernation.com/2023/04/04/blender-vdm-dragon-brushes/",
+    "image_url": "https://www.blendernation.com/wp-content/uploads/2023/04/dragonvdmbtushe.jpg",
+    "desc": "Vector displacement brushes para estampar escamas de dragão, chifres e detalhes de criatura em sculpts."
+  },
+  {
+    "name": "Blender 3D VDM Hard Surface Brushes (Slick3DArt)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 5,
+    "is_free": false,
+    "product_url": "https://slick3dart.gumroad.com/l/b3dvdm",
+    "more_url": "https://www.youtube.com/watch?v=yKAPb60zoJc",
+    "image_url": "https://public-files.gumroad.com/unb430drcon2uw6k9y8slevf1xgr",
+    "desc": "Set de brushes VDM para estampar painéis mecânicos hard-surface e greebles durante o sculpt."
+  },
+  {
+    "name": "40 Wood Details VDM Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://nsdesign.gumroad.com/l/UIYXK",
+    "more_url": "https://nsdesign.gumroad.com/",
+    "image_url": "https://public-files.gumroad.com/4votzm555zp8dr00ms3lv5ruv3oq",
+    "desc": "40 brushes VDM para esculpir casca, galhos, tábuas e nós de madeira."
+  },
+  {
+    "name": "40 Sea Creatures VDM Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://nsdesign.gumroad.com/l/VScfr",
+    "more_url": "https://nsdesign.gumroad.com/",
+    "image_url": "https://public-files.gumroad.com/5v6xcamj94c1czzkxq7f8f8i8koe",
+    "desc": "40 brushes VDM para estampar conchas, barbatanas, tentáculos e detalhes de criatura aquática."
+  },
+  {
+    "name": "30 Skin Damages Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://nsdesign.gumroad.com/l/xxxht",
+    "more_url": "https://nsdesign.gumroad.com/",
+    "image_url": "https://public-files.gumroad.com/5h5pbj1h6h8x3sesv6jspuj4ykqc",
+    "desc": "30 brushes para esculpir cortes, cicatrizes, feridas e pele danificada em personagens e criaturas."
+  },
+  {
+    "name": "100x Reptile VDM Brushes",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 100,
+    "is_free": false,
+    "product_url": "https://davidpdigitalart.gumroad.com/l/ReptileVDMs",
+    "more_url": "https://davidpdigitalart.gumroad.com/l/ReptileVDMs-DEMO",
+    "image_url": "https://public-files.gumroad.com/g91fb4gtji5owcq6xdk9mudhsdea",
+    "desc": "100 brushes VDM para esculpir escamas, cristas e padrões de pele de réptil e dragão."
+  },
+  {
+    "name": "Reptile VDM Brushes - Free Demo",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://davidpdigitalart.gumroad.com/l/ReptileVDMs-DEMO",
+    "more_url": "https://davidpdigitalart.gumroad.com/",
+    "image_url": "https://public-files.gumroad.com/155u0n5ybklxxhbvvcc7m3i2g2bn",
+    "desc": "Amostra gratuita dos brushes VDM de escama de réptil/dragão para Blender e ZBrush."
+  },
+  {
+    "name": "Orb Stylized Brushes pack for Blender",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://stylizedstation.gumroad.com/l/zMJlJ",
+    "more_url": "https://www.blendernation.com/2017/08/24/free-download-orbs-sculpt-brushes/",
+    "image_url": "https://public-files.gumroad.com/9k39g13zlq80cl67pp5rbux8yyzg",
+    "desc": "Os famosos brushes Orb hard-surface/stylized de Michael Vicente (cracks, flatten, slash) portados pro Blender."
+  },
+  {
+    "name": "Blender VDM Brushes Pack (Doffu)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.doffu.net/product/blender-vdm-brushes-pack-gouges-cubes-tabs-points-and-stitches/",
+    "more_url": "https://www.doffu.net/",
+    "image_url": "https://www.doffu.net/wp-content/uploads/2025/01/CubeSphere_DOFFU.jpg",
+    "desc": "Pack gratuito de 26 brushes VDM (cubo, ponto, tab, gouge e costura com falloffs variados)."
+  },
+  {
+    "name": "Blender Alpha Brush Pack: Skin & Scales (GameDev.tv)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://gamedev.tv/assets/blender-alpha-brushes-skin-and-scales",
+    "more_url": "https://gamedev.tv/assets/blender-alpha-brushes-skin-and-scales",
+    "image_url": "https://gamedev-files.b-cdn.net/asset_packs/ynseippmqdy2.jpg",
+    "desc": "Pack gratuito de brushes alpha/stamp para esculpir poros de pele e escamas de réptil no Blender."
+  },
+  {
+    "name": "VDM Rocks 01 (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/2e0c90f3-8109-4673-a39f-bcb229b8472d/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/20b8a91555644be49b16954d2dad2f09/files/thumbnail_bb916659-eb8a-42ca-ba78-85d9083ef460.png.2048x2048_q85.jpg",
+    "desc": "Brush VDM CC0 gratuito que estampa formas de rocha/pedra numa superfície de sculpt."
+  },
+  {
+    "name": "Rock VDM One (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/08a93f05-d762-466b-8672-cd68cea6c0d3/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/2da811c293764753a222b0f306f548fe/files/thumbnail_f1bc9582-fe82-4814-a9a2-2ea1b0953ebc.png.2048x2048_q85.png",
+    "desc": "Brush VDM de rocha gratuito para esculpir formas de pedra rapidamente."
+  },
+  {
+    "name": "Nose VDM Brush 01 (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/6dbdd1e2-d3a3-45e7-8071-2e6471543e75/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/b6465f2668c147f0875900a1ecd6de43/files/thumbnail_fe892d71-d8fa-4b2f-95dd-52512153c79d.png.2048x2048_q85.png",
+    "desc": "Brush VDM gratuito que estampa um nariz completo num sculpt de rosto."
+  },
+  {
+    "name": "Mouth VDM (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/7c93a7dc-047c-40cb-87ea-be7d9a00fa1b/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/141caede52394748b5100ec89163ce09/files/thumbnail_ebb13206-81dd-41b8-a5bd-c631950152e0.webp.2048x2048_q85.jpg",
+    "desc": "Brush VDM gratuito que estampa uma forma de boca/lábios numa malha de rosto."
+  },
+  {
+    "name": "Skin Pores (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/7a7cff72-554d-44c8-a754-3a8a5c85c69a/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/0e640a101c1d4a2c8c4e3c78689e7920/files/thumbnail_85f277ed-046a-4566-bcba-4e94db496ade.png.2048x2048_q85.png",
+    "desc": "Brush alpha/textura gratuito para estampar detalhe realista de poros de pele."
+  },
+  {
+    "name": "Wrinkled Skins (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/dba9d9e7-5690-4069-9008-2d16d058127e/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/7f007e3c3dfc485b9411c5b1b7b1e095/files/thumbnail_659f0ec7-f60f-4e9b-8847-d1bada8082af.png.2048x2048_q85.png",
+    "desc": "Brush gratuito para esculpir dobras de pele enrugada e quebra de superfície."
+  },
+  {
+    "name": "Stitch Perpendicular Band (BlenderKit)",
+    "category": "Sculpt/VDM Brushes",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://www.blenderkit.com/asset-gallery-detail/2a685383-93e8-4ac5-b2b1-7171d347ceec/",
+    "more_url": "https://www.blenderkit.com/",
+    "image_url": "https://public.blenderkit.com/thumbnails/assets/26c091ea621e48b9b5d9cb380f5677ae/files/thumbnail_6c77a7bd-edd8-4d44-9c96-67424099cbc9.png.2048x2048_q85.png",
+    "desc": "Brush curve/VDM gratuito para esculpir costura de seam por superfícies."
+  },
+  {
+    "name": "FLIP Fluids",
+    "category": "Cloth/Soft",
+    "price_usd": 89,
+    "is_free": false,
+    "product_url": "https://flipfluids.com/buy/",
+    "more_url": "https://github.com/rlguy/Blender-FLIP-Fluids",
+    "image_url": "https://flipfluids.com/wp-content/uploads/2023/01/dennis_and_logo_3d_final-1024x597.png",
+    "desc": "Simulador de líquido FLIP de alta fidelidade que bakeia partículas de fluido em superfícies de mesh renderizadas."
+  },
+  {
+    "name": "RBDLab",
+    "category": "Destruction/Fracture",
+    "price_usd": 45,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/rbdlab",
+    "more_url": "https://b3fxstudios.com/rbdlab/",
+    "image_url": "https://www.aeblender.com/wp-content/uploads/2024/04/Blender-4-Rbdlab-v1.5.4-Crack-2024-april-Update-Download.webp",
+    "desc": "Suite de destruição rigid body que fratura malhas (Voronoi/boolean), adiciona detalhe interior, debris e constraints."
+  },
+  {
+    "name": "KHAOS: Ultimate Explosion/Destruction",
+    "category": "Destruction/Fracture",
+    "price_usd": 60,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/khaos-ultimate-explosion-simulator",
+    "more_url": "https://www.instagram.com/khaos_addonforblender/",
+    "image_url": "https://www.aeblender.com/wp-content/uploads/2025/10/KHAOS-Detonator-2025-Crack-Blender-4.4-Download.webp",
+    "desc": "Sistema procedural de explosão/destruição com detonadores de mesh, ferramentas de fratura e biblioteca de 35+ debris escaneados."
+  },
+  {
+    "name": "Carl's MographFX (Physics & Animation)",
+    "category": "Destruction/Fracture",
+    "price_usd": 30,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/carls-physics-and-simulation-expander",
+    "more_url": "https://www.carlsguides.com/physics/",
+    "image_url": "https://www.carlsguides.com/physics/fracture.jpg",
+    "desc": "Expander de física que voxeliza e fratura malhas e simplifica workflows de rigid-body/explosão motion-graphics."
+  },
+  {
+    "name": "Simply Cloth Studio (Pro)",
+    "category": "Cloth/Soft",
+    "price_usd": 36,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/simply-cloth",
+    "more_url": "https://simplydocs.org/simply-cloth-pro/",
+    "image_url": "https://blender-addons.org/app/uploads/2023/08/scp_workflow.jpg",
+    "desc": "Helper de simulação de cloth via presets com cut-and-sew, rugas adaptativas, pinning e sewing sobre o solver do Blender."
+  },
+  {
+    "name": "Modeling Cloth",
+    "category": "Cloth/Soft",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://blender-addons.org/modeling-cloth/",
+    "more_url": "https://github.com/the3dadvantage/Modeling-Cloth",
+    "image_url": "https://blender-addons.org/app/uploads/2019/06/ModelingCloth.png",
+    "desc": "Solver de cloth e soft-body em tempo real para modelagem interativa de malha com vento, gravidade, turbulência e pins."
+  },
+  {
+    "name": "True-Terrain 5",
+    "category": "Terrain/Landscape",
+    "price_usd": 99,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/true-terrain",
+    "more_url": "https://truevfx.gumroad.com/l/TrueTerrain",
+    "image_url": "https://public-files.gumroad.com/y8dj1cfpu1tuu8qm2n8hmowna9fa",
+    "desc": "Sistema de terreno via Geometry Nodes com erosão em tempo real, shading em camadas, água e scatter de natureza de um clique."
+  },
+  {
+    "name": "Quick Procedural Terrain & Water",
+    "category": "Terrain/Landscape",
+    "price_usd": 25,
+    "is_free": false,
+    "product_url": "https://blender-addons.org/quick-procedural-terrain-water/",
+    "more_url": "https://blender-addons.org/quick-procedural-terrain-water/",
+    "image_url": "https://blender-addons.org/app/uploads/2023/09/terrain.jpg",
+    "desc": "Gerador de terreno via shader GPU + Geometry Nodes com sete presets de landscape e superfícies de água integradas."
+  },
+  {
+    "name": "Quick Landscape",
+    "category": "Terrain/Landscape",
+    "price_usd": 18,
+    "is_free": false,
+    "product_url": "https://blender-addons.org/quick-landscape/",
+    "more_url": "https://blender-addons.org/quick-landscape/",
+    "image_url": "https://blender-addons.org/app/uploads/2023/11/b85e45b13c55f852b28827311126d5c0.jpg",
+    "desc": "Biblioteca de 120 malhas de landscape com displacement (colinas, montanhas, desertos, cânions, crateras) com texturas PBR."
+  },
+  {
+    "name": "The Grove",
+    "category": "Trees/Vegetation",
+    "price_usd": 108,
+    "is_free": false,
+    "product_url": "https://www.thegrove3d.com/buy/",
+    "more_url": "https://www.cgchannel.com/2025/04/f12-releases-the-grove-2-2-for-blender-and-houdini/",
+    "image_url": "https://www.thegrove3d.com/images/LushTreeS.jpg",
+    "desc": "Gerador de árvore baseado em simulação que cresce árvores botanicamente precisas como mesh real com controle de crescimento interativo."
+  },
+  {
+    "name": "Botaniq (Trees & Grass Library)",
+    "category": "Trees/Vegetation",
+    "price_usd": 117,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/products/botaniq-trees/",
+    "more_url": "https://polygoniq.com/3d/botaniq/",
+    "image_url": "https://polygoniq.com/images/software/botaniq/gallery/forest_hu_15f41a777b295927.jpg",
+    "desc": "Biblioteca de 700+ assets de árvores, grama, flores e ervas com scatter, variantes sazonais e ferramentas de animação."
+  },
+  {
+    "name": "Graswald / Gscatter",
+    "category": "Trees/Vegetation",
+    "price_usd": 79,
+    "is_free": false,
+    "product_url": "https://superhivemarket.com/creators/graswald",
+    "more_url": "https://www.cgchannel.com/2024/04/download-all-of-graswalds-3d-plants-for-free/",
+    "image_url": "https://blender-addons.org/app/uploads/2023/10/Gscatter%20-758x426.webp",
+    "desc": "700+ assets de grama, ervas e musgo mais o engine de scatter Gscatter para espalhar natureza por superfícies emitter."
+  },
+  {
+    "name": "GrassBlade",
+    "category": "Trees/Vegetation",
+    "price_usd": 30,
+    "is_free": false,
+    "product_url": "https://blender-addons.org/grassblade-for-grass-weed-field-meadow-and-lawn/",
+    "more_url": "https://blender-addons.org/grassblade-for-grass-weed-field-meadow-and-lawn/",
+    "image_url": "https://blender-addons.org/app/uploads/2021/10/grassblade_blender_addon-news-1024x473.jpg",
+    "desc": "Gerador de grama, ervas, campo e gramado com shader ajustável e sistemas de partícula prontos aplicados em poucos cliques."
+  },
+  {
+    "name": "Tree Vegetation (Bproduction)",
+    "category": "Trees/Vegetation",
+    "price_usd": 40,
+    "is_free": false,
+    "product_url": "https://blender-addons.org/vegetation-addon/",
+    "more_url": "https://blender-addons.org/vegetation-addon/",
+    "image_url": "https://blender-addons.org/app/uploads/2021/02/IgotVegetationBAO.png",
+    "desc": "Biblioteca grande de árvores, arbustos, vasos e plantas com snap-to-ground, randomize, variantes sazonais e animação."
+  },
+  {
+    "name": "Tree-Gen",
+    "category": "Trees/Vegetation",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://blender-addons.org/tree-gen/",
+    "more_url": "https://github.com/friggog/tree-gen",
+    "image_url": "https://blender-addons.org/app/uploads/2023/10/Tree-gen.jpg",
+    "desc": "Gerador de árvore paramétrico (Weber-Penn) com oito presets de forma produzindo malhas de galho e folha customizáveis."
+  },
+  {
+    "name": "CubeSurfer",
+    "category": "Generators",
+    "price_usd": 0,
+    "is_free": true,
+    "product_url": "https://blender-addons.org/cubesurfer-addon/",
+    "more_url": "https://github.com/Pyroevil/CubeSurfer",
+    "image_url": "https://blender-addons.org/app/uploads/2019/10/CubeSurfer_Cover_BAO.png",
+    "desc": "Mesher de isossuperfície em Cython que converte milhões de pontos de fluido/partícula em malha de polígono real em segundos."
+  },
+  {
+    "name": "Easy Realistic Snow Generator",
+    "category": "Generators",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://blender-addons.org/easy-realistic-snow-generator/",
+    "more_url": "https://blender-addons.org/easy-realistic-snow-generator/",
+    "image_url": "https://blender-addons.org/app/uploads/2024/07/snow.jpg",
+    "desc": "Gerador procedural que constrói acumulação de neve em camadas sobre qualquer objeto com profundidade e detalhe ajustáveis."
+  },
+  {
+    "name": "Random Flow",
+    "category": "Hard Surface",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://blenderguppy.gumroad.com/l/randomflow",
+    "more_url": "https://superhivemarket.com/products/random-flow",
+    "image_url": "https://public-files.gumroad.com/5rml3vwxnb0uwvxzrp53a77w4xwv",
+    "desc": "Gerador de mesh aleatório para prototipagem hard-surface rápida: greeble extrudes, painéis sci-fi, tubos, cabos, parafusos."
+  },
+  {
+    "name": "Construction Lines",
+    "category": "Mesh Tools",
+    "price_usd": 11,
+    "is_free": false,
+    "product_url": "https://dndrawings.gumroad.com/l/Dvmps",
+    "more_url": "https://superhivemarket.com/products/construction-lines",
+    "image_url": "https://public-files.gumroad.com/uovrkcww99u5cjlxpf2kv3sye2a7",
+    "desc": "Modelagem precisa estilo CAD com guias snappable, primitivas exatas e desenho de linha dimensionado no Blender."
+  },
+  {
+    "name": "CURVEmachine",
+    "category": "Mesh Tools",
+    "price_usd": 17.5,
+    "is_free": false,
+    "product_url": "https://machin3.gumroad.com/l/CURVEmachine",
+    "more_url": "https://machin3.io/CURVEmachine/",
+    "image_url": "https://public-files.gumroad.com/z91xibblw5h4mx5f2s973cpywqe7",
+    "desc": "Edição de curva POLY não-destrutiva com a ferramenta Blendulate para raios, arcos e blends não-circulares."
+  },
+  {
+    "name": "Plating Generator and Greebles",
+    "category": "Generators",
+    "price_usd": 30,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/plating-generator-and-greebles",
+    "more_url": "https://www.markkingsnorth.com/category/plugins-addons/",
+    "image_url": "https://public-files.gumroad.com/wqulmt6gy45mmf28rgiub481clka",
+    "desc": "Gera linhas de painel intertravadas reconfiguráveis e detalhamento de greeble sobre qualquer modelo 3D."
+  },
+  {
+    "name": "Conform Object",
+    "category": "Mesh Tools",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/conform-object",
+    "more_url": "https://superhivemarket.com/products/conform-object",
+    "image_url": "https://public-files.gumroad.com/b7gyh56hss3dwexip5q4wlvrdh6u",
+    "desc": "Projeta e envolve um objeto não-destrutivamente sobre a superfície de outro via modos grid ou shrinkwrap."
+  },
+  {
+    "name": "PUNCHit",
+    "category": "Mesh Tools",
+    "price_usd": 10,
+    "is_free": false,
+    "product_url": "https://machin3.gumroad.com/l/PUNCHit",
+    "more_url": "https://machin3.io/PUNCHit/docs/",
+    "image_url": "https://public-files.gumroad.com/dfbm15eshz3oyq771ndnissv85k1",
+    "desc": "Ferramenta robusta de extrusão negativa-manifold, substituto mais confiável do Extrude Manifold nativo do Blender."
+  },
+  {
+    "name": "Procedural Building Generator 2",
+    "category": "Architecture",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://coan.gumroad.com/l/pbg-2",
+    "more_url": "https://coan.gumroad.com/l/buildinggen",
+    "image_url": "https://public-files.gumroad.com/cc7v7ur34u3pgugvn4qcvu74eugo",
+    "desc": "Gerador de prédios baseado em Geometry Nodes que produz prédios modulares customizáveis a partir de footprints."
+  },
+  {
+    "name": "Erindale Toolkit",
+    "category": "Geometry Nodes",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://erindale.gumroad.com/l/erintools",
+    "more_url": "https://superhivemarket.com/products/geometry-nodes-groups",
+    "image_url": "https://public-files.gumroad.com/dasryeyen40xxz5y82wgyirymc5l",
+    "desc": "130+ node groups avançados de Geometry Nodes incluindo geradores, LOD/culling e colocação de instâncias procedural."
+  },
+  {
+    "name": "Terrain Mixer",
+    "category": "Terrain/Landscape",
+    "price_usd": 19,
+    "is_free": false,
+    "product_url": "https://boonar.gumroad.com/l/xPhCA",
+    "more_url": "https://boonar.gumroad.com/l/xPhCA",
+    "image_url": "https://public-files.gumroad.com/35dfoztc0xrrk4vc3j4tu3vsiucf",
+    "desc": "Addon de autoria de terreno via Geometry Nodes que empilha e mistura features de landscape procedural não-destrutivamente."
+  },
+  {
+    "name": "Terrain Nodes",
+    "category": "Terrain/Landscape",
+    "price_usd": 25,
+    "is_free": false,
+    "product_url": "https://vsb.gumroad.com/l/yOnrv",
+    "more_url": "https://vsb.gumroad.com/l/yOnrv",
+    "image_url": "https://public-files.gumroad.com/vxavfehfhh7cy5mfp2foag0r1ytl",
+    "desc": "Gerador de terreno via Geometry Nodes para landscapes procedurais com sculpting, erosão e controles de texturização."
+  },
+  {
+    "name": "Eco-Scatter",
+    "category": "Scatter/Distribution",
+    "price_usd": 10,
+    "is_free": false,
+    "product_url": "https://blenderlabs.gumroad.com/l/ecoscatter",
+    "more_url": "https://blenderlabs.gumroad.com/l/ecoscatter",
+    "image_url": "https://public-files.gumroad.com/ttnvgw79fc5r0fqih4xm153be2gd",
+    "desc": "Addon de scatter para construir florestas, prados e paisagens urbanas com controles de distribuição."
+  },
+  {
+    "name": "JMesh Tools",
+    "category": "Hard Surface",
+    "price_usd": 24.99,
+    "is_free": false,
+    "product_url": "https://jayanam.gumroad.com/l/gLJnk",
+    "more_url": "https://blender-addons.org/jmesh-tools/",
+    "image_url": "https://public-files.gumroad.com/d7v3izmo3pvoh8mwozbwluz1ezl1",
+    "desc": "Addon hard-surface para desenhar formas 2D em superfícies e transformá-las em cortes boolean, extrusões e painéis."
+  },
+  {
+    "name": "QuickAssembly",
+    "category": "Scatter/Distribution",
+    "price_usd": 30,
+    "is_free": false,
+    "product_url": "https://jamajurabaev.gumroad.com/l/bnmmq",
+    "more_url": "https://jamajurabaev.gumroad.com/l/bnmmq",
+    "image_url": "https://public-files.gumroad.com/n6ocd8saij5w7ynmdsjofp8chezx",
+    "desc": "Espalha, faz array e monta objetos de uma collection proceduralmente, com ivy, neve e outros efeitos."
+  },
+  {
+    "name": "Speedflow",
+    "category": "Mesh Tools",
+    "price_usd": 20,
+    "is_free": false,
+    "product_url": "https://pitiwazou.gumroad.com/l/speedflow",
+    "more_url": "https://superhivemarket.com/products/speedflow",
+    "image_url": "https://public-files.gumroad.com/oe6bwysd9tcsyrtoont4fbujegcr",
+    "desc": "Workflow modal de modifiers para adicionar e ajustar arrays, booleans, bevels, mirrors e tubos no viewport."
+  },
+  {
+    "name": "Sci Fi Kitbash - Volume 1",
+    "category": "Hard Surface",
+    "price_usd": 32,
+    "is_free": false,
+    "product_url": "https://kevinjickart.gumroad.com/l/cerlbm",
+    "more_url": "https://kevinjick.artstation.com/store/yByBz/sci-fi-kitbash-volume-1",
+    "image_url": "https://public-files.gumroad.com/wykyqy74jhw3xxuwnqjbc82ury0q",
+    "desc": "85+ assets de kitbash sci-fi — prédios, greebles, canos e ar-condicionados para detalhamento hard-surface."
+  },
+  {
+    "name": "Auto-Building",
+    "category": "Architecture",
+    "price_usd": 20,
+    "is_free": false,
+    "product_url": "https://juliengauthier.gumroad.com/l/nzifx",
+    "more_url": "https://juliengauthier.gumroad.com/l/nzifx",
+    "image_url": "https://public-files.gumroad.com/jff37jqimoihv1trx0d14phnno0c",
+    "desc": "Gera prédios procedurais a partir de qualquer mesh base, distribuindo automaticamente janelas, andares e detalhe de fachada."
+  },
+  {
+    "name": "Geometry Node Tools - Architectural Pack",
+    "category": "Architecture",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://juliengauthier.gumroad.com/l/bghti",
+    "more_url": "https://juliengauthier.gumroad.com/l/bghti",
+    "image_url": "https://public-files.gumroad.com/bax2ehatz4kbmax41uvykf8ep7x1",
+    "desc": "Pack de Geometry Nodes com geradores arquitetônicos para guarda-corpos, escadas, cercas e estruturas modulares."
+  },
+  {
+    "name": "Wrap Gen",
+    "category": "Generators",
+    "price_usd": 9.99,
+    "is_free": false,
+    "product_url": "https://hodgson3d.gumroad.com/l/quddj",
+    "more_url": "https://blender-addons.org/wrap-gen/",
+    "image_url": "https://public-files.gumroad.com/8ob71j4kjb4f3ojfe1ah6u6o43ui",
+    "desc": "Modifier procedural que gera wraps de tecido/lona totalmente customizáveis sobre qualquer objeto."
+  },
+  {
+    "name": "Sci-fi Ship Kitbash",
+    "category": "Hard Surface",
+    "price_usd": 15,
+    "is_free": false,
+    "product_url": "https://danielgrovedesigns.gumroad.com/l/shipkitbash",
+    "more_url": "https://danielgrovedesigns.gumroad.com/l/shipkitbash",
+    "image_url": "https://public-files.gumroad.com/8ybhxmesny3dohb7ebq2yaqmmij5",
+    "desc": "150+ peças de kitbash sci-fi — placas, greebles, vents, cockpits, motores e estruturas para detalhamento de naves."
+  },
+  {
+    "name": "3D Shape Generator",
+    "category": "Generators",
+    "price_usd": 25,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/shape-generator",
+    "more_url": "https://www.markkingsnorth.com/category/plugins-addons/",
+    "image_url": "https://public-files.gumroad.com/mzg2vo8zkjagqdw5r5qr4rkzvc6n",
+    "desc": "Gera variedade infinita de objetos 3D procedurais únicos a partir de seeds aleatórios e parâmetros de forma."
+  },
+  {
+    "name": "Starship Generator",
+    "category": "Generators",
+    "price_usd": 11,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/starship-generator",
+    "more_url": "https://www.markkingsnorth.com/category/plugins-addons/",
+    "image_url": "https://public-files.gumroad.com/tnb3cencvlm6muuvj585yb9jyz4r",
+    "desc": "Gera naves sci-fi aleatórias proceduralmente prontas para exportar para engines como Unreal."
+  },
+  {
+    "name": "Curves To Mesh",
+    "category": "Mesh Tools",
+    "price_usd": 25,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/curves-to-mesh",
+    "more_url": "https://blender-addons.org/curves-to-mesh/",
+    "image_url": "https://public-files.gumroad.com/rnqloa8ayu3fa5q4hpqymkiptjs3",
+    "desc": "Cria e configura superfícies de mesh limpas lofted entre múltiplas curvas Bezier para formas hard-surface e orgânicas."
+  },
+  {
+    "name": "Mesh Materializer",
+    "category": "Scatter/Distribution",
+    "price_usd": 12,
+    "is_free": false,
+    "product_url": "https://mark-kingsnorth.gumroad.com/l/mesh-materializer",
+    "more_url": "https://blender-addons.org/mesh-materializer-addon/",
+    "image_url": "https://public-files.gumroad.com/hs6w9axxs78lmwnbt8kfo7zmqds3",
+    "desc": "Envolve e distribui malhas pela superfície de outro objeto usando um UV map como guia de colocação."
+  }
+]
