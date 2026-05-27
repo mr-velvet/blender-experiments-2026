@@ -1,0 +1,18 @@
+[   0.0s] [init] mouthrot
+[   2.2s] [build mouthrot] (blender pronto em 2.2s desde start do script)
+[   2.5s]   plate mouth_+Y_frente brush=15 r=0.52 str=1.0 -> z[-0.345,0.032] protrusao=0.376 (0.3s)
+[   2.7s]   plate mouth_-Y_tras brush=15 r=0.52 str=1.6 -> z[-0.882,0.081] protrusao=0.963 (0.2s)
+[   2.9s]   plate mouth_+X_dir brush=16 r=0.52 str=1.3 -> z[-0.583,0.063] protrusao=0.646 (0.2s)
+[   3.2s]   plate mouth_-X_esq brush=17 r=0.52 str=1.3 -> z[-0.583,0.066] protrusao=0.648 (0.2s)
+[   3.4s]   plate mouth_+Z_topo brush=18 r=0.52 str=1.3 -> z[-0.583,0.063] protrusao=0.646 (0.2s)
+[   3.6s]   plate mouth_-Z_base brush=15 r=0.52 str=2.0 -> z[-1.379,0.126] protrusao=1.505 (0.2s)
+[   3.6s] [sculpt] 6 bocas carimbadas em 1.4s
+[   4.2s] [vp 3q] ok
+[   4.3s] [vp front] ok
+[   4.4s] [vp side] ok
+[   4.4s] [viewport] 3 prints em 0.7s
+[   5.6s] [render 3q] ok (1.3s acumulado)
+[   6.9s] [render side] ok (2.6s acumulado)
+[   8.2s] [render front] ok (3.9s acumulado)
+[   8.2s] [render] 3 renders baixos em 3.9s
+[   8.3s] [saved] TOTAL 8.3s

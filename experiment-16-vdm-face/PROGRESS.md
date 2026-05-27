@@ -141,8 +141,24 @@ SPHERE_FACES (csv de indices 0-5) ou SPHERE_FACE.
 RESULTADO: olho = 100% pincel VDM, zero deformacao manual. Esfera = unico objeto extra,
 encaixada no centro real do olho. Pedido cumprido literalmente.
 
+## 2026-05-27 (rodada boca) — CUBO de BOCAS + doc de aprendizados
+`scripts/39_mouth_cube.py` — cubo com boca VDM em cada face, variando propriedade.
+`scripts/39b_mouth_rot.py` — mesma coisa com boca DEITADA 90deg (a versao boa).
+ACHADO PRINCIPAL: a boca (brushes 15-18) parecia chapada/ilegivel porque estava na
+orientacao VERTICAL canonica do brush. DEITANDO 90deg (igual o olho) ela vira boca
+HORIZONTAL DE 2 LABIOS real (labio sup, sulco, labio inf). Medi: o relevo e
+majoritariamente um SULCO que afunda; strength alto aprofunda o sulco e engrossa os
+labios. So pincel + propriedade + orientacao rigida, ZERO manipulacao de malha.
+- `39_mouthrot_vp_front.png` (boca legivel), `_r_side.png` (volume de lado),
+  `_r_3q.png` (cubo inteiro, boca por face), `39_mouthrot.blend`.
+- `39_mouthcube_*` = versao vertical (antes do 90deg), pra comparar.
+**LEARNINGS.md** criado: doc consolidado de melhores praticas + tempos. LER ELE
+no inicio de qualquer sessao futura deste tema.
+TEMPOS (16 CPU): subir Blender ~2.2s, carimbar 6 features ~0.6-1.4s, render baixo
+480px/32smp ~1.3s/frame, total ponta-a-ponta ~7-8s. Viewport OpenGL ~3x mais rapido
+que Cycles — usar pra iterar, render so no fim.
+
 ## A fazer (aguardando user)
-- Fechar com combo C, OU tentar boca por 2 carimbos (labio sup+inf), OU FASE 2.
 - FASE 2: pintar rosto em asset gratuito (download de modelo + carimbar nas faces).
 
 ## Scripts-chave
