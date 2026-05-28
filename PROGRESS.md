@@ -1,7 +1,29 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-28 (sessao 11 — experimento 18: Home Builder 5 dirigido headless, casas + render baixa res, via agnts)
+2026-05-27 (sessao 12 — experimento 19: casa multi-andar mobiliada via MCP ao vivo)
+
+## Experimento 19: Casa multi-andar mobiliada via MCP (2026-05-27, sessao ao vivo)
+- Pasta `experiment-19-mcp-multistory/` — **primeira sessao usando MCP do Blender como modo principal de trabalho** (Blender GUI aberto, agente envia via `mcp__blender__execute_blender_code`, user ve ao vivo)
+- **Goal:** (1) provar que `hb_lib.py` do exp 18 funciona identica no MCP, (2) construir casa multi-andar stateful, (3) atacar cabinets parametricos do Home Builder
+- **Casa construida:** 8x6m, 2 andares (2.7m + 2.6m). Terreo: sala+cozinha+banheiro (4 paredes ext com mitra + divisoria L). 1o andar: 2 quartos + corredor central + banheiro (4 paredes ext + 2 div corredor + 1 div banheiro). Piso, laje entre andares (com furo da escada), teto final
+- **Escada:** Archimesh `bpy.ops.mesh.archimesh_stairs` (built-in oficial), 14 degraus parametrizados pra subir exatamente 2.82m, rotacionada 180° encostada na parede esquerda. Furo na laje: cubo primitivo + boolean DIFFERENCE aplicado
+- **Cozinha completa:** 4 BaseCabinet (60cm cada) + 1 RefrigeratorCabinet (91cm) + 4 UpperCabinet, na parede de fundo entre escada e banheiro. **Cada cabinet expande em ~20 objetos filhos** (carcassa, portas, gavetas, puxadores) gerados via Geometry Nodes do addon. Total final: 224 objs na cena
+- **API descoberta no Home Builder 5 (nao estava no exp 18):** o addon tem 3 product libraries (`closets/`, `face_frame/`, `frameless/`). Padrao `Cabinet(GeoNodeCage)` identico ao `GeoNodeWall(GeoNodeObject)`. Para usar sem o operator modal `hb_frameless.place_cabinet`:
+  ```python
+  import importlib
+  tf = importlib.import_module("bl_ext.blender_org.home_builder_5.product_libraries.frameless.types_frameless")
+  bc = tf.BaseCabinet(); bc.width=0.60; bc.depth=0.60; bc.create("Kitchen_Base_1")
+  bc.obj.location = (x, y, 0); bc.obj.rotation_euler.z = math.radians(180)
+  ```
+- **Classes descobertas:** `BaseCabinet`, `TallCabinet`, `UpperCabinet`, `RefrigeratorCabinet`, `LapDrawerCabinet`, `CornerCabinet`, `DiagonalCorner*`, `PieCutCorner*` (3 variantes Base/Tall/Upper cada)
+- **Gotcha resolvido na sessao:** janelas a < 1m do canto faziam o cage cutter da janela competir com o cage cutter da mitra (boolean DIFFERENCE) -> sobrava "miolo no meio do vao". Fix: `offset_x >= 1.2m` do canto da parede
+- **Caveats honestos:**
+  - Home Builder 5 NAO tem escada nativa — Archimesh foi a escolha correta (built-in, nao bmesh-feito-a-mao)
+  - Furo na laje: cubo primitivo + boolean (nem HB nem Archimesh tem "abrir vao em laje"). Incontornavel
+  - Render externo Eevee saiu preto (sem material, sem HDR, luz fraca). O teste eh construcao/automacao, nao apresentacao. Quem quiser ver: abrir o `.blend`
+  - Cozinha so linha reta — nao testei `CornerCabinet` ainda
+- **Conclusao headless vs MCP:** mesmo codigo `bpy` puro roda identico nos dois — MCP eh so o transporte. **Headless:** reprodutivel/batch/paralelo, stateless, sem feedback visual. **MCP:** stateful/iterativo/visual ao vivo, exige 1 acao manual inicial (abrir Blender + habilitar addon + iniciar servidor MCP), nao paraleliza. Detalhes em `experiment-19-mcp-multistory/README.md`
 
 ## Experimento 18: Home Builder 5 — gerar casas headless + render baixa res (2026-05-28, async via agnts)
 - Pasta `experiment-18-home-builder/` — addon arquitetonico (paredes/portas/janelas parametricas, free, AndrewPeel, extensions.blender.org)
