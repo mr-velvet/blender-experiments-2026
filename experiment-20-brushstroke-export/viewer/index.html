@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>exp20 — brushstroke tools no GLB</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1816;
+    color: #e8e3dc;
+    font: 14px/1.5 system-ui, sans-serif;
+    overflow: hidden;
+  }
+  #hud {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    background: rgba(13, 12, 11, 0.85);
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 360px;
+    border: 1px solid #2a2622;
+  }
+  h1 { font-size: 16px; margin-bottom: 4px; color: #d0c5b5; font-weight: 500; }
+  .sub { font-size: 12px; color: #948a7e; margin-bottom: 12px; }
+  .switcher { display: flex; gap: 4px; margin-bottom: 12px; }
+  .switcher button {
+    flex: 1;
+    padding: 8px 10px;
+    background: #232020;
+    color: #e8e3dc;
+    border: 1px solid #2a2622;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .switcher button.active {
+    background: #f4a380;
+    color: #1a1816;
+    border-color: #f4a380;
+    font-weight: 600;
+  }
+  .info {
+    font-size: 11px;
+    color: #948a7e;
+    line-height: 1.6;
+    padding-top: 8px;
+    border-top: 1px solid #2a2622;
+  }
+  .info b { color: #f4a380; }
+  .stats {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #2a2622;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .stats div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .stats span:last-child { color: #f4a380; }
+  #hint {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    background: rgba(13,12,11,0.85);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #948a7e;
+  }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <h1>Exp 20 — Brushstroke Tools no GLB</h1>
+  <div class="sub">Resposta a "esses brushes saem se exportar GLB/FBX?"</div>
+
+  <div class="switcher">
+    <button id="btn-without" class="active">Sem brushstrokes</button>
+    <button id="btn-with">Com brushstrokes</button>
+  </div>
+
+  <div class="stats">
+    <div><span>vértices</span><span id="stat-verts">-</span></div>
+    <div><span>triângulos</span><span id="stat-tris">-</span></div>
+    <div><span>meshes</span><span id="stat-meshes">-</span></div>
+    <div><span>tamanho</span><span id="stat-size">-</span></div>
+  </div>
+
+  <div class="info" style="margin-top:12px">
+    <b>Conclusão:</b> Brushstroke Tools gera <b>geometria real</b> via Geometry Nodes
+    e essa geometria <b>sobrevive ao export GLB</b>. Pré-requisito:
+    converter o objeto brushstroke (que vem como <code>CURVES</code>) em
+    <code>MESH</code> via <code>convert(target='MESH')</code> antes de exportar
+    — o exporter glTF do Blender ignora <code>CURVES</code>.
+  </div>
+</div>
+
+<div id="hint">arrasta pra rotacionar · scroll pra zoom · botão direito pra pan</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const URLS = {
+  without: location.hostname.includes('did.lu')
+    ? 'https://st.did.lu/blender-exp20-brushstroke/v1/terreo_brushstroke_NO_apply.glb'
+    : '../out/glb/terreo_brushstroke_NO_apply.glb',
+  with: location.hostname.includes('did.lu')
+    ? 'https://st.did.lu/blender-exp20-brushstroke/v1/terreo_brushstroke_CONVERTED.glb'
+    : '../out/glb/terreo_brushstroke_CONVERTED.glb',
+};
+
+// scene setup
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1816);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(12, 8, 14);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(4, 1.5, 3);
+controls.enableDamping = true;
+
+// add ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(30, 30),
+  new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.95 })
+);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -0.15;
+scene.add(ground);
+
+// loader
+const loader = new GLTFLoader();
+let currentRoot = null;
+const stats = { without: null, with: null };
+
+async function loadModel(key) {
+  if (currentRoot) {
+    scene.remove(currentRoot);
+    currentRoot = null;
+  }
+  const url = URLS[key];
+  document.getElementById('stat-verts').textContent = 'carregando…';
+  const t0 = performance.now();
+
+  try {
+    const gltf = await loader.loadAsync(url);
+    const root = gltf.scene;
+    root.rotation.x = -Math.PI/2; // Y-up to Z-up — gltf vem Y-up, blender Z-up
+    // na verdade: blender exporta com Y-up por default, então NÃO precisa rotacionar
+    root.rotation.x = 0;
+
+    // count
+    let verts = 0, tris = 0, meshes = 0;
+    root.traverse(obj => {
+      if (obj.isMesh) {
+        meshes++;
+        const geom = obj.geometry;
+        verts += geom.attributes.position.count;
+        if (geom.index) tris += geom.index.count/3;
+        else tris += geom.attributes.position.count/3;
+      }
+    });
+
+    // fetch file size
+    let fileSize = '?';
+    try {
+      const head = await fetch(url, { method: 'HEAD' });
+      const len = head.headers.get('content-length');
+      if (len) {
+        const kb = parseInt(len)/1024;
+        fileSize = kb > 1024 ? (kb/1024).toFixed(2) + ' MB' : kb.toFixed(0) + ' KB';
+      }
+    } catch(e) {}
+
+    stats[key] = { verts, tris, meshes, fileSize };
+    document.getElementById('stat-verts').textContent = verts.toLocaleString();
+    document.getElementById('stat-tris').textContent = Math.round(tris).toLocaleString();
+    document.getElementById('stat-meshes').textContent = meshes;
+    document.getElementById('stat-size').textContent = fileSize;
+
+    scene.add(root);
+    currentRoot = root;
+    console.log(`Loaded ${key} in ${(performance.now()-t0).toFixed(0)}ms`, stats[key]);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('stat-verts').textContent = 'erro';
+  }
+}
+
+// switcher
+document.getElementById('btn-without').addEventListener('click', () => {
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-without').classList.add('active');
+  loadModel('without');
+});
+document.getElementById('btn-with').addEventListener('click', () => {
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-with').classList.add('active');
+  loadModel('with');
+});
+
+// initial load
+loadModel('without');
+
+// resize
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// loop
+function tick() {
+  requestAnimationFrame(tick);
+  controls.update();
+  renderer.render(scene, camera);
+}
+tick();
+</script>
+
+</body>
+</html>

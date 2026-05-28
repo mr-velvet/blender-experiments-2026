@@ -1,7 +1,27 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-27 (sessao 12 — experimento 19: casa multi-andar mobiliada via MCP ao vivo)
+2026-05-28 (sessao 13 — experimento 20: Brushstroke Tools no export GLB, via MCP)
+
+## Experimento 20: Brushstroke Tools no export GLB/FBX (2026-05-28, sessao ao vivo MCP)
+- Pasta `experiment-20-brushstroke-export/` — pergunta do user: "esses brushes saem se exportar GLB/FBX? imagino que se saem, vao sair como estruturas na superficie dos modelos"
+- **Plugin:** Brushstroke Tools 1.2.1 (Blender Studio, Simon Thommes), free, official ext. Tags: Paint+GeoNodes+Material. Usado em curtas da Blender Studio
+- **Goal:** aplicar nas paredes externas do terreo do exp 19, renderizar, exportar 2 GLBs (com/sem apply modifier), validar no Three.js que sai mesmo
+- **Resposta tecnica:** SIM sai como geometria real, MAS com pegadinha: o brushstroke object eh `type='CURVES'` (hair_curves), e o exportador glTF do Blender **ignora type=CURVES**. Precisa converter pra MESH (`bpy.ops.object.convert(target='MESH')`) antes do export — isso bakea o GeoNodes em mesh real
+- **Pipeline:** apply modifiers nas 6 superficies do terreo (paredes ext + piso + laje) -> smart UV project + ativar UV (gotcha) -> `brushstroke_tools.new_brushstrokes(method='SURFACE_FILL')` em cada -> convert para MESH -> export GLB com `use_selection=True, export_apply=True`
+- **Numeros (sem vs com brushstrokes):**
+  - GLB: 17 KB -> **5.61 MB** (330x maior)
+  - Verts: 364 -> **66.325** (182x mais)
+  - Tris: 254 -> **84.014** (331x mais)
+  - Meshes: 6 -> 12
+- **Gotchas mapeados:**
+  1. UV criada por `smart_project` vem desativada (active_index=-1). Brushstroke rejeita com "needs an available UV Map" mesmo tendo UV. Fix: `data.uv_layers.active_index = 0`
+  2. `bpy.ops.object.select_all` falha em contexto nao-OBJECT com erro criptico. Sempre `mode_set(mode='OBJECT')` antes
+  3. Exportador glTF ignora `type='CURVES'`. Sem convert pra MESH, GLB sai com mesmo tamanho que sem brushstrokes (17896 bytes nos dois)
+  4. `to_mesh()` falha em hair_curves. Usar `convert(target='MESH')` que funciona
+- **Arquitetura por baixo:** `new_brushstrokes` cria (1) brushstrokes object type=CURVES com 3 modifiers GeoNodes encadeados `Surface Input -> Masking -> Brushstrokes`, (2) flow object com modifier `.brushstroke_tools.pre_processing`. Sockets principais do modifier final: `Socket_7`=density, `Socket_11`=length, `Socket_13`=width
+- **Hospedado:** https://st.did.lu/blender-exp20-brushstroke/v1/index.html (viewer Three.js comparativo com switch sem/com brushstrokes, estatisticas live de verts/tris/MB)
+- **Caveat estetico:** apliquei com preset default, sem afinar style/material/density/flow direction. Visual ficou "ninho branco" de pinceladas cobrindo a casa toda — provou a pergunta tecnica mas nao eh visual usavel pra producao. Pra estetica boa precisa carregar styles do `assets/styles/`, configurar parametros pra escala das paredes (defaults vem do `estimate_dimensions` com bbox total — ruim em superficies grandes), configurar material, ajustar flow direction
 
 ## Experimento 19: Casa multi-andar mobiliada via MCP (2026-05-27, sessao ao vivo)
 - Pasta `experiment-19-mcp-multistory/` — **primeira sessao usando MCP do Blender como modo principal de trabalho** (Blender GUI aberto, agente envia via `mcp__blender__execute_blender_code`, user ve ao vivo)
