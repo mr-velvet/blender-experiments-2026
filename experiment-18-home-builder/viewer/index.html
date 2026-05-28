@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Home Builder — walkthrough 1a pessoa</title>
+<style>
+  html,body{margin:0;height:100%;background:#1a1d22;overflow:hidden;font-family:system-ui,sans-serif}
+  #c{display:block;width:100vw;height:100vh}
+  #hud{position:fixed;left:12px;top:12px;color:#cdd3da;font-size:13px;
+       background:rgba(20,23,28,.7);padding:8px 12px;border-radius:8px;line-height:1.5}
+  #hud b{color:#fff}
+  #cam{color:#7fd3a0}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div><b>Walkthrough 1a pessoa</b> — GLB exportado do Home Builder 5</div>
+  <div>casa: <b id="house">01_rect</b> · olho a 1.6m</div>
+  <div id="cam">pos —</div>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const params = new URLSearchParams(location.search);
+const HOUSE = params.get('house') || '01_rect';
+document.getElementById('house').textContent = HOUSE;
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x2a2f37);
+window.__scene = scene; window.__THREE = THREE;
+
+// olho humano a 1.6m — camera de 1a pessoa
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.05, 200);
+window.__cam = camera;
+
+// luzes
+const hemi = new THREE.HemisphereLight(0xbcd0e8, 0x404038, 1.1);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff4e0, 2.0);
+sun.position.set(6, 10, 4); sun.castShadow = true;
+sun.shadow.mapSize.set(1024,1024);
+scene.add(sun);
+
+// chao de grade (contexto)
+const grid = new THREE.GridHelper(40, 40, 0x3a4049, 0x2f343b);
+scene.add(grid);
+
+const loader = new GLTFLoader();
+const url = `../out/glb/${HOUSE}.glb`;
+loader.load(url, (gltf)=>{
+  const root = gltf.scene;
+  // material neutro double-side (paredes finas — ver ambos os lados ao atravessar)
+  const mat = new THREE.MeshStandardMaterial({color:0xc8c4bc, roughness:0.9, side:THREE.DoubleSide});
+  root.traverse(o=>{ if(o.isMesh){ o.material = mat; o.castShadow=true; o.receiveShadow=true; }});
+  scene.add(root);
+  const bb = new THREE.Box3().setFromObject(root);
+  window.__bbox = {min:[bb.min.x,bb.min.y,bb.min.z], max:[bb.max.x,bb.max.y,bb.max.z]};
+  window.__loaded = true;
+  console.log('GLB carregado:', HOUSE);
+}, undefined, (e)=>{ console.error('erro GLB', e); window.__error = String(e); });
+
+// controle 1a pessoa programatico (setado de fora via window.__setView)
+const eye = 1.6;
+window.__setView = (x, z, yawDeg, pitchDeg=0)=>{
+  camera.position.set(x, eye, z);
+  camera.rotation.order = 'YXZ';
+  camera.rotation.y = THREE.MathUtils.degToRad(yawDeg);
+  camera.rotation.x = THREE.MathUtils.degToRad(pitchDeg);
+};
+window.__setView(3, 9, 180);  // default: olhando pra fachada de fora
+
+function tick(){
+  const p = camera.position;
+  document.getElementById('cam').textContent =
+    `pos (${p.x.toFixed(1)}, ${p.z.toFixed(1)}) yaw ${(camera.rotation.y*57.3).toFixed(0)}deg`;
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+tick();
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

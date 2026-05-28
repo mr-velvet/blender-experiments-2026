@@ -81,7 +81,8 @@ def add_opening(wall, kind, offset_x, width=None, height=None, z=0.0):
         tag = 'IS_WINDOW_BP'
 
     wall_thickness = wall.get_input('Thickness')
-    cut_y = wall_thickness + 0.04  # folga p/ boolean limpo
+    folga = 0.02                       # overshoot p/ boolean limpo (sem face coplanar)
+    cut_y = wall_thickness + folga
 
     cage = hb_types.GeoNodeCage()
     cage.create(kind.title())
@@ -89,14 +90,16 @@ def add_opening(wall, kind, offset_x, width=None, height=None, z=0.0):
     cage.set_input('Dim X', width)
     cage.set_input('Dim Y', cut_y)
     cage.set_input('Dim Z', height)
-    # Show Cage=True e necessario: com False o node group gera 0 verts e o
-    # boolean nao tem nada pra subtrair. Escondemos o cutter do render via hide_render.
-    cage.set_input('Show Cage', True)
+    # Com Show Cage no default o node group ja gera um cubo solido de 8 verts (o cutter).
+    # NAO setar Show Cage=True: aqui so precisamos do solido pro boolean.
 
-    # A geometria do cage cresce de (0,0,0) -> (Dim X, Dim Y, Dim Z) (origem num canto).
-    # Centralizamos em Y (parede tem espessura centrada em y=0) deslocando -cut_y/2.
+    # FIX: a parede do Home Builder NAO e centrada em Y — ela cresce de y=0 ate y=+T.
+    # O cage tambem cresce de (0,0,0) ate (Dim X, Dim Y, Dim Z). Para o cutter
+    # atravessar a espessura inteira com folga simetrica, deslocamos so -folga/2 em Y
+    # (assim o cubo vai de -folga/2 ate T+folga/2, cobrindo 0..T por completo).
+    # (antes eu usava -cut_y/2 supondo parede centrada -> cutter so pegava metade -> marca rasa)
     cage.obj.parent = wall.obj
-    cage.obj.location = (offset_x, -cut_y / 2.0, z)
+    cage.obj.location = (offset_x, -folga / 2.0, z)
     cage.obj.rotation_euler = (0, 0, 0)
 
     # boolean cut na parede (o buraco real)

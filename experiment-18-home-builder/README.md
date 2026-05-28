@@ -56,17 +56,43 @@ cage.obj.hide_render = True          # cutter invisivel no render
 
 - `read_factory_settings(use_empty=True)` desregistra o addon (a PropertyGroup `obj.home_builder`
   some). Limpar a cena deletando objetos, **nao** resetando prefs.
-- `Show Cage=False` -> 0 verts -> boolean nao tem o que subtrair. Usar `True` + `hide_render`.
-- `GeoNodeCage` cresce de `(0,0,0)` ate `(Dim X, Dim Y, Dim Z)` (origem num canto), nao centrado.
+- `Show Cage=False` -> 0 verts. NAO setar a prop: no default o node ja gera cubo solido de 8 verts
+  (cutter). Esconder do render com `hide_render`. (Ver fix do furo abaixo.)
+- `GeoNodeCage` E a parede crescem de `(0,0,0)` ate `(Dim,Dim,Dim)` (origem num canto), nao centrado.
+  A parede vai de y=0 a y=+Thickness — posicionar o cutter assumindo centro em Y fura so metade.
 - Blender 5.1: engine Eevee e `BLENDER_EEVEE`, nao `BLENDER_EEVEE_NEXT`. Addon exige Blender 5.0+.
+
+## Fix do furo passante (rodada 2)
+
+**Sintoma:** as aberturas apareciam como retangulos rasos chanfrados, nao buracos vazados.
+
+**Causa:** o cage cortador era posicionado com `location.y = -cut_y/2`, supondo a parede centrada
+em Y. Ela **nao e** — a parede do Home Builder cresce de `y=0` ate `y=+Thickness`. O cage tambem
+cresce de `(0,0,0)`. Com o offset errado o cutter atravessava so metade da espessura, e o boolean
+comia uma fatia rasa em vez de furar de lado a lado.
+
+**Fix** (`hb_lib.add_opening`): `Dim Y = Thickness + folga` e `location.y = -folga/2` (cubo cortador
+vai de `-folga/2` a `Thickness+folga/2`, cobrindo `0..Thickness` inteiro). Validado por raycast
+headless (`06_verify_fix.py`): no centro do vao o raio nao bate em nada (vazio); numa parede cheia
+bate 2x (entra/sai). Tambem: NAO setar `Show Cage=True` — o default ja gera o cubo solido de 8 verts
+que serve de cutter (corrige o gotcha antigo que dizia o contrario).
+
+## Modelo navegavel em 1a pessoa (rodada 2)
+
+`07_export_glb.py` exporta cada casa como GLB com os furos **aplicados na malha** (converte
+GeoNodeWall + boolean em mesh real via `object.convert(target='MESH')`) e **remove os cages** antes
+de exportar. GLB Y-up, pronto pra three.js/Godot/Unity (60-102 verts/casa).
+
+`viewer/index.html` carrega o GLB num viewer Three.js com camera de 1a pessoa (olho a 1.6m).
+Walkthrough capturado via Playwright em `out/walkthrough/`: de fora vendo os vaos passantes,
+de dentro olhando paredes/janelas, e a porta interna da casa de 2 comodos ligando os ambientes.
 
 ## Caveat honesto
 
-Na casa hexagonal, algumas janelas posicionadas perto do canto sairam com recorte parcial/em-L
-(o offset colidiu com a mitra do canto). O conceito de abertura via boolean esta validado nas
-demais casas; ajustar o offset das janelas resolveria.
+Sem teto (proposito: prova de conceito sem textura, paredes vazadas pra navegar). Na casa hexagonal,
+janelas perto do canto ainda podem recortar parcial pela colisao com a mitra (ajuste de offset resolve).
 
 ## Saidas (gitignored em `out/`)
 
-4 casas x 3 vistas (render 3/4 Eevee, estrutura solid Workbench, planta top-ortografico),
-720px, sem textura. `.blend` de cada casa em `out/blends/`.
+4 casas x 3 vistas (render 3/4 Eevee, estrutura solid Workbench, planta top-ortografico), 720px,
+sem textura. `.blend` em `out/blends/`, GLB em `out/glb/`, walkthrough 1a pessoa em `out/walkthrough/`.
