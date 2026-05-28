@@ -1,7 +1,19 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-27 (sessao 10 — experimento 17: catalogo de assets de geometria, tarefa de curadoria via agnts)
+2026-05-28 (sessao 11 — experimento 18: Home Builder 5 dirigido headless, casas + render baixa res, via agnts)
+
+## Experimento 18: Home Builder 5 — gerar casas headless + render baixa res (2026-05-28, async via agnts)
+- Pasta `experiment-18-home-builder/` — addon arquitetonico (paredes/portas/janelas parametricas, free, AndrewPeel, extensions.blender.org)
+- **Goal do user:** testar autonomia — pegar so um print do addon, achar, instalar gratis, dirigir, gerar varias casas, tirar prints, render baixa res sem textura
+- **Etapa critica validada:** os operadores oficiais do addon sao 100%% MODAIS (exigem mouse/clique na viewport) -> NAO rodam headless. Solucao: dirigir as **classes internas** que os operadores usam por baixo (`hb_types.GeoNodeWall`, `GeoNodeCage`). Toda geometria vem do Geometry Nodes do addon, nada feito a mao.
+- **Receita de parede:** `GeoNodeWall().create(name)` + `set_input('Length'/'Height'/'Thickness')` + `obj.location` + `obj.rotation_euler.z`. Conexao em anel fechado + mitra de canto via inputs `Left Angle`/`Right Angle` (formula turn/2 extraida de operators/walls.py)
+- **Receita de abertura (porta/janela):** `GeoNodeCage().create()` + `Dim X/Y/Z` + parent na parede + `modifier BOOLEAN DIFFERENCE` com o cage como cutter (o buraco real na parede). **Gotcha:** `Show Cage=False` faz o node group gerar 0 verts (boolean nao corta nada) -> usar `Show Cage=True` + `hide_render` no cutter. Cage cresce de (0,0,0)->(DimX,DimY,DimZ) (origem num canto) -> centralizar em Y deslocando -DimY/2
+- **4 casas geradas:** retangular 6x4 (4 par/1 porta/2 jan), em L (6/1/3), dois comodos com divisoria interna+porta de passagem (5/2/4), hexagonal mitra 120deg (6/1/5)
+- **Render baixa res 720px, SEM textura** (so Principled neutro cinza): 3 vistas por casa — 3/4 Eevee, solid Workbench, planta baixa top-ortografico (melhor pra ver layout/divisorias)
+- **Caveat honesto:** na hexagonal algumas janelas perto do canto saíram com recorte parcial/em-L (offset colidiu com a mitra). Conceito de abertura validado nas demais; ajuste de offset resolveria
+- Instalacao headless: mesmo padrao archimesh/cell_fracture — `bpy.ops.extensions.package_install(repo_index=0, pkg_id="home_builder_5", enable_on_install=True)`. **Gotcha:** `read_factory_settings(use_empty=True)` desregistra o addon (PropertyGroup `obj.home_builder` some) -> limpar cena deletando objetos, NAO resetando prefs
+- **Blender 5.1:** engine Eevee e `BLENDER_EEVEE` (nao `BLENDER_EEVEE_NEXT`); addon exige Blender 5.0+
 
 ## Experimento 17: catalogo de assets de geometria (2026-05-27, async via agnts)
 - Pasta `experiment-17-asset-catalog/` — **tarefa de curadoria, nao experimento de pipeline**. Varredura extensiva da web por pincéis/plugins do Blender que manipulam geometria, montados num catalogo HTML
