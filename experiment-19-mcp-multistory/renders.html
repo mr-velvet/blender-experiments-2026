@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>exp19 — renders 6 cameras x 2 engines</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1816;
+    color: #e8e3dc;
+    font: 14px/1.5 system-ui, -apple-system, sans-serif;
+    padding: 32px;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+  .sub { color: #948a7e; margin-bottom: 32px; font-size: 13px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    max-width: 1400px;
+  }
+  .row { grid-column: 1 / -1; display: contents; }
+  .row-header {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #3a3530;
+    color: #d0c5b5;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .row-header .desc { color: #948a7e; font-size: 12px; font-weight: 400; margin-left: 12px; }
+  .pane {
+    background: #0d0c0b;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #2a2622;
+  }
+  .pane img { display: block; width: 100%; height: auto; }
+  .pane .label {
+    padding: 6px 10px;
+    background: #232020;
+    color: #948a7e;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #2a2622;
+  }
+  .legend {
+    margin-top: 40px;
+    padding: 16px;
+    background: #232020;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .legend b { color: #f4a380; }
+</style>
+</head>
+<body>
+
+<h1>Exp 19 — renders Eevee vs Workbench</h1>
+<div class="sub">Casa multi-andar 8×6m construída via MCP. 6 câmeras externas em ângulos diversos × 2 engines de render. 1280×720, Sun direcional 8.0W, Workbench com cavity (ridge+valley).</div>
+
+<div class="grid">
+
+  <div class="row-header">Cam 01 — frente 3/4 esquerda <span class="desc">vista padrão da casa</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_01_frente_3q_esq.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_01_frente_3q_esq.png"></div>
+
+  <div class="row-header">Cam 02 — lateral esquerda 3/4 <span class="desc">escada visível através da janela inferior esquerda</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_02_lateral_esq_3q.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_02_lateral_esq_3q.png"></div>
+
+  <div class="row-header">Cam 03 — fundos 3/4 direita <span class="desc">geladeira da cozinha aparece pela janela do fundo</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_03_fundos_3q_dir.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_03_fundos_3q_dir.png"></div>
+
+  <div class="row-header">Cam 04 — lateral direita <span class="desc">poucas janelas (banheiro ocupa o fundo)</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_04_lateral_dir.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_04_lateral_dir.png"></div>
+
+  <div class="row-header">Cam 05 — oblique alto <span class="desc">vista aérea inclinada mostra teto + furos das janelas</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_05_topdown_oblique.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_05_topdown_oblique.png"></div>
+
+  <div class="row-header">Cam 06 — olho na escada <span class="desc">escada Archimesh nítida através da janela lateral esquerda</span></div>
+  <div class="pane"><div class="label">Eevee</div><img src="eevee_Cam_06_olho_escada.png"></div>
+  <div class="pane"><div class="label">Workbench</div><img src="workbench_Cam_06_olho_escada.png"></div>
+
+</div>
+
+<div class="legend">
+  <b>O que procurar nos renders:</b><br>
+  • <b>Cam_02 inferior-esq:</b> a faixa de listras dentro da janela é a escada visível atrás da parede<br>
+  • <b>Cam_03 canto direito:</b> a estrutura branca acima da janela do fundo é a geladeira (RefrigeratorCabinet)<br>
+  • <b>Cam_06 esquerdo:</b> degraus reconhecíveis da escada Archimesh + porta interna do banheiro à direita<br>
+  • <b>Workbench:</b> cavity shading destaca arestas (ridge+valley) — bom pra ver sobreposições<br>
+  • <b>Eevee:</b> sombras direcionais reais + ambient occlusion soft<br>
+  <b>Caveats:</b> sem material, sem HDR — render é de avaliação de geometria, não de apresentação. Algumas câmeras pegam topo do teto cortado (sun angle); o resultado é fidedigno do que está na cena.
+</div>
+
+</body>
+</html>
