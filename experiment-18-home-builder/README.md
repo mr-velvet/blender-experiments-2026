@@ -23,8 +23,10 @@ Geometry Nodes do addon — nada e recriado a mao.
 | `01_install.py` | instala + habilita o addon headless via extensions; verifica import |
 | `02_inspect.py` | lista os inputs reais de `GeoNodeWall`/`GeoNodeCage` + props default |
 | `04_debug_cage.py` | descobriu que `Show Cage=False` -> 0 verts (boolean nao corta) |
-| `hb_lib.py` | biblioteca: `new_wall`, `add_opening`, `build_room_loop` (anel + mitra) |
+| `hb_lib.py` | biblioteca: `new_wall`, `add_opening`, `build_room_loop`, `add_ceiling`, `remove_wall` |
 | `03_build_houses.py` | gera as 4 casas, salva .blend, renderiza 3 vistas cada |
+| `08_structural.py` | manipulacao estrutural: parede grossa, casa longa, corte dollhouse, teto parametrico |
+| `09_export_structural.py` | exporta as casas estruturais como GLB navegavel |
 
 ```
 blender --background --python scripts/03_build_houses.py            # todas
@@ -92,7 +94,37 @@ de dentro olhando paredes/janelas, e a porta interna da casa de 2 comodos ligand
 Sem teto (proposito: prova de conceito sem textura, paredes vazadas pra navegar). Na casa hexagonal,
 janelas perto do canto ainda podem recortar parcial pela colisao com a mitra (ajuste de offset resolve).
 
+## Manipulacao estrutural (rodada 3)
+
+Pedido: paredes grossas, casa longa multi-comodo, cortar a casa do lado (tirar uma parede),
+e teto com altura parametrizavel. Tudo em `08_structural.py` (+ `09_export_structural.py`).
+
+Conceito central: o addon so faz **parede/porta/janela parametrica**. Corte de parede e teto
+nao saem dele — sao **manipulacao postuma** por cima da malha gerada:
+
+| Casa | O que testa | Como |
+|---|---|---|
+| `05_fat_walls` | parede grossa | `Thickness=0.45` (4x default); furos atravessam a espessura toda |
+| `06_long` | casa longa | 18x4m, 4 quartos longos, 3 divisorias internas com porta de passagem |
+| `07_long_cut` | corte dollhouse | gera a longa fechada, depois `remove_wall(frontal)` -> 4 quartos a vista |
+| `08/09_ceiling_*` | teto parametrizavel | `add_ceiling(pts, ceiling_height)` laje no pe-direito; 2.4m vs 3.4m |
+
+Funcoes novas em `hb_lib.py`:
+- `add_ceiling(points, ceiling_height, slab)` — extruda o contorno numa laje solida na altura do
+  pe-direito. Mudar `ceiling_height` = teto parametrizavel. As paredes sobem ate `ceiling+slab`.
+- `remove_wall(wall)` — apaga uma parede ja gerada (+ seus cages filhos). Corte tipo casa de boneca.
+
+```
+blender --background --python scripts/08_structural.py            # 5 casas
+blender --background --python scripts/08_structural.py -- --house 07_long_cut
+blender --background --python scripts/09_export_structural.py      # GLBs navegaveis
+```
+
+Render extra `*_dollhouse.png`: camera baixa de frente pro lado aberto, pra ver os comodos por
+dentro (casas 07/08/09). GLBs: 60-160 verts/casa.
+
 ## Saidas (gitignored em `out/`)
 
-4 casas x 3 vistas (render 3/4 Eevee, estrutura solid Workbench, planta top-ortografico), 720px,
-sem textura. `.blend` em `out/blends/`, GLB em `out/glb/`, walkthrough 1a pessoa em `out/walkthrough/`.
+Rodada 1-2: 4 casas x 3 vistas (render 3/4 Eevee, estrutura solid Workbench, planta top-ortografico),
+720px, sem textura. Rodada 3: +5 casas estruturais (incl. render dollhouse). `.blend` em `out/blends/`,
+GLB em `out/glb/`, walkthrough 1a pessoa em `out/walkthrough/`.

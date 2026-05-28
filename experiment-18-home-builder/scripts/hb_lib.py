@@ -163,3 +163,49 @@ def add_floor(points, name="Floor"):
     bm.to_mesh(mesh)
     bm.free()
     return obj
+
+
+def add_ceiling(points, ceiling_height, slab=0.12, name="Ceiling"):
+    """MANIPULACAO POSTUMA: poe um teto/laje solido no topo das paredes.
+
+    O Home Builder so gera paredes — teto e laje nao saem do addon. Entao depois
+    de gerada a estrutura, fechamos por cima com uma laje extrudada do contorno.
+
+    ceiling_height: pe-direito (altura do piso ate a face INFERIOR da laje).
+                    Parametro do experimento: 2.4 (baixo) vs 3.5 (alto), etc.
+    slab: espessura da laje de teto (m).
+
+    Como a laje fica na altura do pe-direito, mudar ceiling_height move o teto pra
+    cima/baixo == teto parametrizavel. As paredes precisam ter Height >= ceiling+slab
+    pra a laje encostar nelas (o caller cuida disso).
+    """
+    import bmesh
+    mesh = bpy.data.meshes.new(name)
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    bm = bmesh.new()
+    verts = [bm.verts.new((p[0], p[1], ceiling_height)) for p in points]
+    face = bm.faces.new(verts)
+    # extruda a face pra cima -> laje solida com espessura `slab`
+    ret = bmesh.ops.extrude_face_region(bm, geom=[face])
+    extruded = [e for e in ret['geom'] if isinstance(e, bmesh.types.BMVert)]
+    bmesh.ops.translate(bm, vec=Vector((0, 0, slab)), verts=extruded)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj['IS_CEILING_BP'] = True
+    return obj
+
+
+def remove_wall(wall):
+    """MANIPULACAO POSTUMA: remove uma parede ja gerada (corte tipo dollhouse).
+
+    Aceita um GeoNodeWall ou o objeto bpy direto. Remove tambem os cages
+    (cutters de porta/janela) parentados nessa parede, pra nao deixarem orfaos.
+    """
+    obj = getattr(wall, 'obj', wall)
+    # apaga cages filhos primeiro
+    for child in list(obj.children):
+        if child.get('IS_ENTRY_DOOR_BP') or child.get('IS_WINDOW_BP'):
+            bpy.data.objects.remove(child, do_unlink=True)
+    bpy.data.objects.remove(obj, do_unlink=True)
