@@ -1,7 +1,25 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-28 (sessao 13 — experimento 20: Brushstroke Tools no export GLB, via MCP)
+2026-05-28 (sessao 14 — experimento 21: BlenderKit baixar asset-scene + append headless, async via agnts)
+
+## Experimento 21: BlenderKit — baixar asset-scene e subir numa cena (headless) (2026-05-28, async via agnts)
+- Pasta `experiment-21-blenderkit-scene/` — dirigir o addon BlenderKit v3.19.2 100% headless: instalar, autenticar com api_key, buscar, baixar e fazer append de uma scene, SEM o user clicar no asset bar
+- **Asset:** "The Lonely Outpost" (Toby Noby), `asset_type:scene`, free, base_id `d0e9d8ad-a61f-4b85-849a-6f8e53635b05` (cabana de madeira numa encosta rochosa)
+- **Arquitetura chave descoberta:** BlenderKit moderno NAO baixa dentro do Blender — sobe um **client daemon** separado (binario `blenderkit-client-windows-x86_64.exe` embutido no zip) que conversa com o addon via HTTP local (`127.0.0.1:62485`). Search/download assincronos via polling de reports
+- **Pipeline (`scripts/`):**
+  1. `01_install_addon.py` — `addon_install` do zip + `addon_enable` + seta `api_key` + `save_userpref`. Usa `BLENDER_USER_RESOURCES` isolado (nao polui o Blender real do user). BlenderKit v3.x e addon **legacy** (bl_info), nao extension
+  2. `02_download_and_append.py` — `client_lib.start_blenderkit_client()` sobe daemon; search REST publico com `Bearer <key>`; `download.download(asset_data, resolution="blend", model_location/rotation)`; **polling manual** de `client_lib.get_reports(pid)` (lista de tasks dict) ate `status=="finished"`; pega `result.file_paths[-1]`; `append_link.append_scene(path)`; salva .blend
+  3. `03_render.py` — render still pela camera do asset (Cycles), validacao visual
+- **Resultado:** scene appendada com **55 objetos** (1 CAMERA, 42 MESH, 9 CURVE, 2 EMPTY, 1 LIGHT), camera+world proprios. .blend baixado 54.5MB. Render Cycles 1280x720 96 samples fiel ao original (cabana + flores + arvore + montanhas + ceu nublado)
+- **Gotchas mapeados:**
+  1. **Versao do Blender importa pro unpack.** Pos-download, o daemon faz unpack reabrindo o .blend num sub-Blender (`unpack_asset_bg.py`). Asset salvo em versao mais nova que o Blender usado -> `Error: Cannot read blend file ... incomplete header, may be from a newer version`. So funcionou no **Blender 5.1**, falhou no 4.3. Regra: Blender >= versao do asset
+  2. **Download exige auth mesmo pra asset free.** Search publico; download retorna 403 sem api_key (de blenderkit.com/profile, sem abrir Blender)
+  3. **Daemon trava entre execucoes** (porta 62485 em CloseWait). Fix: matar o PID especifico antes de re-rodar
+  4. **Headless nao tem timers modais** (`bpy.app.timers` so com GUI). Polling de `get_reports` num loop proprio + `append_scene` direto, sem o operador modal `BlenderkitDownloadOperator`
+  5. Blender 4.4 da maquina esta com instalacao quebrada ("not compatible with this version of Windows") — nao usado
+- **Honestidade:** download/append 100% do addon (daemon + `append_scene`), nada reimplementado. Variante feita: (a) baixar e abrir a scene como veio. Nao feita (b) mesclar em outra cena. api_key em `secret/` gitignored
+- **Doc:** [experiment-21-blenderkit-scene/README.md](experiment-21-blenderkit-scene/README.md)
 
 ## Experimento 20: Brushstroke Tools no export GLB/FBX (2026-05-28, sessao ao vivo MCP)
 - Pasta `experiment-20-brushstroke-export/` — pergunta do user: "esses brushes saem se exportar GLB/FBX? imagino que se saem, vao sair como estruturas na superficie dos modelos"

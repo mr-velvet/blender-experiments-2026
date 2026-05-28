@@ -1,0 +1,6 @@
+secret/
+out/
+bl_config/
+bl_config_51/
+*.blend1
+__pycache__/
