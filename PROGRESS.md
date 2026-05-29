@@ -1,7 +1,18 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 16 — experimento 24: levantamento de plugins de "maquinas & paineis", galeria HTML 3 abas, async via agnts)
+2026-05-29 (sessao 17 — experimento 25: opcoes de animacao de humanoides fora do Mixamo, galeria HTML 2 abas + filtros, async via agnts)
+
+## Experimento 25: Opcoes de animacao de humanoides fora do Mixamo (2026-05-29, async via agnts)
+- Pasta `experiment-25-humanoid-animation/` — **curadoria, nao experimento de pipeline** (inventario pedido pelo user; fase 2 de render ficou condicional/pendente)
+- **Pedido:** criar bonecos humanoides com bibliotecas GRANDES de animacao, FORA do Mixamo, com autonomia. Inventario free+pago. Relatorio HTML aba free/paga. Se achar bom gratuito, "pode" fazer render (condicional)
+- **Escopo (4 frentes):** (1) bibliotecas de clips/mocap, (2) rig/retarget, (3) IA text/video-to-motion, (4) geradores de humanoide base
+- **Metodo:** 4 agentes de pesquisa paralelos -> ~55 brutos -> dedup -> 3 lotes de agentes recuperando og:image REAL (a maioria dos og iniciais dava 404/403) -> download local 45/46 OK (KIT sem preview publico)
+- **46 itens, 2 abas + filtro por sub-categoria:** 29 Free + 17 Pago
+- **Conclusoes pra deliberar:** free legal-tranquilo = Quaternius UAL (CC0) + Rigify/MPFB2 + Rokoko/Expy Kit/Retarget BVH; Mesh2Motion = "Mixamo aberto"; bancos academicos enormes (CMU livre, AMASS/Bandai/KIT nao-comerciais); pago completo = Auto-Rig Pro + ActorCore/MoCap Online/Truebones; IA = Rokoko Create/SayMotion/Move AI/Plask, MoMask unico free+scriptavel; geradores nativos automatizaveis = MPFB2/CharMorph
+- **Fase 2 PENDENTE:** perguntei ao user se entrego relatorio primeiro (ele escolhe a fonte) ou se ja escolho e renderizo. Aguardando — nao escolhi a fonte por conta propria (regra de literalidade)
+- **Hospedado:** https://st.did.lu/blender-exp25-humanoid-animation/v1/index.html
+- **Doc:** [experiment-25-humanoid-animation/README.md](experiment-25-humanoid-animation/README.md)
 
 ## Experimento 24: Levantamento de plugins de "maquinas & paineis" (2026-05-29, async via agnts)
 - Pasta `experiment-24-machine-panels/` — **curadoria, nao experimento de pipeline** (passo previo pedido pelo user antes de escolher o que implementar)
