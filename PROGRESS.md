@@ -1,7 +1,20 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 17 — experimento 25: opcoes de animacao de humanoides fora do Mixamo, galeria HTML 2 abas + filtros, async via agnts)
+2026-05-29 (sessao 18 — experimento 26: Cascadeur — investigacao de viabilidade, AGUARDANDO decisao do user, async via agnts)
+
+## Experimento 26: Cascadeur (animacao IA-fisica de movimentos de cotidiano) (2026-05-29, async via agnts) — AGUARDANDO USER
+- **Pedido (audio):** usar Cascadeur ("cococos") — instalar/deliberar com autonomia — pra criar humanoide e animar SEQUENCIA de movimentos de cotidiano que faltam no Mixamo (sentar, levantar, beber, conversar sentado), gravar video e mandar. Depois: relatorio de custo de um setup com a tecnologia + cameras pra mocap de humanoide real
+- **Origem:** apontado pelo relatorio do exp25 (card cascadeur, IA assist physics posing)
+- **Investigacao de viabilidade feita (sem instalar nada ainda):**
+  - Cascadeur NAO esta instalado na maquina
+  - Headless VIAVEL: Python API completa (`csc`), flag CLI `cascadeur.exe --run-script <cmd>` (desde 2023.1), AutoPosing/AutoPhysics/Quick Rig scriptaveis, Export Video nativo (mp4/png seq)
+  - cascadeur_bridge (addon Blender) comunica via socket/port — caminho alternativo de automacao tipo MCP
+  - **Bloqueio critico:** free/trial exporta SO .casc; FBX/DAE/USD/GLTF (formatos que o Blender le) so nos planos pagos (Indie ~US$8/mes, Pro ~US$33/mes)
+- **2 caminhos propostos ao user:**
+  - **A (free, custo zero, recomendado):** tudo dentro do Cascadeur, grava video pela API nativa, sem Blender/FBX
+  - **B (pago):** Cascadeur->FBX->Blender, so se o objetivo for validar a ponte pro Blender
+- **Pendente — aguardando user decidir:** (a) caminho A ou B, (b) personagem base (dummy do Cascadeur vs baixar humanoide), (c) sequencia unica encadeada vs 4 clips separados. Status WAITING-USER. NAO comecei a instalar/codar (regra de literalidade HARD-LOCK)
 
 ## Experimento 25: Opcoes de animacao de humanoides fora do Mixamo (2026-05-29, async via agnts)
 - Pasta `experiment-25-humanoid-animation/` — **curadoria, nao experimento de pipeline** (inventario pedido pelo user; fase 2 de render ficou condicional/pendente)
