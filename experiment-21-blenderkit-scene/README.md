@@ -45,6 +45,13 @@ $BL = "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe"
 & $BL --background <out>\lonely_outpost_appended.blend --python scripts\03_render.py -- <out>\render.png CYCLES 96 1280
 ```
 
+## Multi-ângulo + prints técnicos (`scripts/04`, `05`)
+Pedido do user: provar controle de câmera com mais ângulos + mostrar como a cena está montada.
+- **`04_multi_angle.py`** — cria N câmeras **por código** (track-to) orbitando a casa em azimutes/alturas/lentes diferentes, render Cycles. Gotcha: o bbox total da cena tem raio **715** (inclui `clouds`/`mist`/`Landscape` gigantes que envolvem tudo) — orbitar isso enquadra montanhas vazias. Fix: calcular o centro só pelos `Cube.*` (a casa, loc ~2,26,0, raio horizontal ~9) e mirar nela. Também subir as câmeras pra não pegar o backdrop `Plane` no horizonte.
+- **`05_scene_overview.py`** — prints técnicos Workbench (diagonal solid / top ortográfico / wireframe). Gotcha: a câmera de overview caía **dentro** da casca de `clouds`/`mist` (frame preto). Fix: `hide_render` nos meshes de set-dressing + `film_transparent` → enquadra só terreno+casa+vegetação. Revela a estrutura: terreno-tapete (`Plane`) + scatter de grama (`GS *`) concentrado onde fica a casa.
+- **`inspect_scene.py`** — dump de objetos/bbox/câmera (foi como descobri que a cena tem set-dressing gigante e que a casa são `Cube.*`).
+- **Galeria hospedada:** https://st.did.lu/blender-exp21-blenderkit/v1/index.html (6 ângulos fotográficos + 3 prints técnicos, lightbox custom).
+
 ## Honestidade técnica
 - O download e o append são **100% do addon BlenderKit** (daemon + `append_scene`), não reimplementados.
 - A api_key é do user, guardada em `secret/` (gitignored), nunca commitada nem postada.

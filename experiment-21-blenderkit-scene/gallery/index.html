@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Lonely Outpost — BlenderKit headless</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --line:#222b36; --txt:#d6dee8;
+    --dim:#8a97a6; --accent:#6fae7a; --accent2:#caa86a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scrollbar-width:thin;scrollbar-color:#33404f var(--bg)}
+  body{background:var(--bg);color:var(--txt);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:#33404f;border-radius:5px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:#445268}
+  .wrap{max-width:1180px;margin:0 auto;padding:48px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:40px}
+  .eyebrow{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  h1{font-size:34px;font-weight:700;margin:10px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:15px;max-width:760px}
+  .pipeline{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:12.5px;color:var(--dim)}
+  .step b{color:var(--accent);font-weight:600}
+  h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin:46px 0 6px;font-weight:600}
+  .h2note{color:var(--dim);font-size:13.5px;margin-bottom:22px;max-width:760px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .18s,transform .18s}
+  .card:hover{border-color:#3a4a5c;transform:translateY(-2px)}
+  .card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;background:#000;cursor:zoom-in}
+  .card .meta{padding:13px 15px 15px}
+  .card .ttl{font-size:14.5px;font-weight:600;margin-bottom:3px}
+  .card .desc{font-size:12.8px;color:var(--dim)}
+  .tech img{object-fit:contain;background:#0a0d12}
+  .foot{margin-top:54px;border-top:1px solid var(--line);padding-top:22px;color:var(--dim);font-size:13px}
+  .foot a{color:var(--accent)}
+  /* lightbox custom (sem nada nativo) */
+  .lb{position:fixed;inset:0;background:rgba(6,9,13,.94);display:none;align-items:center;justify-content:center;z-index:50;cursor:zoom-out;padding:30px}
+  .lb.open{display:flex}
+  .lb img{max-width:96vw;max-height:92vh;border-radius:8px;box-shadow:0 20px 80px rgba(0,0,0,.6)}
+  .lb .cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:var(--txt);font-size:14px;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Experimento 21 · BlenderKit headless</div>
+    <h1>The Lonely Outpost</h1>
+    <p class="sub">Asset-scene baixado do BlenderKit e montado numa cena <b>100% por código</b>, sem nenhum clique no Blender. As câmeras dos ângulos abaixo foram <b>criadas programaticamente</b> orbitando a cabana — não são a câmera original do asset.</p>
+    <div class="pipeline">
+      <div class="step"><b>1</b> addon instalado headless</div>
+      <div class="step"><b>2</b> daemon + auth via API</div>
+      <div class="step"><b>3</b> download 54.5 MB</div>
+      <div class="step"><b>4</b> append_scene · 55 objetos</div>
+      <div class="step"><b>5</b> câmeras + render por código</div>
+    </div>
+  </header>
+
+  <h2>Ângulos da cabana — render Cycles</h2>
+  <p class="h2note">Seis pontos de vista da mesma cena. Cada câmera foi posicionada por script (azimute, altura e lente diferentes) mirando a cabana. Materiais, luz e céu são os do próprio asset.</p>
+  <div class="grid" id="photo"></div>
+
+  <h2>Como a cena está montada — prints técnicos</h2>
+  <p class="h2note">Render Workbench escondendo o set-dressing gigante (nuvens, névoa e montanhas de fundo que envolvem a cena num raio de 700+ unidades). O que sobra: o terreno esculpido (Plane) + a vegetação scatter concentrada onde fica a casa + a árvore.</p>
+  <div class="grid tech" id="tech"></div>
+
+  <div class="foot">
+    Pipeline e gotchas documentados em <code>experiment-21-blenderkit-scene/</code>.
+    Asset: <a href="https://www.blenderkit.com/get-blenderkit/d0e9d8ad-a61f-4b85-849a-6f8e53635b05/" target="_blank">The Lonely Outpost</a> por Toby Noby (BlenderKit, free).
+  </div>
+</div>
+
+<div class="lb" id="lb"><img id="lbimg" src="" alt=""><div class="cap" id="lbcap"></div></div>
+
+<script>
+const BASE = "https://st.did.lu/blender-exp21-blenderkit/v1/img/";
+const photo = [
+  ["00_original_angle.png","Câmera original do asset","O enquadramento como vem no BlenderKit — referência."],
+  ["angle_a4_eye_level.png","Frontal · altura do olhar","Fachada com telhado de tábuas e hera na lateral. Lente 60mm."],
+  ["angle_a1_three_quarter.png","3/4 · leve plongée","A entrada vista de cima, árvore ao fundo."],
+  ["angle_a2_side_right.png","Lateral direita · sol rasante","Volume da cabana contra a luz do fim de tarde."],
+  ["angle_a5_left.png","Lateral esquerda","A casa na encosta descendo pro mar de névoa."],
+  ["angle_a3_back.png","Traseira · crepúsculo","Outro lado da casa sob luz azulada."],
+];
+const tech = [
+  ["scene_solid_diag.png","Diagonal · solid","Terreno-tapete + vegetação densa concentrada na casa."],
+  ["scene_top_ortho.png","Topo · ortográfico (planta)","Layout do scatter de grama visto de cima."],
+  ["scene_wireframe.png","Wireframe","Densidade real da malha: terreno + grama + folhas + casa."],
+];
+function build(arr, id){
+  const g = document.getElementById(id);
+  arr.forEach(([f,t,d])=>{
+    const c = document.createElement("div"); c.className="card";
+    c.innerHTML = `<img src="${BASE}${f}" alt="${t}" loading="lazy">
+      <div class="meta"><div class="ttl">${t}</div><div class="desc">${d}</div></div>`;
+    c.querySelector("img").addEventListener("click",()=>open(BASE+f,t+" — "+d));
+    g.appendChild(c);
+  });
+}
+build(photo,"photo"); build(tech,"tech");
+const lb=document.getElementById("lb"),lbi=document.getElementById("lbimg"),lbc=document.getElementById("lbcap");
+function open(src,cap){lbi.src=src;lbc.textContent=cap;lb.classList.add("open")}
+lb.addEventListener("click",()=>lb.classList.remove("open"));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")lb.classList.remove("open")});
+</script>
+</body>
+</html>

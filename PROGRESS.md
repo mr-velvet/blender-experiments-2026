@@ -18,7 +18,9 @@
   3. **Daemon trava entre execucoes** (porta 62485 em CloseWait). Fix: matar o PID especifico antes de re-rodar
   4. **Headless nao tem timers modais** (`bpy.app.timers` so com GUI). Polling de `get_reports` num loop proprio + `append_scene` direto, sem o operador modal `BlenderkitDownloadOperator`
   5. Blender 4.4 da maquina esta com instalacao quebrada ("not compatible with this version of Windows") — nao usado
-- **Honestidade:** download/append 100% do addon (daemon + `append_scene`), nada reimplementado. Variante feita: (a) baixar e abrir a scene como veio. Nao feita (b) mesclar em outra cena. api_key em `secret/` gitignored
+- **Multi-angulo + prints tecnicos (04/05):** cria cameras por codigo orbitando a casa (Cycles) + overviews Workbench (solid/top/wire). Gotcha 1: bbox total raio 715 (clouds/mist/Landscape gigantes envolvem tudo) -> focar so nos `Cube.*` da casa. Gotcha 2: camera de overview caia dentro da casca de clouds (frame preto) -> `hide_render` no set-dressing + `film_transparent`. Estrutura revelada: terreno `Plane` + scatter de grama `GS*` concentrado na casa
+- **Galeria hospedada:** https://st.did.lu/blender-exp21-blenderkit/v1/index.html (6 angulos fotograficos + 3 prints tecnicos, lightbox custom)
+- **Honestidade:** download/append 100% do addon (daemon + `append_scene`), nada reimplementado. Cameras dos angulos criadas por codigo (nao a do asset). Variante feita: (a) baixar e abrir a scene como veio. Nao feita (b) mesclar em outra cena. api_key em `secret/` gitignored
 - **Doc:** [experiment-21-blenderkit-scene/README.md](experiment-21-blenderkit-scene/README.md)
 
 ## Experimento 20: Brushstroke Tools no export GLB/FBX (2026-05-28, sessao ao vivo MCP)
