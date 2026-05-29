@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papelão × Massinha — 4 móveis, 2 efeitos de render</title>
+<style>
+  :root{
+    --kraft:#c79a6b; --kraft-dark:#9c7144; --paper:#e7d8c0;
+    --ink:#2b2520; --muted:#7a6b58;
+    --coral:#db5749; --blue:#4c8cc7; --yellow:#e6c63f; --green:#73b873;
+    --bg:#f4ece0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    line-height:1.5;
+    /* textura de papelão sutil */
+    background-image:
+      repeating-linear-gradient(90deg, rgba(156,113,68,.025) 0 2px, transparent 2px 7px),
+      radial-gradient(circle at 30% 10%, rgba(255,255,255,.5), transparent 60%);
+  }
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--paper)}
+  ::-webkit-scrollbar-thumb{background:var(--kraft);border-radius:6px;border:2px solid var(--paper)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--kraft-dark)}
+
+  header{
+    padding:54px 24px 30px;
+    text-align:center;
+    max-width:980px;margin:0 auto;
+  }
+  .eyebrow{
+    font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--kraft-dark);font-weight:700;margin-bottom:14px;
+  }
+  h1{
+    font-size:clamp(28px,5vw,46px);font-weight:800;letter-spacing:-.02em;
+    line-height:1.05;margin-bottom:18px;
+  }
+  h1 .cb{color:var(--kraft-dark)}
+  h1 .cl{
+    background:linear-gradient(92deg,var(--coral),var(--yellow),var(--green),var(--blue));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:16px;color:var(--muted);max-width:680px;margin:0 auto}
+
+  .legend{
+    display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:26px auto 0;
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;
+    background:#fff;border:1px solid rgba(0,0,0,.07);
+    box-shadow:0 2px 5px rgba(120,90,50,.08);
+  }
+  .chip .dot{width:13px;height:13px;border-radius:50%}
+  .chip.cb .dot{background:var(--kraft)}
+  .chip.cl .dot{background:linear-gradient(135deg,var(--coral),var(--green))}
+
+  main{max-width:1280px;margin:0 auto;padding:24px 20px 80px}
+
+  .grid{
+    display:grid;gap:22px;
+    grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+    margin-top:18px;
+  }
+  .card{
+    background:#fff;border-radius:16px;overflow:hidden;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 6px 22px rgba(120,90,50,.12);
+    transition:transform .25s ease,box-shadow .25s ease;
+    cursor:zoom-in;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(120,90,50,.22)}
+  .card img{width:100%;display:block;aspect-ratio:1600/992;object-fit:cover;background:#cfcfcf}
+  .card .cap{padding:14px 18px 16px}
+  .card .cap h3{font-size:16px;font-weight:700;margin-bottom:3px}
+  .card .cap p{font-size:13px;color:var(--muted)}
+
+  .section-title{
+    font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--kraft-dark);font-weight:700;margin:46px 0 6px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::after{content:"";flex:1;height:1px;background:rgba(156,113,68,.3)}
+
+  .tech{
+    margin-top:50px;background:#fff;border-radius:16px;padding:28px 30px;
+    border:1px solid rgba(0,0,0,.06);box-shadow:0 6px 22px rgba(120,90,50,.1);
+  }
+  .tech h2{font-size:19px;margin-bottom:16px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+  .stat{background:var(--paper);border-radius:11px;padding:14px 16px}
+  .stat .n{font-size:24px;font-weight:800;color:var(--kraft-dark)}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .tech ul{list-style:none;font-size:14px;color:#4a4036}
+  .tech li{padding:7px 0 7px 26px;position:relative;border-top:1px solid rgba(0,0,0,.05)}
+  .tech li:first-child{border-top:none}
+  .tech li::before{content:"▸";position:absolute;left:6px;color:var(--kraft)}
+  .tech b{color:var(--ink)}
+  .pill-mat{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin:0 3px}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 20px 50px}
+
+  /* lightbox custom (sem nada nativo) */
+  #lb{
+    position:fixed;inset:0;background:rgba(30,24,18,.92);
+    display:none;align-items:center;justify-content:center;z-index:100;
+    padding:30px;cursor:zoom-out;backdrop-filter:blur(3px);
+  }
+  #lb.on{display:flex}
+  #lb img{max-width:96vw;max-height:88vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:default}
+  #lb .lb-cap{
+    position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+    color:#f4ece0;font-size:14px;background:rgba(0,0,0,.4);
+    padding:8px 18px;border-radius:999px;
+  }
+  #lb .lb-close{
+    position:absolute;top:20px;right:26px;width:42px;height:42px;border-radius:50%;
+    background:rgba(255,255,255,.12);color:#fff;border:none;font-size:22px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .2s;
+  }
+  #lb .lb-close:hover{background:rgba(255,255,255,.25)}
+  #lb .lb-nav{
+    position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;
+    background:rgba(255,255,255,.1);color:#fff;border:none;font-size:26px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .2s;
+  }
+  #lb .lb-nav:hover{background:rgba(255,255,255,.25)}
+  #lb .prev{left:24px} #lb .next{right:24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Blender Experiments · Render 3D</div>
+  <h1>4 móveis, 2 efeitos:<br><span class="cb">papelão</span> × <span class="cl">massinha</span></h1>
+  <p class="lede">Quatro modelos 3D gratuitos (sofá, TV, fogão, pia) — os mesmos da casinha de bonecas — duplicados e submetidos a dois pipelines de render pesado sobre a geometria de cada um. À esquerda/atrás o efeito de papelão corrugado (Easy Cardboard); à frente o efeito de massa de modelar com relevo real (Clay&nbsp;4.Doh). Câmeras posicionadas por código.</p>
+  <div class="legend">
+    <span class="chip cb"><span class="dot"></span>Papelão — Easy Cardboard 3.1 (Geometry Nodes)</span>
+    <span class="chip cl"><span class="dot"></span>Massinha — Clay 4.Doh (displacement procedural)</span>
+  </div>
+</header>
+
+<main>
+  <div class="section-title">Ângulos da cena</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="tech">
+    <h2>Como foi feito</h2>
+    <div class="stats">
+      <div class="stat"><div class="n">4</div><div class="l">móveis gratuitos (BlenderKit)</div></div>
+      <div class="stat"><div class="n">8</div><div class="l">peças renderizadas (4×2 efeitos)</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">pipelines de efeito independentes</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">headless (Blender + Python)</div></div>
+    </div>
+    <ul>
+      <li><b>Densidade variável real:</b> sofá ~79k tris, pia ~69k, TV ~21k (42 sub-meshes), fogão ~19k — assets de pesos diferentes passando pelos mesmos dois pipelines.</li>
+      <li><b>Papelão <span class="pill-mat" style="background:#c79a6b"></span>:</b> append do node group <i>Easy Cardboard 3.0</i> + material; aplicado como modifier Geometry&nbsp;Nodes em cada móvel (espessura, corrugação, fibras, desgaste) e <i>aplicado</i> — vira geometria real.</li>
+      <li><b>Massinha <span class="pill-mat" style="background:#db5749"></span><span class="pill-mat" style="background:#4c8cc7"></span><span class="pill-mat" style="background:#e6c63f"></span><span class="pill-mat" style="background:#73b873"></span>:</b> material <i>Clay&nbsp;4.Doh</i> com displacement <i>BOTH</i> (relevo real de geometria, não só normal map) + adaptive subdivision do Cycles; cor de massa distinta por móvel.</li>
+      <li><b>Render:</b> Cycles, sem bake/GLB — o look procedural completo dos dois shaders é preservado direto no render. Câmeras criadas por código orbitando o conjunto, enquadradas pelo bounding box.</li>
+      <li><b>Sem trabalho manual:</b> nenhum clique no Blender. Carregar asset, normalizar escala, aplicar efeito e renderizar — tudo via <code>blender --background --python</code>.</li>
+    </ul>
+  </div>
+</main>
+
+<div id="lb">
+  <button class="lb-close" aria-label="fechar">✕</button>
+  <button class="lb-nav prev" aria-label="anterior">‹</button>
+  <img src="" alt="">
+  <button class="lb-nav next" aria-label="próximo">›</button>
+  <div class="lb-cap"></div>
+</div>
+
+<footer>blender-experiments-2026 · experimento 23 · render Cycles · efeitos sobre geometria de assets gratuitos</footer>
+
+<script>
+const SHOTS = [
+  {f:"01_frente_alta.png",   t:"Frente elevada",       d:"As duas fileiras: massinha à frente, papelão ao fundo"},
+  {f:"03_tresquartos_D.png", t:"Três-quartos direita", d:"Cada móvel pareado — papelão atrás, massinha na frente"},
+  {f:"02_tresquartos_E.png", t:"Três-quartos esquerda",d:"Comparação dos pares pelo outro lado"},
+  {f:"04_lateral.png",       t:"Lateral",              d:"Perfil — fileira de papelão e de massinha alinhadas"},
+  {f:"05_planta_top.png",    t:"Planta (topo)",        d:"Ortográfica de cima: papelão (linha de cima) × massinha (linha de baixo)"},
+  {f:"06_olho_baixo.png",    t:"Nível do olhar",       d:"Vista baixa, frontal, da fileira de massinha"},
+];
+const BASE = "./renders/";
+
+const grid = document.getElementById("grid");
+SHOTS.forEach((s,i)=>{
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML=`<img loading="lazy" src="${BASE}${s.f}" alt="${s.t}"><div class="cap"><h3>${s.t}</h3><p>${s.d}</p></div>`;
+  c.onclick=()=>open(i);
+  grid.appendChild(c);
+});
+
+const lb=document.getElementById("lb"),lbImg=lb.querySelector("img"),lbCap=lb.querySelector(".lb-cap");
+let cur=0;
+function open(i){cur=i;render();lb.classList.add("on")}
+function render(){const s=SHOTS[cur];lbImg.src=BASE+s.f;lbImg.alt=s.t;lbCap.textContent=s.t+" — "+s.d}
+function close(){lb.classList.remove("on")}
+function nav(d){cur=(cur+d+SHOTS.length)%SHOTS.length;render()}
+lb.onclick=close;
+lbImg.onclick=e=>e.stopPropagation();
+lb.querySelector(".lb-close").onclick=e=>{e.stopPropagation();close()};
+lb.querySelector(".prev").onclick=e=>{e.stopPropagation();nav(-1)};
+lb.querySelector(".next").onclick=e=>{e.stopPropagation();nav(1)};
+document.addEventListener("keydown",e=>{
+  if(!lb.classList.contains("on"))return;
+  if(e.key==="Escape")close();
+  if(e.key==="ArrowRight")nav(1);
+  if(e.key==="ArrowLeft")nav(-1);
+});
+</script>
+</body>
+</html>

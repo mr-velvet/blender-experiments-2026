@@ -1,7 +1,20 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-28 (sessao 14 — experimento 21: BlenderKit baixar asset-scene + append headless, async via agnts)
+2026-05-29 (sessao 15 — experimento 23: papelao x massinha em 4 moveis gratuitos, render multi-angulo, async via agnts)
+
+## Experimento 23: Papelao x Massinha em moveis gratuitos (2026-05-29, async via agnts)
+- Pasta `experiment-23-cardboard-clay-furniture/` — pegar 4 moveis gratuitos (sofa, TV, fogao, pia — os mesmos do exp22 casinha de bonecas) e aplicar DOIS efeitos de render pesado sobre a geometria de cada um, em copias separadas lado a lado, render multi-angulo
+- **Goal do user:** testar quanto da pra gerar efeitos interessantes aplicando filtros/texturas de render complexas sobre geometria de assets gratuitos de **densidade variavel** (sofa 78k tris, pia 65k, TV 17k/42 sub-meshes, fogao 11k)
+- **Efeito 1 PAPELAO:** Easy Cardboard 3.1 (node group `📦 Easy Cardboard 3.0`, reaproveitado do exp13). Modifier Geometry Nodes (espessura/corrugacao/fibras/wear) + `modifier_apply` -> geometria facetada real
+- **Efeito 2 MASSINHA:** Clay 4.Doh material `Modeling Clay` (exp3) com `displacement_method='BOTH'` + Subdivision modifier `use_adaptive_subdivision=True` -> **relevo REAL de geometria no Cycles** (nao normal map). Cor de massa por movel (coral/azul/amarelo/verde)
+- **Decisao de pipeline:** render Cycles DIRETO, sem bake/GLB. O pedido eh render multi-angulo, nao GLB. Render direto preserva os dois shaders procedurais por inteiro (bake perderia displacement da massinha e corrugacao do papelao)
+- **Pipeline (`scripts/`):** `lib_furniture.py` (import+filtra Cube container BlenderKit+join+normalize+apply_cardboard/apply_clay), `04_build_scene.py` (grid 4col x 2 fileiras, salva .blend), `05_render_angles.py` (6 cameras por codigo orbitando, enquadradas pelo bbox)
+- **Gotchas:** (1) .blend BlenderKit tem `Cube` 8-verts 2x2x2 container que precisa descartar; (2) adaptive subdiv no Blender 5.1 fica em `modifier.use_adaptive_subdivision`, nao em `obj.cycles`; `scene.cycles.feature_set` foi removido; (3) displacement da massinha derrete forma em movel grande -> escalar texture_scale↑/displacement↓ por tamanho; (4) `Global Scale` do cardboard baixar pra ~0.5 (moveis sao sub-metro)
+- **Resultado:** 8 pecas, 6 renders Cycles 1600x992 160 samples + denoising. Vistas 3/4 e planta-top sao as de comparacao (pares papelao/massinha sem oclusao)
+- **Hospedado:** https://st.did.lu/blender-exp23-cardboard-clay/v1/index.html
+- **Honestidade:** papelao 100% node group aplicado (geometria real), massinha 100% shader Clay com displacement real, cameras por codigo. Sem nada reimplementado
+- **Doc:** [experiment-23-cardboard-clay-furniture/README.md](experiment-23-cardboard-clay-furniture/README.md)
 
 ## Experimento 21: BlenderKit — baixar asset-scene e subir numa cena (headless) (2026-05-28, async via agnts)
 - Pasta `experiment-21-blenderkit-scene/` — dirigir o addon BlenderKit v3.19.2 100% headless: instalar, autenticar com api_key, buscar, baixar e fazer append de uma scene, SEM o user clicar no asset bar
@@ -420,6 +433,7 @@ blender-experiments-2026/
 | Fluid v1 (esfera virando agua + Mantaflow) | https://st.did.lu/blender-fluid/v1/index.html |
 | Grass v1 (grama alta com esqueleto dinamico + wind controlavel) | https://st.did.lu/blender-grass/v1/index.html |
 | Catalogo de assets de geometria v1 (105 assets, 3 abas) | https://st.did.lu/blender-asset-catalog/v1/index.html |
+| Papelao x Massinha v1 (4 moveis x 2 efeitos, render multi-angulo) | https://st.did.lu/blender-exp23-cardboard-clay/v1/index.html |
 
 ## Proximos experimentos planejados (sessao 6+)
 
