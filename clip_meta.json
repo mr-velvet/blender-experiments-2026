@@ -1,0 +1,18 @@
+{
+  "sit": {
+    "status": 200,
+    "size": 265730
+  },
+  "stand": {
+    "status": 200,
+    "size": 267313
+  },
+  "drink": {
+    "status": 200,
+    "size": 264278
+  },
+  "talk": {
+    "status": 200,
+    "size": 265943
+  }
+}
