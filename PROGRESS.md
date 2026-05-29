@@ -1,7 +1,15 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 18 — experimento 26 ROKOKO: EXECUTADO end-to-end. Text-to-Motion (endpoint sem login) -> retarget headless -> video da sequencia de cotidiano. Vídeo + relatorio de custo entregues, async via agnts)
+2026-05-29 (sessao 19 — experimento 27 RENDER PASSES: EXECUTADO. Cena de quarto (dollhouse iso) renderizada no Cycles headless separando em 6 PNGs (beauty, sombra, AO, 3 light groups) + viewer HTML 2D com blend-modes e opacidade animada. Async via agnts)
+
+## Experimento 27 — Render Passes / Light Groups / Compositing por camadas (2026-05-29, async via agnts)
+- Pasta `experiment-27-render-passes/` — **experimento de pipeline valido** (Cycles Light Groups + Shadow Catcher + compositor, headless)
+- **Pedido:** renderizar cena (quarto/CCTV) separando em IMAGENS distintas — sombra numa, luz/cor de cada luz noutra — pra fazer efeitos 2D sobrepondo as camadas com qualidade Blender, sem engine 3D em runtime. HTML+JS variando opacidade de cada camada. User deu autonomia total ("confio na decisao tecnica, prova de conceito")
+- **Entregue:** `build_and_render.py` (headless, 100% automatizado) gera 6 PNGs em `passes/`: beauty, shadow (catcher), ao, lg_window, lg_lamp, lg_ambient. Viewer `viewer/index.html` empilha com mix-blend-mode (luzes=screen, sombra/ao=multiply), modo animacao automatica + sliders manuais + presets
+- **Achados tecnicos (Blender 4.3):** (1) light group e `object.lightgroup` (nao no data-block), grupos registrados em `view_layer.lightgroups.add`; pass = socket `Combined_<grupo>`. (2) pass `Shadow` legado nao expoe socket usavel headless -> sombra via Shadow Catcher em 2a passada (`is_shadow_catcher` no piso + demais objs `visible_camera=False/visible_shadow=True` + `film_transparent`). (3) AgX dom estouros. (4) area lights aparecem como painel branco pra camera e `visible_camera` nao esconde -> usei janela como mesh-light emissivo
+- **Render final:** 1920x1080, 256 samples, Cycles GPU (~40s/passada)
+- **Doc:** [experiment-27-render-passes/README.md](experiment-27-render-passes/README.md)
 
 ## Experimento 26 — RESULTADO FINAL (Rokoko, executado)
 - **Entregue:** sequencia de cotidiano (sentar/beber/conversar/levantar) gerada 100%% por texto no Rokoko Create, renderizada no Blender headless. Video `out/rokoko_sequence.mp4` (Eevee 1280x720, ~12.7s) enviado ao user. Relatorio de custo em `RELATORIO-CUSTO.md`
