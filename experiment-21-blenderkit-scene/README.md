@@ -52,6 +52,15 @@ Pedido do user: provar controle de câmera com mais ângulos + mostrar como a ce
 - **`inspect_scene.py`** — dump de objetos/bbox/câmera (foi como descobri que a cena tem set-dressing gigante e que a casa são `Cube.*`).
 - **Galeria hospedada:** https://st.did.lu/blender-exp21-blenderkit/v1/index.html (6 ângulos fotográficos + 3 prints técnicos, lightbox custom).
 
+## Edição 3D destrutiva (`scripts/06`, `07`)
+Desafio do user: testar autonomia de edição — "mantém a casa, remove o campo em volta, põe um plano liso". Deliberei (o user pediu pra NÃO perguntar) e fiz **duas variantes**:
+- **A (isolar total):** remove campo (`Plane` + 6× `GS *`) **e** fundo (`Landscape`×2, `clouds`, `mist`); casa sozinha num plano liso + world neutro (CleanSky).
+- **B (trocar só o chão):** remove só o campo gramado; mantém montanhas/céu/world original; casa num plano liso dentro do vale.
+
+`06_edit_isolate.py` classifica os 55 objetos em casa / campo / fundo, deleta por grupo via **`bpy.data.objects.remove`** (os scatters `GS *` ficam fora do View Layer → `select_set` quebra com "not in View Layer"; deletar pela data API contorna), cria `FlatGround` (plano 4× a casa, material fosco neutro, na base `base_z`), ajusta o world conforme o modo. `07_render_edit.py` renderiza Cycles por câmeras criadas por código.
+- **Gotcha:** o .blend tem 2 scenes — `Scene` (default, com o cubo padrão) e `The Lonely Outpost`. Selecionar a scene "com mais de 1 objeto" pega a errada e renderiza o cubo default. Buscar pelo nome exato.
+- Resultado: A 55→44 objs, B 55→48 objs. Casa preservada intacta nas duas. Arquivos: `out/edited/lonely_{A,B}_*.blend`.
+
 ## Honestidade técnica
 - O download e o append são **100% do addon BlenderKit** (daemon + `append_scene`), não reimplementados.
 - A api_key é do user, guardada em `secret/` (gitignored), nunca commitada nem postada.
