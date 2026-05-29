@@ -1,0 +1,13 @@
+# binarios grandes / gerados — nao versionar (regra LARGE-FILES da workspace)
+*.blend
+*.fbx
+*.glb
+*.zip
+*.b64
+bl_resources/
+plugin/
+out/*.mp4
+out/**/*.jpg
+out/*.jpg
+clips/*.glb
+clips/*.b64

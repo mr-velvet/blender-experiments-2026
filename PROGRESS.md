@@ -1,7 +1,19 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 18 — experimento 26: VIRADA Cascadeur->ROKOKO — user corrigiu "cococos"=Rokoko. Viabilidade headless confirmada; AGUARDANDO decisao do user sobre fonte dos clips, async via agnts)
+2026-05-29 (sessao 18 — experimento 26 ROKOKO: EXECUTADO end-to-end. Text-to-Motion (endpoint sem login) -> retarget headless -> video da sequencia de cotidiano. Vídeo + relatorio de custo entregues, async via agnts)
+
+## Experimento 26 — RESULTADO FINAL (Rokoko, executado)
+- **Entregue:** sequencia de cotidiano (sentar/beber/conversar/levantar) gerada 100%% por texto no Rokoko Create, renderizada no Blender headless. Video `out/rokoko_sequence.mp4` (Eevee 1280x720, ~12.7s) enviado ao user. Relatorio de custo em `RELATORIO-CUSTO.md`
+- **Achado-chave:** endpoint `POST create.rokoko.com/api/generate-motion {prompt,length}` retorna GLB de mocap bakeado **sem login, sem watermark, sem limite de 5/mes** (a UI so pede login no "Add clip to scene"). Geracao automatizada via Playwright (fetch same-origin). Custo ZERO.
+- **Retarget headless CONFIRMADO funcional** via plugin oficial Rokoko (`rsl.build_bone_list` + `rsl.retarget_animation`, offline, sem login): mapeou 47 pares Rokoko<->rig Unreal/Quaternius automaticamente
+- **Caveat honesto:** o alvo Quaternius tem coluna de eixo invertido + objeto rotacionado 180° -> COPY_ROTATION do plugin gera torcao. Retarget executa mas a pose sai torcida NESSE alvo. Por isso o video final usa o mannequin NATIVO do Rokoko (animacao impecavel). Retarget fiel num rig compativel (Mixamo) = proximo passo
+- **Blender:** 4.4 instalado esta CORROMPIDO nesta maquina ("not a valid application"); usar **4.3** (ou 5.1). Plugin Rokoko instalado headless via BLENDER_USER_RESOURCES isolado em `bl_resources/`, addon renomeado p/ `rokoko_studio_live` (hifens quebram import). Modulo de login/streaming nao carrega (falta boto3) mas retarget independe disso
+- **Personagem-alvo CC0:** Quaternius Universal Base Characters, baixado via itch (Playwright, "no thanks just take me to downloads")
+- **Custo (resumo):** caminho IA-texto/video = US$0 (endpoint) a US$10/mes (Studio Basic), sem hardware; caminho sensores = Smartsuit Pro II ~US$2.295 + extras. Recomendado p/ o objetivo: caminho A
+- **Doc:** [experiment-26-rokoko/README.md](experiment-26-rokoko/README.md)
+
+## Experimento 26 (historico da investigacao) — virada Cascadeur->ROKOKO
 
 ## Experimento 26: ROKOKO (mocap -> retarget headless -> movimentos de cotidiano) (2026-05-29, async via agnts) — AGUARDANDO USER
 - **CORRECAO:** user esclareceu que "cococos" = **Rokoko**, NAO Cascadeur. Toda a secao Cascadeur abaixo fica como registro da investigacao inicial equivocada
