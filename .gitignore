@@ -37,3 +37,8 @@ preview-*.jpeg
 hosted.jpeg
 cat-free.jpeg
 *.glb
+
+# experiment-22 (resíduo de sessão anterior)
+experiment-22-dollhouse/bl_config/
+experiment-22-dollhouse/secret/
+experiment-22-dollhouse/out/

@@ -1,0 +1,17 @@
+Progresso (etapa 1-2 OK):
+
+1) AMBIENTE VALIDADO (headless, isolado, sem voce tocar em nada):
+   - Home Builder 5 + BlenderKit habilitados no MESMO Blender 5.1
+   - classes GeoNodeWall/GeoNodeCage do Home Builder importaveis -> casa vem 100% do addon
+   - api_key BlenderKit setada, online access ligado -> download de moveis vai funcionar
+   - reaproveitei o pipeline que validei nos exp18 (casa) e exp21 (BlenderKit)
+
+2) MOVEIS CURADOS (5 agentes em paralelo varreram a API do BlenderKit):
+   32 moveis gratuitos selecionados, todos com isFree+canDownload confirmados, por comodo:
+   - Sala: sofa, mesa de centro, TV, estante, poltrona, tapete, luminaria
+   - Cozinha/jantar: geladeira, mesa, cadeiras, fogao, pia, microondas
+   - Quarto casal: cama, criado-mudo, guarda-roupa, comoda, abajur, espelho
+   - Banheiro: vaso, banheira, pia, chuveiro
+   - Escritorio/infantil: escrivaninha, cadeira, monitor, estante, beliche, brinquedo, planta
+
+Agora construindo a estrutura da casa (3 andares, corte frontal aberto tipo dollhouse). Depois baixo e encaixo os moveis. Sigo postando.

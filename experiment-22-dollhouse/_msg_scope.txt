@@ -1,0 +1,16 @@
+Recebi o pedido. Antes de codar, travo o escopo (regra da workspace) — mas como voce pediu autonomia total, eu DECIDO e sigo, sem te pedir confirmacao.
+
+## O que vou montar (literal)
+Uma casa de bonecas (dollhouse) cortada ao meio — fachada frontal aberta, camera olhando de frente pro corte, vendo todos os comodos de uma vez. 2-3 andares, mobiliada.
+
+## Como vou atacar (decisoes minhas)
+1. Estrutura da casa = gerada via Home Builder 5 (addon arquitetonico que ja validei nos exp18/19 — paredes/lajes/portas/janelas parametricas). E exatamente o "plugin de planta de casa" que voce citou. A casa cortada ao meio sai naturalmente: construo a casa inteira e simplesmente NAO coloco a parede frontal (o corte do dollhouse).
+2. Moveis = baixados gratis via BlenderKit (pipeline headless que validei no exp21: busca + download + append, sem voce clicar em nada). Busco moveis free por comodo (sofa, cama, mesa, cadeira, geladeira, etc). Se faltar movel especifico gratis, misturo o que houver e improviso com primitivos estilizados pra nao deixar comodo vazio.
+3. Render = multi-angulo (a vista principal do corte + alguns angulos), Cycles, hospedo galeria HTML em st.did.lu.
+
+## Fora de escopo (nao vou fazer)
+- Nao vou pedir pra voce abrir o Blender / clicar / ativar addon (workspace e 100% headless/automacao)
+- Nao vou modelar moveis a mao quando existir asset gratis (so improviso primitivo como ULTIMO recurso, e aviso quando fizer)
+- Nao vou inventar "estilo dollhouse de brinquedo" se os assets forem realistas — uso o que acho gratis; o dollhouse e a geometria cortada + escala, nao um estilo de brinquedo (a nao ser que ache asset de brinquedo)
+
+Comecando agora. Vou postando progresso. Tarefa longa, varios agentes em paralelo pra cacar assets.
