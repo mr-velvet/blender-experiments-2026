@@ -1,9 +1,19 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 18 — experimento 26: Cascadeur — investigacao de viabilidade, AGUARDANDO decisao do user, async via agnts)
+2026-05-29 (sessao 18 — experimento 26: VIRADA Cascadeur->ROKOKO — user corrigiu "cococos"=Rokoko. Viabilidade headless confirmada; AGUARDANDO decisao do user sobre fonte dos clips, async via agnts)
 
-## Experimento 26: Cascadeur (animacao IA-fisica de movimentos de cotidiano) (2026-05-29, async via agnts) — AGUARDANDO USER
+## Experimento 26: ROKOKO (mocap -> retarget headless -> movimentos de cotidiano) (2026-05-29, async via agnts) — AGUARDANDO USER
+- **CORRECAO:** user esclareceu que "cococos" = **Rokoko**, NAO Cascadeur. Toda a secao Cascadeur abaixo fica como registro da investigacao inicial equivocada
+- **Pedido (audio + correcao):** usar Rokoko pra criar humanoide e animar SEQUENCIA de movimentos de cotidiano que faltam no Mixamo (sentar, levantar, beber, conversar sentado), gravar video. Depois: relatorio de custo de setup com a tecnologia + cameras pra mocap de humanoide real
+- **Investigacao Rokoko (sem instalar/codar ainda):**
+  - **Free Starter:** FBX export ilimitado de assets owned; Text-to-Motion gera ilimitado mas exporta **5 FBX/mes**; Video-to-Motion <15s; uso comercial liberado na Motion Library
+  - **Plugin Blender oficial open-source** `github.com/Rokoko/rokoko-studio-live-blender` — retarget 100%% headless via Python CONFIRMADO no codigo: `scene.rsl_retargeting_armature_source/target` + `bpy.ops.rsl.build_bone_list()` (auto fuzzy-match) + `bpy.ops.rsl.retarget_animation()` (nla.bake). Funciona OFFLINE, sem Studio aberto. Testado ate Blender 4.4 (recomendado 4.4+)
+  - **NO CRITICO:** obter os clips FBX de cotidiano esbarra na regra user-nao-toca. Sem API REST publica. Fontes: (1) Motion Library = so dentro do Rokoko Studio app/login; (2) Text-to-Motion/Rokoko Create = web-app browser, login, 5 FBX/mes free — fonte ideal pra sit/stand/drink/talk; (3) packs FBX free download direto = tematicos (magic/esportes/walk), NAO garantem os movimentos pedidos
+  - Sem credenciais Rokoko na maquina
+- **3 opcoes postadas ao user:** (A) automatizo browser Rokoko Create via Playwright na conta do user (precisa login) + retarget/render headless — mais fiel e automatizado; (B) user exporta os 4 FBX manualmente 1x, eu faco resto headless; (C) packs free sem login, fidelidade cai. Status WAITING-USER
+
+## [REGISTRO — investigacao inicial equivocada] Experimento 26 como Cascadeur (descartado)
 - **Pedido (audio):** usar Cascadeur ("cococos") — instalar/deliberar com autonomia — pra criar humanoide e animar SEQUENCIA de movimentos de cotidiano que faltam no Mixamo (sentar, levantar, beber, conversar sentado), gravar video e mandar. Depois: relatorio de custo de um setup com a tecnologia + cameras pra mocap de humanoide real
 - **Origem:** apontado pelo relatorio do exp25 (card cascadeur, IA assist physics posing)
 - **Investigacao de viabilidade feita (sem instalar nada ainda):**
