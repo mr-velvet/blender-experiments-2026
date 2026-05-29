@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fogão em massinha — Clay 4.Doh, 4 presets × 6 ângulos</title>
+<style>
+  :root{
+    --ink:#2b2520; --muted:#7a6b58; --bg:#f1ece4;
+    --rosa:#e87a82; --amarelo:#dcbb3e; --azul:#5a8fc7; --verde:#7aa860;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.5;
+    background-image:radial-gradient(circle at 25% 0%, rgba(255,255,255,.55), transparent 55%);
+  }
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:#e2d8c8}
+  ::-webkit-scrollbar-thumb{background:#c2a888;border-radius:6px;border:2px solid #e2d8c8}
+  ::-webkit-scrollbar-thumb:hover{background:#a98b66}
+
+  header{padding:54px 24px 26px;text-align:center;max-width:880px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#a98b66;font-weight:700;margin-bottom:13px}
+  h1{font-size:clamp(27px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.07;margin-bottom:16px}
+  h1 .m{background:linear-gradient(92deg,var(--rosa),var(--amarelo),var(--verde),var(--azul));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:16px;color:var(--muted);max-width:640px;margin:0 auto}
+
+  main{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+
+  .preset{margin-top:42px}
+  .preset h2{
+    font-size:20px;font-weight:800;display:flex;align-items:center;gap:12px;margin-bottom:4px;
+  }
+  .preset h2 .swatch{width:20px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .preset .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px;padding-left:32px}
+  .p1 .swatch{background:var(--rosa)} .p2 .swatch{background:var(--amarelo)}
+  .p3 .swatch{background:var(--azul)} .p4 .swatch{background:var(--verde)}
+
+  .row{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .shot{
+    background:#fff;border-radius:13px;overflow:hidden;border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 5px 18px rgba(120,90,50,.12);cursor:zoom-in;transition:transform .22s,box-shadow .22s;
+  }
+  .shot:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(120,90,50,.2)}
+  .shot img{width:100%;display:block;aspect-ratio:1400/1008;object-fit:cover;background:#d2d2d2}
+  .shot .cap{padding:9px 13px;font-size:12px;color:var(--muted)}
+
+  .tech{margin-top:50px;background:#fff;border-radius:16px;padding:26px 30px;border:1px solid rgba(0,0,0,.06);box-shadow:0 6px 22px rgba(120,90,50,.1)}
+  .tech h2{font-size:18px;margin-bottom:14px}
+  .tech ul{list-style:none;font-size:14px;color:#4a4036}
+  .tech li{padding:7px 0 7px 26px;position:relative;border-top:1px solid rgba(0,0,0,.05)}
+  .tech li:first-child{border-top:none}
+  .tech li::before{content:"▸";position:absolute;left:6px;color:#c2a888}
+  .tech b{color:var(--ink)} .tech code{background:#f1ece4;padding:1px 5px;border-radius:4px;font-size:13px}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:28px 20px 50px}
+
+  #lb{position:fixed;inset:0;background:rgba(30,24,18,.92);display:none;align-items:center;justify-content:center;z-index:100;padding:30px;cursor:zoom-out;backdrop-filter:blur(3px)}
+  #lb.on{display:flex}
+  #lb img{max-width:96vw;max-height:88vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:default}
+  #lb .lb-cap{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:#f4ece0;font-size:14px;background:rgba(0,0,0,.45);padding:8px 18px;border-radius:999px}
+  #lb button{position:absolute;background:rgba(255,255,255,.12);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+  #lb button:hover{background:rgba(255,255,255,.26)}
+  #lb .lb-close{top:20px;right:26px;width:42px;height:42px;border-radius:50%;font-size:22px}
+  #lb .lb-nav{top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;font-size:26px}
+  #lb .prev{left:24px} #lb .next{right:24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Blender Experiments · Render 3D</div>
+  <h1>Fogão em <span class="m">massinha</span></h1>
+  <p class="lede">Só o efeito de massinha (Clay&nbsp;4.Doh) aplicado direto na malha original do fogão — sem passar por papelão. Quatro presets de parâmetros bem diferentes, cada um em seis ângulos, para sentir a textura de massa de modelar.</p>
+</header>
+
+<main id="main"></main>
+
+<div id="lb">
+  <button class="lb-close" aria-label="fechar">✕</button>
+  <button class="lb-nav prev" aria-label="anterior">‹</button>
+  <img src="" alt="">
+  <button class="lb-nav next" aria-label="próximo">›</button>
+  <div class="lb-cap"></div>
+</div>
+
+<footer>blender-experiments-2026 · experimento 23 · só massinha · render Cycles · Clay 4.Doh sobre malha original</footer>
+
+<script>
+const ANGLES = [
+  {k:"frente",   l:"Frente"},
+  {k:"tresq_E",  l:"3/4 esquerda"},
+  {k:"tresq_D",  l:"3/4 direita"},
+  {k:"lateral",  l:"Lateral"},
+  {k:"topo",     l:"Topo (queimadores)"},
+  {k:"macro",    l:"Macro (textura)"},
+];
+const PRESETS = [
+  {slug:"p1_macia_rosa",       cls:"p1", h:"Macia (rosa)",          s:"Relevo macio, dedadas suaves, SSS forte — massa translúcida e limpa"},
+  {slug:"p2_amassada_amarela", cls:"p2", h:"Amassada à mão (amarela)", s:"Bordas onduladas + dedadas marcadas — massa trabalhada com os dedos"},
+  {slug:"p3_lisa_azul",        cls:"p3", h:"Lisa nova (azul)",       s:"Quase sem relevo, brilho de massa nova"},
+  {slug:"p4_seca_verde",       cls:"p4", h:"Seca / rachada (verde)", s:"Cracks visíveis + stones — textura de massa que secou"},
+];
+const BASE = "./renders/";
+
+const SHOTS = [];
+const main = document.getElementById("main");
+PRESETS.forEach(p=>{
+  const sec=document.createElement("section");sec.className="preset "+p.cls;
+  sec.innerHTML=`<h2><span class="swatch"></span>${p.h}</h2><div class="sub">${p.s}</div>`;
+  const row=document.createElement("div");row.className="row";
+  ANGLES.forEach(a=>{
+    const file=`${p.slug}__${a.k}.png`;
+    const idx=SHOTS.length;
+    SHOTS.push({file, cap:`${p.h} — ${a.l}`});
+    const d=document.createElement("div");d.className="shot";
+    d.innerHTML=`<img loading="lazy" src="${BASE}${file}" alt="${a.l}"><div class="cap">${a.l}</div>`;
+    d.onclick=()=>open(idx);
+    row.appendChild(d);
+  });
+  sec.appendChild(row);main.appendChild(sec);
+});
+
+const tech=document.createElement("div");tech.className="tech";
+tech.innerHTML=`<h2>Como foi feito</h2><ul>
+<li><b>Malha original:</b> o fogão (Old rusty stove, BlenderKit) importado direto, sem nenhum efeito de papelão antes — só o material de massinha.</li>
+<li><b>Material:</b> <code>Clay Doh</code> (node <i>Clay 4.Doh Node</i>) do pack Clay&nbsp;Doh&nbsp;4.0.4 — o mesmo já usado em experimentos anteriores. Nada inventado.</li>
+<li><b>Relevo real:</b> <code>displacement_method='BOTH'</code> + Subdivision modifier com <code>use_adaptive_subdivision</code> do Cycles — o relevo de massa é geometria de verdade, não normal map.</li>
+<li><b>Parâmetros variados por preset:</b> Global Displacement, Global Bump, Texture Scale, Voronoi, Fingerprints (dedadas), Cracks, Stones, Roughness, SSS (subsurface, dá a translucidez da massa) e cor.</li>
+<li><b>Render:</b> Cycles, 6 câmeras por código por preset, enquadradas pelo bounding box do fogão. 100% headless.</li>
+</ul>`;
+main.appendChild(tech);
+
+const lb=document.getElementById("lb"),lbImg=lb.querySelector("img"),lbCap=lb.querySelector(".lb-cap");
+let cur=0;
+function open(i){cur=i;render();lb.classList.add("on")}
+function render(){const s=SHOTS[cur];lbImg.src=BASE+s.file;lbImg.alt=s.cap;lbCap.textContent=s.cap}
+function close(){lb.classList.remove("on")}
+function nav(d){cur=(cur+d+SHOTS.length)%SHOTS.length;render()}
+lb.onclick=close;lbImg.onclick=e=>e.stopPropagation();
+lb.querySelector(".lb-close").onclick=e=>{e.stopPropagation();close()};
+lb.querySelector(".prev").onclick=e=>{e.stopPropagation();nav(-1)};
+lb.querySelector(".next").onclick=e=>{e.stopPropagation();nav(1)};
+document.addEventListener("keydown",e=>{
+  if(!lb.classList.contains("on"))return;
+  if(e.key==="Escape")close();
+  if(e.key==="ArrowRight")nav(1);
+  if(e.key==="ArrowLeft")nav(-1);
+});
+</script>
+</body>
+</html>
