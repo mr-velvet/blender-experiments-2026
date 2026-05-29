@@ -44,11 +44,20 @@ coloridas** — em `passes_cube/`. Feita pra inspecionar cada camada isolada.
 O viewer aponta pra essa cena e tem **modo SOLO**: toque no nome de uma
 camada e veja só ela (AO/sombra sobre fundo claro, luzes/beauty sobre preto).
 
+## Modelo BASE + LUZ (base estatica, iluminacao variavel)
+
+`build_cube_pbr.py` -> `passes_pbr/`: separa o ALBEDO (cor do material sem
+luz, pass `DiffCol`) das camadas de iluminacao. A iluminacao pura de cada luz
+sai dividindo `Combined_<grupo> / DiffCol` no compositor (remove a cor do
+material, sobra so a luz). No viewer `index_pbr.html` a base fica FIXA e so as
+luzes/sombra/AO variam por cima — material parado, luz dancando.
+
 ## Como rodar
 
 ```
 blender --background --python build_and_render.py   # cena quarto (dollhouse)
-blender --background --python build_cube.py          # cena cubo (inspecao)
+blender --background --python build_cube.py          # cena cubo (light groups c/ cor)
+blender --background --python build_cube_pbr.py      # cena cubo (base albedo + luz pura)
 ```
 
 Variáveis de ambiente opcionais (default = final):

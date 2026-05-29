@@ -10,7 +10,8 @@
 - **Achados tecnicos (Blender 4.3):** (1) light group e `object.lightgroup` (nao no data-block), grupos registrados em `view_layer.lightgroups.add`; pass = socket `Combined_<grupo>`. (2) pass `Shadow` legado nao expoe socket usavel headless -> sombra via Shadow Catcher em 2a passada (`is_shadow_catcher` no piso + demais objs `visible_camera=False/visible_shadow=True` + `film_transparent`). (3) AgX dom estouros. (4) area lights aparecem como painel branco pra camera e `visible_camera` nao esconde -> usei janela como mesh-light emissivo
 - **Render final:** 1920x1080, 256 samples, Cycles GPU (~40s/passada)
 - **Iteracao 2 (user no celular):** (a) viewer refeito RESPONSIVO — bottom-sheet deslizante + FAB no mobile; (b) cena CUBO (`build_cube.py` -> `passes_cube/`): cubo com bevel + chao + 3 luzes, pra inspecionar camadas; (c) modo SOLO no viewer (toca no nome -> ve so aquela camada; mascaras multiply sobre fundo claro, luzes/beauty sobre preto). Corrigido bug de TDZ (`let soloId` acessado antes da init)
-- **Hospedado:** v3 = https://st.did.lu/blender-exp27-render-passes/v3/index.html (cubo+solo+mobile)
+- **Iteracao 3 (base estatica + luz variavel):** user quer a BASE (geometria/material) FIXA e so iluminacao/sombra variando. `build_cube_pbr.py` -> `passes_pbr/`: base = albedo puro (pass DiffCol, sem luz); iluminacao pura por light group = `Combined_<grupo> / DiffCol` (node DIVIDE no compositor, remove a cor do material). Viewer `index_pbr.html`: base marcada FIXA (sem slider, sempre 100%), so luzes/sombra/AO animam por cima
+- **Hospedado:** v3 = cubo+solo (light groups com cor); v4 = https://st.did.lu/blender-exp27-render-passes/v4/index.html (base fixa + luz variavel)
 - **Doc:** [experiment-27-render-passes/README.md](experiment-27-render-passes/README.md)
 
 ## Experimento 26 — RESULTADO FINAL (Rokoko, executado)

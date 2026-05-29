@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exp 27 — Compositing por Camadas (Blender Render Passes)</title>
+<style>
+  :root{
+    --bg:#0c0d12; --panel:#15171f; --panel2:#1d2029; --line:#2a2e3a;
+    --txt:#e7e9f0; --txt-dim:#8b90a3; --accent:#6ea8ff; --accent2:#ff7ac2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    display:flex; min-height:100vh; overflow:hidden;
+  }
+  /* ---- canvas / palco ---- */
+  .stage-wrap{flex:1; display:flex; flex-direction:column; min-width:0}
+  .topbar{
+    display:flex; align-items:center; gap:14px; padding:14px 22px;
+    border-bottom:1px solid var(--line); background:var(--panel);
+  }
+  .topbar h1{font-size:14px; font-weight:600; letter-spacing:.3px}
+  .topbar .sub{font-size:11px; color:var(--txt-dim); font-weight:400}
+  .stage{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    padding:28px; position:relative;
+    background:
+      radial-gradient(circle at 50% 40%, #15171f 0%, #0a0b0f 80%);
+  }
+  .layers{
+    position:relative; width:100%; max-width:680px; aspect-ratio:1/1;
+    border-radius:10px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px var(--line);
+    /* xadrez neutro: ajuda a enxergar transparencia/alpha no modo solo */
+    background-color:#15171f;
+    background-image:
+      linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%),
+      linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%);
+    background-size:28px 28px; background-position:0 0,14px 14px;
+  }
+  /* no modo SOLO o palco fica neutro (sem xadrez) pra inspecao limpa.
+     fundo preto pra luzes/beauty; branco pra mascaras (sombra/AO) — assim
+     a mascara escura aparece sobre claro */
+  .layers.solo{background-image:none; background-color:#000}
+  .layers.solo-mask{background-color:#d8dbe2}
+  .layers img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    -webkit-user-drag:none; user-select:none;
+  }
+  /* base = albedo fixo (normal); luzes somam (screen); sombra/AO multiplicam */
+  .layer-base{mix-blend-mode:normal}
+  .layer-ao{mix-blend-mode:multiply}
+  .layer-shadow{mix-blend-mode:multiply}
+  .layer-lg{mix-blend-mode:screen}
+  /* camada fixa: linha de controle com cara de "travada" */
+  .layer-row.is-fixed{opacity:.85}
+  .layer-row.is-fixed .lr-eye, .layer-row.is-fixed input[type=range]{display:none}
+  .fixed-badge{font-size:9px; font-weight:700; letter-spacing:.5px; color:#06080f;
+    background:var(--accent); padding:2px 7px; border-radius:10px; margin-left:auto}
+
+  /* ---- sidebar ---- */
+  .side{
+    width:340px; background:var(--panel); border-left:1px solid var(--line);
+    display:flex; flex-direction:column; overflow-y:auto;
+  }
+  .side::-webkit-scrollbar{width:8px}
+  .side::-webkit-scrollbar-thumb{background:#2c3140; border-radius:4px}
+  .side::-webkit-scrollbar-track{background:transparent}
+  .side-sec{padding:18px 20px; border-bottom:1px solid var(--line)}
+  .side-sec h2{
+    font-size:10px; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--txt-dim); margin-bottom:14px; font-weight:600;
+  }
+  /* toggle auto */
+  .seg{display:flex; background:var(--panel2); border-radius:8px; padding:3px; gap:3px}
+  .seg button{
+    flex:1; border:none; background:transparent; color:var(--txt-dim);
+    padding:9px 0; font-size:12px; font-weight:600; border-radius:6px;
+    cursor:pointer; transition:all .15s; font-family:inherit;
+  }
+  .seg button.on{background:var(--accent); color:#06080f}
+  .speed{display:flex; align-items:center; gap:10px; margin-top:14px}
+  .speed label{font-size:11px; color:var(--txt-dim); width:48px}
+
+  /* layer rows */
+  .layer-row{margin-bottom:16px}
+  .layer-row:last-child{margin-bottom:0}
+  .lr-head{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+  .swatch{width:12px; height:12px; border-radius:3px; flex-shrink:0}
+  .lr-name{
+    font-size:12.5px; font-weight:600; flex:1; text-align:left;
+    background:none; border:none; color:var(--txt); cursor:pointer;
+    font-family:inherit; padding:2px 0; transition:color .15s;
+  }
+  .lr-name:hover{color:var(--accent)}
+  .layer-row.soloing{
+    background:rgba(110,168,255,.08); border-radius:8px;
+    margin-left:-8px; margin-right:-8px; padding:8px;
+  }
+  .layer-row.soloing .lr-name{color:var(--accent)}
+  .lr-val{font-size:11px; color:var(--txt-dim); font-variant-numeric:tabular-nums}
+  .lr-eye{
+    width:24px; height:24px; border:none; background:var(--panel2);
+    border-radius:5px; cursor:pointer; color:var(--txt-dim); font-size:12px;
+    display:flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .lr-eye.off{opacity:.35}
+
+  /* custom range */
+  input[type=range]{
+    -webkit-appearance:none; width:100%; height:4px; border-radius:3px;
+    background:linear-gradient(90deg,var(--accent) 0%,var(--accent) var(--p,50%),#2c3140 var(--p,50%));
+    outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.5); cursor:pointer;
+  }
+  .blend-note{font-size:10.5px; color:var(--txt-dim); margin-top:3px; line-height:1.4}
+
+  .foot{padding:16px 20px; font-size:10.5px; color:var(--txt-dim); line-height:1.6}
+  .foot b{color:var(--txt)}
+  .preset-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
+  .preset{
+    background:var(--panel2); border:1px solid var(--line); color:var(--txt);
+    font-size:11px; padding:7px 11px; border-radius:6px; cursor:pointer;
+    font-family:inherit; transition:all .15s;
+  }
+  .preset:hover{border-color:var(--accent); color:var(--accent)}
+
+  /* banner do modo solo (sobre o palco) */
+  .solo-banner{
+    display:none; position:absolute; top:18px; left:50%;
+    transform:translateX(-50%); align-items:center; gap:10px;
+    background:rgba(12,13,18,.85); backdrop-filter:blur(8px);
+    border:1px solid var(--accent); border-radius:30px;
+    padding:8px 8px 8px 16px; z-index:10; max-width:92%;
+  }
+  .solo-banner .sb-dot{width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0;
+    box-shadow:0 0 8px var(--accent)}
+  .solo-banner .sb-txt{font-size:12px; font-weight:600; color:var(--txt); white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis}
+  .solo-banner .sb-exit{
+    background:var(--accent); color:#06080f; border:none; border-radius:20px;
+    padding:6px 13px; font-size:11.5px; font-weight:700; cursor:pointer;
+    font-family:inherit; flex-shrink:0;
+  }
+
+  /* botao flutuante (so mobile) pra abrir/fechar o painel */
+  .fab{display:none}
+  .sheet-grip{display:none}
+
+  /* ============ MOBILE ============ */
+  @media (max-width: 820px){
+    body{flex-direction:column; overflow:hidden}
+    .stage-wrap{flex:1 1 auto; min-height:0}
+    .topbar{padding:11px 16px}
+    .topbar h1{font-size:13px; line-height:1.25}
+    .topbar .sub{display:block; margin-top:2px}
+    .stage{padding:12px}
+    .layers{max-width:none; box-shadow:0 8px 30px rgba(0,0,0,.5), 0 0 0 1px var(--line)}
+
+    /* painel vira bottom-sheet deslizante por cima do palco */
+    .side{
+      position:fixed; left:0; right:0; bottom:0; width:auto;
+      height:78vh; max-height:78vh;
+      border-left:none; border-top:1px solid var(--line);
+      border-radius:18px 18px 0 0;
+      box-shadow:0 -16px 40px rgba(0,0,0,.55);
+      transform:translateY(calc(100% - 56px)); /* fechado: so o cabecalho/grip aparece */
+      transition:transform .28s cubic-bezier(.32,.72,0,1);
+      z-index:30; touch-action:pan-y;
+    }
+    .side.open{transform:translateY(0)}
+    .sheet-grip{
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:10px 0 6px; cursor:pointer; flex-shrink:0;
+      position:sticky; top:0; background:var(--panel); z-index:2;
+      border-radius:18px 18px 0 0;
+    }
+    .sheet-grip .bar{width:38px; height:4px; border-radius:3px; background:#3a4050}
+    .sheet-grip .lbl{font-size:11px; color:var(--txt-dim); font-weight:600; letter-spacing:.3px}
+    .side-sec{padding:14px 18px}
+    .side-sec h2{margin-bottom:11px}
+    .seg button{padding:11px 0; font-size:13px}
+    .preset{font-size:12px; padding:9px 13px}
+    .layer-row{margin-bottom:18px}
+    .lr-name{font-size:13.5px}
+    .lr-eye{width:30px; height:30px}
+    input[type=range]{height:6px}
+    input[type=range]::-webkit-slider-thumb{width:20px; height:20px}
+    .foot{display:none} /* economiza espaco no celular */
+
+    /* FAB que abre o painel quando ele esta fechado */
+    .fab{
+      display:flex; align-items:center; gap:8px;
+      position:fixed; right:14px; bottom:70px; z-index:31;
+      background:var(--accent); color:#06080f; border:none;
+      padding:12px 18px; border-radius:30px; font-size:13px; font-weight:700;
+      font-family:inherit; box-shadow:0 6px 20px rgba(0,0,0,.5); cursor:pointer;
+      transition:opacity .2s;
+    }
+    .side.open ~ .fab{opacity:0; pointer-events:none}
+  }
+</style>
+</head>
+<body>
+  <div class="stage-wrap">
+    <div class="topbar">
+      <h1>Compositing por Camadas <span class="sub">— render passes do Blender (Cycles) sobrepostos em 2D</span></h1>
+    </div>
+    <div class="stage">
+      <div class="layers" id="layers"></div>
+      <div class="solo-banner" id="soloBanner">
+        <span class="sb-dot"></span>
+        <span class="sb-txt"></span>
+        <button class="sb-exit" id="soloExit">sair do solo</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" id="fab">⚙ Camadas</button>
+
+  <aside class="side" id="side">
+    <div class="sheet-grip" id="grip">
+      <span class="bar"></span>
+      <span class="lbl">Controles de camadas</span>
+    </div>
+    <div class="side-sec">
+      <h2>Modo</h2>
+      <div class="seg">
+        <button id="mAuto" class="on">Animação automática</button>
+        <button id="mManual">Manual</button>
+      </div>
+      <div class="speed">
+        <label>Veloc.</label>
+        <input type="range" id="speed" min="0.2" max="3" step="0.1" value="1">
+      </div>
+      <div class="preset-row">
+        <button class="preset" data-preset="all">Tudo 100%</button>
+        <button class="preset" data-preset="beauty">Só a base</button>
+        <button class="preset" data-preset="lights">Base + luzes</button>
+        <button class="preset" data-preset="shadow">Base + sombra</button>
+      </div>
+    </div>
+
+    <div class="side-sec" style="flex:1">
+      <h2>Camadas <span style="text-transform:none; letter-spacing:0; font-weight:400; color:var(--txt-dim)">· a base é fixa; toque no nome pra ver só ela</span></h2>
+      <div id="controls"></div>
+    </div>
+
+    <div class="foot">
+      A <b>Base</b> (albedo: cor/textura do material, sem luz) fica <b>FIXA</b> —
+      é a geometria estática. Por cima, a <b>iluminação</b> de cada luz (extraída
+      sem a cor do material) e as máscaras de <b>sombra/AO</b> são o que varia.
+      É o que você quer evidenciar: material parado, luz dançando. Toque no nome
+      de uma camada pra vê-la isolada.
+    </div>
+  </aside>
+
+<script>
+// camadas na ordem de empilhamento (base -> topo)
+// MODELO BASE + LUZ: a base (albedo) e FIXA; so a iluminacao varia por cima.
+const LAYERS = [
+  {id:'base',    name:'Base · material (FIXA)', file:'../passes_pbr/base.png',          cls:'layer-base',  color:'#cfd3dd', blend:'normal',   note:'albedo: cor/textura sem luz — nunca varia', fixed:true},
+  {id:'ao',      name:'Ambient Occlusion',      file:'../passes_pbr/ao.png',            cls:'layer-ao',    color:'#555a66', blend:'multiply', note:'contato/profundidade'},
+  {id:'shadow',  name:'Sombra (catcher)',       file:'../passes_pbr/shadow.png',        cls:'layer-shadow',color:'#1a1a1a', blend:'multiply', note:'sombra projetada'},
+  {id:'light_window', name:'Luz · Janela (fria)',  file:'../passes_pbr/light_window.png',  cls:'layer-lg', color:'#7fb0ff', blend:'screen', note:'iluminacao pura — varia'},
+  {id:'light_lamp',   name:'Luz · Abajur (quente)',file:'../passes_pbr/light_lamp.png',    cls:'layer-lg', color:'#ff9e4a', blend:'screen', note:'iluminacao pura — varia'},
+  {id:'light_ambient',name:'Luz · Ambiente (magenta)',file:'../passes_pbr/light_ambient.png',cls:'layer-lg',color:'#e055d8', blend:'screen', note:'iluminacao pura — varia'},
+];
+
+const state = {}; // id -> {opacity, visible, el}
+const layersEl = document.getElementById('layers');
+const controlsEl = document.getElementById('controls');
+let soloId = null;      // declarado cedo: render() o le durante a montagem
+let auto = true, speed = 1;
+
+// montar imagens
+LAYERS.forEach(L=>{
+  const img = document.createElement('img');
+  img.src = L.file; img.className = L.cls; img.alt = L.name;
+  layersEl.appendChild(img);
+  state[L.id] = {opacity:1, visible:true, el:img};
+});
+
+// montar controles
+LAYERS.forEach(L=>{
+  const row = document.createElement('div');
+  row.className='layer-row' + (L.fixed ? ' is-fixed' : '');
+  row.id='row-'+L.id;
+  const tail = L.fixed
+    ? `<span class="fixed-badge">FIXA</span>`
+    : `<span class="lr-val" id="val-${L.id}">100%</span>
+       <button class="lr-eye" id="eye-${L.id}" title="liga/desliga">●</button>`;
+  row.innerHTML = `
+    <div class="lr-head">
+      <span class="swatch" style="background:${L.color}"></span>
+      <button class="lr-name" id="name-${L.id}" title="ver só esta camada (solo)">${L.name}</button>
+      ${tail}
+    </div>
+    ${L.fixed ? '' : `<input type="range" id="rng-${L.id}" min="0" max="100" value="100">`}
+    <div class="blend-note">blend: ${L.blend} — ${L.note}</div>`;
+  controlsEl.appendChild(row);
+
+  // tocar no NOME = solo (qualquer camada, inclusive a base)
+  row.querySelector('#name-'+L.id).addEventListener('click', ()=>{
+    setSolo(soloId === L.id ? null : L.id);
+  });
+
+  if(L.fixed){ state[L.id].opacity = 1; return; }  // base nao tem slider/eye
+
+  const rng = row.querySelector(`#rng-${L.id}`);
+  const val = row.querySelector(`#val-${L.id}`);
+  const eye = row.querySelector(`#eye-${L.id}`);
+  function applyRange(){
+    const v = +rng.value;
+    rng.style.setProperty('--p', v+'%');
+    state[L.id].opacity = v/100;
+    val.textContent = v+'%';
+    render();
+  }
+  rng.addEventListener('input', ()=>{ setManual(); applyRange(); });
+  eye.addEventListener('click', ()=>{
+    state[L.id].visible = !state[L.id].visible;
+    eye.classList.toggle('off', !state[L.id].visible);
+    render();
+  });
+  applyRange();
+});
+
+// ---- SOLO: ver uma camada isolada sobre fundo neutro ----
+document.getElementById('soloExit').addEventListener('click', ()=> setSolo(null));
+function setSolo(id){
+  soloId = id;
+  if(id) setManual();               // solo pausa a animacao
+  layersEl.classList.toggle('solo', !!id);
+  // mascaras (multiply: sombra/AO) ficam sobre fundo claro pra serem visiveis
+  const soloL = id ? LAYERS.find(x=>x.id===id) : null;
+  layersEl.classList.toggle('solo-mask', !!soloL && soloL.blend==='multiply');
+  // marcar a row ativa + ajustar o banner
+  LAYERS.forEach(L=>{
+    document.getElementById('row-'+L.id).classList.toggle('soloing', soloId===L.id);
+  });
+  const banner = document.getElementById('soloBanner');
+  if(id){
+    const L = LAYERS.find(x=>x.id===id);
+    banner.style.display='flex';
+    banner.querySelector('.sb-txt').textContent = 'SOLO: '+L.name+' — blend '+L.blend;
+  } else {
+    banner.style.display='none';
+  }
+  render();
+}
+
+function render(){
+  if(soloId){
+    // modo isolado: so a camada solo, blend normal, opacidade cheia
+    LAYERS.forEach(L=>{
+      const s = state[L.id];
+      const on = (L.id===soloId);
+      s.el.style.opacity = on ? 1 : 0;
+      s.el.style.mixBlendMode = on ? 'normal' : (getComputedStyle(s.el).mixBlendMode);
+    });
+    return;
+  }
+  // modo compositing normal: cada camada com seu blend (do CSS) e opacidade
+  LAYERS.forEach(L=>{
+    const s = state[L.id];
+    s.el.style.mixBlendMode = '';          // volta ao blend definido pela classe
+    s.el.style.opacity = s.visible ? s.opacity : 0;
+  });
+}
+
+// ---- modos ----
+const mAuto = document.getElementById('mAuto');
+const mManual = document.getElementById('mManual');
+function setAuto(){ if(soloId) setSolo(null); auto=true; mAuto.classList.add('on'); mManual.classList.remove('on'); }
+function setManual(){ auto=false; mManual.classList.add('on'); mAuto.classList.remove('on'); }
+mAuto.addEventListener('click', setAuto);
+mManual.addEventListener('click', setManual);
+document.getElementById('speed').addEventListener('input', e=> speed=+e.target.value);
+
+// helper: setar opacidade de uma camada VARIAVEL (ignora a fixa)
+function setLayer(id, v){
+  const L = LAYERS.find(x=>x.id===id);
+  if(!L || L.fixed) return;            // base nunca muda
+  v = Math.max(0, Math.min(1, v));
+  state[id].opacity = v;
+  const pct = Math.round(v*100);
+  const val = document.getElementById('val-'+id);
+  const r = document.getElementById('rng-'+id);
+  if(val) val.textContent = pct+'%';
+  if(r){ r.value = pct; r.style.setProperty('--p', pct+'%'); }
+}
+
+// presets
+document.querySelectorAll('.preset').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    setManual();
+    const p = b.dataset.preset;
+    if(p==='all') LAYERS.forEach(L=>setLayer(L.id,1));
+    if(p==='beauty') LAYERS.forEach(L=>setLayer(L.id,0)); // só a base fixa fica
+    if(p==='lights') LAYERS.forEach(L=>setLayer(L.id, L.cls==='layer-lg'?1:0));
+    if(p==='shadow') LAYERS.forEach(L=>setLayer(L.id, L.id==='shadow'?1:0));
+    render();
+  });
+});
+
+// animação automática: a BASE fica fixa; só as luzes (e sombra/AO) variam,
+// cada uma em fase diferente -> luz "viva" sobre material estatico
+let t = 0;
+function tick(dt){
+  if(auto && !soloId){
+    t += dt * 0.001 * speed;
+    setLayer('shadow',        0.45 + 0.35*Math.sin(t*0.8 + 1));
+    setLayer('ao',            0.35 + 0.25*Math.sin(t*0.5 + 2));
+    setLayer('light_window',  0.5 + 0.5*Math.sin(t*0.9));
+    setLayer('light_lamp',    0.5 + 0.5*Math.sin(t*1.15 + 2.1));
+    setLayer('light_ambient', 0.5 + 0.5*Math.sin(t*0.7 + 4.2));
+    render();
+  }
+}
+let last=performance.now();
+function loop(now){ tick(now-last); last=now; requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+// ---- bottom sheet (mobile) ----
+const side = document.getElementById('side');
+const fab = document.getElementById('fab');
+const grip = document.getElementById('grip');
+function syncFab(){ fab.style.display = side.classList.contains('open') ? 'none' : ''; }
+function openSheet(){ side.classList.add('open'); syncFab(); }
+function closeSheet(){ side.classList.remove('open'); syncFab(); }
+function toggleSheet(){ side.classList.toggle('open'); syncFab(); }
+fab.addEventListener('click', openSheet);
+grip.addEventListener('click', toggleSheet);
+
+// arrastar o grip pra baixo fecha, pra cima abre
+let dragY=null;
+grip.addEventListener('touchstart', e=>{ dragY=e.touches[0].clientY; }, {passive:true});
+grip.addEventListener('touchmove', e=>{
+  if(dragY===null) return;
+  const dy = e.touches[0].clientY - dragY;
+  if(dy > 40){ closeSheet(); dragY=null; }
+  else if(dy < -40){ openSheet(); dragY=null; }
+}, {passive:true});
+grip.addEventListener('touchend', ()=> dragY=null);
+</script>
+</body>
+</html>
