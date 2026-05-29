@@ -31,11 +31,21 @@
       radial-gradient(circle at 50% 40%, #15171f 0%, #0a0b0f 80%);
   }
   .layers{
-    position:relative; width:100%; max-width:1100px; aspect-ratio:16/9;
+    position:relative; width:100%; max-width:680px; aspect-ratio:1/1;
     border-radius:10px; overflow:hidden;
     box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px var(--line);
-    background:#000;
+    /* xadrez neutro: ajuda a enxergar transparencia/alpha no modo solo */
+    background-color:#15171f;
+    background-image:
+      linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%),
+      linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%);
+    background-size:28px 28px; background-position:0 0,14px 14px;
   }
+  /* no modo SOLO o palco fica neutro (sem xadrez) pra inspecao limpa.
+     fundo preto pra luzes/beauty; branco pra mascaras (sombra/AO) — assim
+     a mascara escura aparece sobre claro */
+  .layers.solo{background-image:none; background-color:#000}
+  .layers.solo-mask{background-color:#d8dbe2}
   .layers img{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     -webkit-user-drag:none; user-select:none;
@@ -75,7 +85,17 @@
   .layer-row:last-child{margin-bottom:0}
   .lr-head{display:flex; align-items:center; gap:10px; margin-bottom:8px}
   .swatch{width:12px; height:12px; border-radius:3px; flex-shrink:0}
-  .lr-name{font-size:12.5px; font-weight:600; flex:1}
+  .lr-name{
+    font-size:12.5px; font-weight:600; flex:1; text-align:left;
+    background:none; border:none; color:var(--txt); cursor:pointer;
+    font-family:inherit; padding:2px 0; transition:color .15s;
+  }
+  .lr-name:hover{color:var(--accent)}
+  .layer-row.soloing{
+    background:rgba(110,168,255,.08); border-radius:8px;
+    margin-left:-8px; margin-right:-8px; padding:8px;
+  }
+  .layer-row.soloing .lr-name{color:var(--accent)}
   .lr-val{font-size:11px; color:var(--txt-dim); font-variant-numeric:tabular-nums}
   .lr-eye{
     width:24px; height:24px; border:none; background:var(--panel2);
@@ -105,6 +125,24 @@
     font-family:inherit; transition:all .15s;
   }
   .preset:hover{border-color:var(--accent); color:var(--accent)}
+
+  /* banner do modo solo (sobre o palco) */
+  .solo-banner{
+    display:none; position:absolute; top:18px; left:50%;
+    transform:translateX(-50%); align-items:center; gap:10px;
+    background:rgba(12,13,18,.85); backdrop-filter:blur(8px);
+    border:1px solid var(--accent); border-radius:30px;
+    padding:8px 8px 8px 16px; z-index:10; max-width:92%;
+  }
+  .solo-banner .sb-dot{width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0;
+    box-shadow:0 0 8px var(--accent)}
+  .solo-banner .sb-txt{font-size:12px; font-weight:600; color:var(--txt); white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis}
+  .solo-banner .sb-exit{
+    background:var(--accent); color:#06080f; border:none; border-radius:20px;
+    padding:6px 13px; font-size:11.5px; font-weight:700; cursor:pointer;
+    font-family:inherit; flex-shrink:0;
+  }
 
   /* botao flutuante (so mobile) pra abrir/fechar o painel */
   .fab{display:none}
@@ -171,6 +209,11 @@
     </div>
     <div class="stage">
       <div class="layers" id="layers"></div>
+      <div class="solo-banner" id="soloBanner">
+        <span class="sb-dot"></span>
+        <span class="sb-txt"></span>
+        <button class="sb-exit" id="soloExit">sair do solo</button>
+      </div>
     </div>
   </div>
 
@@ -200,32 +243,35 @@
     </div>
 
     <div class="side-sec" style="flex:1">
-      <h2>Camadas</h2>
+      <h2>Camadas <span style="text-transform:none; letter-spacing:0; font-weight:400; color:var(--txt-dim)">· toque no nome pra ver só ela (solo)</span></h2>
       <div id="controls"></div>
     </div>
 
     <div class="foot">
-      Cada camada é um <b>PNG separado</b> renderizado no Blender.
-      As luzes usam <b>Light Groups</b> do Cycles (contribuição isolada de cada
-      luz) e somam via <b>mix-blend-mode: screen</b>. A sombra vem de um
-      <b>Shadow Catcher</b> e multiplica. Nenhuma engine 3D em runtime — puro 2D.
+      Cena: <b>cubo com bevel</b>, 3 luzes coloridas. Cada camada é um
+      <b>PNG separado</b> do Cycles. As <b>luzes</b> (Light Groups) já trazem a
+      cor do material — é aquela luz batendo nas superfícies — e somam via
+      <b>screen</b>. <b>AO</b> e <b>sombra</b> são máscaras (sem cor) e
+      multiplicam. Toque no nome de uma camada pra inspecioná-la isolada.
     </div>
   </aside>
 
 <script>
 // camadas na ordem de empilhamento (base -> topo)
 const LAYERS = [
-  {id:'beauty',   name:'Beauty (final)',      file:'../passes/beauty.png',     cls:'layer-beauty', color:'#cfd3dd', blend:'normal',   note:'imagem completa do Blender'},
-  {id:'shadow',   name:'Sombra (catcher)',    file:'../passes/shadow.png',     cls:'layer-shadow', color:'#1a1a1a', blend:'multiply', note:'sombra isolada, multiplica'},
-  {id:'ao',       name:'Ambient Occlusion',   file:'../passes/ao.png',         cls:'layer-ao',     color:'#555a66', blend:'multiply', note:'contato/profundidade'},
-  {id:'lg_window',name:'Luz · Janela (fria)', file:'../passes/lg_window.png',  cls:'layer-lg',     color:'#7fb0ff', blend:'screen',   note:'light group — soma'},
-  {id:'lg_lamp',  name:'Luz · Abajur (quente)',file:'../passes/lg_lamp.png',   cls:'layer-lg',     color:'#ff9e4a', blend:'screen',   note:'light group — soma'},
-  {id:'lg_ambient',name:'Luz · Ambiente (magenta)',file:'../passes/lg_ambient.png',cls:'layer-lg',color:'#e055d8', blend:'screen',  note:'light group — soma'},
+  {id:'beauty',   name:'Beauty (final)',      file:'../passes_cube/beauty.png',     cls:'layer-beauty', color:'#cfd3dd', blend:'normal',   note:'imagem completa do Blender'},
+  {id:'shadow',   name:'Sombra (catcher)',    file:'../passes_cube/shadow.png',     cls:'layer-shadow', color:'#1a1a1a', blend:'multiply', note:'sombra isolada, multiplica'},
+  {id:'ao',       name:'Ambient Occlusion',   file:'../passes_cube/ao.png',         cls:'layer-ao',     color:'#555a66', blend:'multiply', note:'contato/profundidade'},
+  {id:'lg_window',name:'Luz · Janela (fria)', file:'../passes_cube/lg_window.png',  cls:'layer-lg',     color:'#7fb0ff', blend:'screen',   note:'light group — soma'},
+  {id:'lg_lamp',  name:'Luz · Abajur (quente)',file:'../passes_cube/lg_lamp.png',   cls:'layer-lg',     color:'#ff9e4a', blend:'screen',   note:'light group — soma'},
+  {id:'lg_ambient',name:'Luz · Ambiente (magenta)',file:'../passes_cube/lg_ambient.png',cls:'layer-lg',color:'#e055d8', blend:'screen',  note:'light group — soma'},
 ];
 
 const state = {}; // id -> {opacity, visible, el}
 const layersEl = document.getElementById('layers');
 const controlsEl = document.getElementById('controls');
+let soloId = null;      // declarado cedo: render() o le durante a montagem
+let auto = true, speed = 1;
 
 // montar imagens
 LAYERS.forEach(L=>{
@@ -237,11 +283,11 @@ LAYERS.forEach(L=>{
 
 // montar controles
 LAYERS.forEach(L=>{
-  const row = document.createElement('div'); row.className='layer-row';
+  const row = document.createElement('div'); row.className='layer-row'; row.id='row-'+L.id;
   row.innerHTML = `
     <div class="lr-head">
       <span class="swatch" style="background:${L.color}"></span>
-      <span class="lr-name">${L.name}</span>
+      <button class="lr-name" id="name-${L.id}" title="ver só esta camada (solo)">${L.name}</button>
       <span class="lr-val" id="val-${L.id}">100%</span>
       <button class="lr-eye" id="eye-${L.id}" title="liga/desliga">●</button>
     </div>
@@ -265,22 +311,60 @@ LAYERS.forEach(L=>{
     eye.classList.toggle('off', !state[L.id].visible);
     render();
   });
+  // tocar no NOME = solo (ver só esta camada, isolada). Tocar de novo = sair.
+  row.querySelector('#name-'+L.id).addEventListener('click', ()=>{
+    setSolo(soloId === L.id ? null : L.id);
+  });
   applyRange();
 });
 
+// ---- SOLO: ver uma camada isolada sobre fundo neutro ----
+document.getElementById('soloExit').addEventListener('click', ()=> setSolo(null));
+function setSolo(id){
+  soloId = id;
+  if(id) setManual();               // solo pausa a animacao
+  layersEl.classList.toggle('solo', !!id);
+  // mascaras (multiply: sombra/AO) ficam sobre fundo claro pra serem visiveis
+  const soloL = id ? LAYERS.find(x=>x.id===id) : null;
+  layersEl.classList.toggle('solo-mask', !!soloL && soloL.blend==='multiply');
+  // marcar a row ativa + ajustar o banner
+  LAYERS.forEach(L=>{
+    document.getElementById('row-'+L.id).classList.toggle('soloing', soloId===L.id);
+  });
+  const banner = document.getElementById('soloBanner');
+  if(id){
+    const L = LAYERS.find(x=>x.id===id);
+    banner.style.display='flex';
+    banner.querySelector('.sb-txt').textContent = 'SOLO: '+L.name+' — blend '+L.blend;
+  } else {
+    banner.style.display='none';
+  }
+  render();
+}
+
 function render(){
+  if(soloId){
+    // modo isolado: so a camada solo, blend normal, opacidade cheia
+    LAYERS.forEach(L=>{
+      const s = state[L.id];
+      const on = (L.id===soloId);
+      s.el.style.opacity = on ? 1 : 0;
+      s.el.style.mixBlendMode = on ? 'normal' : (getComputedStyle(s.el).mixBlendMode);
+    });
+    return;
+  }
+  // modo compositing normal: cada camada com seu blend (do CSS) e opacidade
   LAYERS.forEach(L=>{
     const s = state[L.id];
+    s.el.style.mixBlendMode = '';          // volta ao blend definido pela classe
     s.el.style.opacity = s.visible ? s.opacity : 0;
   });
 }
 
 // ---- modos ----
-let auto = true;
-let speed = 1;
 const mAuto = document.getElementById('mAuto');
 const mManual = document.getElementById('mManual');
-function setAuto(){ auto=true; mAuto.classList.add('on'); mManual.classList.remove('on'); }
+function setAuto(){ if(soloId) setSolo(null); auto=true; mAuto.classList.add('on'); mManual.classList.remove('on'); }
 function setManual(){ auto=false; mManual.classList.add('on'); mAuto.classList.remove('on'); }
 mAuto.addEventListener('click', setAuto);
 mManual.addEventListener('click', setManual);
@@ -303,7 +387,7 @@ document.querySelectorAll('.preset').forEach(b=>{
 // beauty respira leve, sombra e AO oscilam suave -> efeito de "luz viva"
 let t = 0;
 function tick(dt){
-  if(auto){
+  if(auto && !soloId){
     t += dt * 0.001 * speed;
     const set=(id,v)=>{ state[id].opacity=Math.max(0,Math.min(1,v));
                         document.getElementById('val-'+id).textContent=Math.round(v*100)+'%';

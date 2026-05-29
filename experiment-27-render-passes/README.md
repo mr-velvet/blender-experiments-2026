@@ -37,10 +37,18 @@ do Cycles.
 | `lg_lamp.png` | só o abajur quente | screen |
 | `lg_ambient.png` | só o spot ambiente magenta | screen |
 
+## Cena CUBO (inspeção de camadas)
+
+`build_cube.py` gera uma cena minima — **cubo com bevel + chao + 3 luzes
+coloridas** — em `passes_cube/`. Feita pra inspecionar cada camada isolada.
+O viewer aponta pra essa cena e tem **modo SOLO**: toque no nome de uma
+camada e veja só ela (AO/sombra sobre fundo claro, luzes/beauty sobre preto).
+
 ## Como rodar
 
 ```
-blender --background --python build_and_render.py
+blender --background --python build_and_render.py   # cena quarto (dollhouse)
+blender --background --python build_cube.py          # cena cubo (inspecao)
 ```
 
 Variáveis de ambiente opcionais (default = final):
