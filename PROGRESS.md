@@ -1,7 +1,18 @@
 # Progresso — blender-experiments-2026
 
 ## Ultima atualizacao
-2026-05-29 (sessao 15 — experimento 23: papelao x massinha em 4 moveis gratuitos, render multi-angulo, async via agnts)
+2026-05-29 (sessao 16 — experimento 24: levantamento de plugins de "maquinas & paineis", galeria HTML 3 abas, async via agnts)
+
+## Experimento 24: Levantamento de plugins de "maquinas & paineis" (2026-05-29, async via agnts)
+- Pasta `experiment-24-machine-panels/` — **curadoria, nao experimento de pipeline** (passo previo pedido pelo user antes de escolher o que implementar)
+- **Pedido:** achar plugins do Blender (free+pago) pra criar coisas que parecem maquinas (paineis/botoes/alavancas/mostradores), foco no caso "passo uma spec -> ele gera a geometria base". Galeria HTML, aba free/aba paga, card com imagem+descricao+diferencial, clique abre detalhe
+- **Metodo:** 4 agentes de pesquisa paralelos (Superhive, Gumroad/ArtStation, extensions.blender.org+GitHub, geo-nodes+IA) -> ~50 brutos -> dedup -> 3 agentes validando 1 imagem REAL por finalista (HTTP 200 + magic bytes) -> download local 28 imagens -> galeria custom
+- **Criterio-chave por card:** nota "spec->geometria" (Alto/Medio/Baixo) = quao perto chega de "descrevo/parametrizo e ele gera". Tambem: aceita linguagem natural? da pra dirigir headless via Python?
+- **44 itens, 3 abas:** Free (11: Discombobulator, Sci-fi Panels MIT, RandoMesh, Tissue, BY-GEN, ND, etc), Pago (11: Random Flow, Plating Generator, KIT OPS, Control Console Kit, MESHmachine, BoxCutter, etc), IA texto->3D (6: 3D-Agent, Sloyd, Hyper3D, Meshy, Tripo, Hunyuan)
+- **Conclusao pra deliberar:** nenhum plugin de marketplace aceita linguagem natural; "texto->painel" so na aba IA (com ressalva de topologia). Caminho mais solido pra "spec->geometria limpa": geo-nodes/operadores Python nota Alto. Pra "painel de controle literal": Control Console Kit
+- **Honestidade:** 28/28 imagens validadas; 2 sao representacao do efeito (nao card exato — Superhive/ArtStation bloqueiam fetch), marcado no detalhe. Nenhum plugin instalado/testado ainda — notas `auto` sao estimativas a confirmar no experimento real
+- **Hospedado:** https://st.did.lu/blender-exp24-machine-panels/v2/index.html
+- **Doc:** [experiment-24-machine-panels/README.md](experiment-24-machine-panels/README.md)
 
 ## Experimento 23: Papelao x Massinha em moveis gratuitos (2026-05-29, async via agnts)
 - Pasta `experiment-23-cardboard-clay-furniture/` — pegar 4 moveis gratuitos (sofa, TV, fogao, pia — os mesmos do exp22 casinha de bonecas) e aplicar DOIS efeitos de render pesado sobre a geometria de cada um, em copias separadas lado a lado, render multi-angulo
@@ -434,6 +445,7 @@ blender-experiments-2026/
 | Grass v1 (grama alta com esqueleto dinamico + wind controlavel) | https://st.did.lu/blender-grass/v1/index.html |
 | Catalogo de assets de geometria v1 (105 assets, 3 abas) | https://st.did.lu/blender-asset-catalog/v1/index.html |
 | Papelao x Massinha v1 (4 moveis x 2 efeitos, render multi-angulo) | https://st.did.lu/blender-exp23-cardboard-clay/v1/index.html |
+| Maquinas & Paineis v2 (levantamento 44 plugins, 3 abas) | https://st.did.lu/blender-exp24-machine-panels/v2/index.html |
 
 ## Proximos experimentos planejados (sessao 6+)
 

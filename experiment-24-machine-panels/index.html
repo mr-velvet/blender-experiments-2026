@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plugins de máquinas & painéis — levantamento Blender</title>
+<style>
+  :root{
+    --bg:#0d0f12; --bg2:#13161b; --panel:#181c22; --panel2:#1e232b;
+    --line:#2a313b; --line2:#363f4b;
+    --txt:#e8edf3; --txt2:#9aa6b4; --txt3:#69737f;
+    --accent:#ff8a3d; --accent2:#ffb066; --green:#4fd18b; --amber:#f5c451; --red:#e8746b; --blue:#6ab8ff;
+    --shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:radial-gradient(1200px 600px at 50% -200px,#1a1e26 0,var(--bg) 60%);
+    color:var(--txt); font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.5; min-height:100vh; padding-bottom:80px;
+  }
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:#46505d}
+
+  header{max-width:1280px;margin:0 auto;padding:56px 28px 28px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:14px}
+  h1{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.02em;line-height:1.08}
+  h1 .hl{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{margin-top:18px;max-width:760px;color:var(--txt2);font-size:16px}
+  .lede strong{color:var(--txt)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:26px;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  .legend h3{width:100%;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:4px}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2)}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.alto{background:var(--green)} .dot.medio{background:var(--amber)} .dot.baixo{background:var(--red)}
+
+  .tabs{position:sticky;top:0;z-index:40;background:rgba(13,15,18,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin-top:10px}
+  .tabs-inner{max-width:1280px;margin:0 auto;padding:0 28px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .tab{appearance:none;background:none;border:none;color:var(--txt2);font:inherit;font-weight:600;font-size:14px;padding:16px 18px;cursor:pointer;position:relative;letter-spacing:.01em}
+  .tab .count{font-size:11px;color:var(--txt3);margin-left:6px;font-weight:500}
+  .tab:hover{color:var(--txt)}
+  .tab.active{color:var(--txt)}
+  .tab.active::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
+  .search-wrap{margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;margin-block:10px}
+  .search-wrap svg{width:15px;height:15px;color:var(--txt3);flex:none}
+  #search{appearance:none;background:none;border:none;color:var(--txt);font:inherit;font-size:14px;outline:none;width:190px}
+  #search::placeholder{color:var(--txt3)}
+
+  .tabnote{max-width:1280px;margin:22px auto 0;padding:0 28px}
+  .tabnote .box{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;font-size:14px;color:var(--txt2)}
+  .tabnote .box strong{color:var(--txt)}
+
+  main{max-width:1280px;margin:0 auto;padding:26px 28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);border-color:var(--line2);box-shadow:var(--shadow)}
+  .thumb{position:relative;aspect-ratio:16/10;background:#0a0c0f;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+  .card:hover .thumb img{transform:scale(1.05)}
+  .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(13,15,18,.85))}
+  .badges{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;z-index:2}
+  .price{background:rgba(13,15,18,.85);backdrop-filter:blur(6px);border:1px solid var(--line2);color:var(--accent2);font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px}
+  .price.free{color:var(--green)}
+  .spec-badge{display:flex;align-items:center;gap:6px;background:rgba(13,15,18,.85);backdrop-filter:blur(6px);border:1px solid var(--line2);font-size:11px;font-weight:600;padding:5px 9px;border-radius:8px;color:var(--txt2)}
+  .cat-tag{position:absolute;bottom:10px;left:12px;z-index:2;font-size:11px;font-weight:600;color:var(--txt);letter-spacing:.02em;text-shadow:0 1px 4px #000}
+  .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .card-name{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .card-vendor{font-size:12px;color:var(--txt3);margin-top:-4px}
+  .card-desc{font-size:13.5px;color:var(--txt2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .card-foot{margin-top:auto;padding-top:10px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt3)}
+  .nl-pill{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+  .nl-yes{background:rgba(106,184,255,.14);color:var(--blue);border:1px solid rgba(106,184,255,.3)}
+  .nl-no{background:var(--panel2);color:var(--txt3);border:1px solid var(--line)}
+
+  /* modal */
+  .modal-bg{position:fixed;inset:0;z-index:100;background:rgba(6,7,9,.72);backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--line2);border-radius:20px;max-width:760px;width:100%;box-shadow:var(--shadow);overflow:hidden;animation:pop .22s ease}
+  @keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .modal-hero{position:relative;aspect-ratio:16/9;background:#0a0c0f}
+  .modal-hero img{width:100%;height:100%;object-fit:cover}
+  .modal-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(19,22,27,.95))}
+  .close{position:absolute;top:14px;right:14px;z-index:3;width:38px;height:38px;border-radius:50%;background:rgba(13,15,18,.8);border:1px solid var(--line2);color:var(--txt);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .close:hover{background:var(--accent);color:#0d0f12;border-color:var(--accent)}
+  .modal-head{position:absolute;bottom:16px;left:24px;right:24px;z-index:2}
+  .modal-head .mname{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .modal-head .mvendor{font-size:13px;color:var(--txt2);margin-top:2px}
+  .modal-body{padding:22px 24px 26px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .chip{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--txt2)}
+  .chip.price{color:var(--accent2)} .chip.price.free{color:var(--green)}
+  .chip .lab{color:var(--txt3);font-weight:500;margin-right:4px}
+  .msec{margin-bottom:18px}
+  .msec h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:7px}
+  .msec p{font-size:14.5px;color:var(--txt);line-height:1.6}
+  .specbar{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--panel);border:1px solid var(--line);margin-bottom:18px}
+  .specbar .sdot{width:12px;height:12px;border-radius:50%;flex:none}
+  .specbar .stxt{font-size:13.5px;color:var(--txt2)}
+  .specbar .stxt b{color:var(--txt)}
+  .mlink{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#0d0f12;font-weight:700;font-size:14px;padding:12px 20px;border-radius:11px;text-decoration:none;transition:filter .15s}
+  .mlink:hover{filter:brightness(1.08)}
+  .mlink svg{width:15px;height:15px}
+
+  footer{max-width:1280px;margin:30px auto 0;padding:24px 28px;border-top:1px solid var(--line);color:var(--txt3);font-size:13px}
+  footer b{color:var(--txt2)}
+  .empty{grid-column:1/-1;text-align:center;color:var(--txt3);padding:60px 20px;font-size:15px}
+  @media(max-width:560px){header{padding:36px 18px 18px}main{padding:20px 18px}.tabs-inner{padding:0 18px}.search-wrap{width:100%;margin-left:0}#search{width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Levantamento · Blender Experiments 2026</div>
+  <h1>Plugins pra criar <span class="hl">máquinas e painéis</span><br>a partir de especificação</h1>
+  <p class="lede">Varredura de addons grátis e pagos do Blender voltados a <strong>hard-surface mecânico</strong> — painéis de controle, botões, alavancas, mostradores, greeble sci-fi. O objetivo: achar ferramentas onde você <strong>descreve/parametriza</strong> e o plugin <strong>gera a geometria base</strong>, sem modelar parafuso por parafuso. Cada card abre um detalhe. Filtrei por imagem real verificada (28/28 baixadas e validadas).</p>
+  <div class="legend">
+    <h3>Nota "spec → geometria" (quão perto chega de você descrever e ele gerar)</h3>
+    <div class="legend-item"><span class="dot alto"></span> <b style="color:var(--txt)">Alto</b>&nbsp;— você ajusta parâmetros/seed e a geometria mecânica sai pronta</div>
+    <div class="legend-item"><span class="dot medio"></span> <b style="color:var(--txt)">Médio</b>&nbsp;— gera, mas depende de seleção/desenho ou de biblioteca de peças</div>
+    <div class="legend-item"><span class="dot baixo"></span> <b style="color:var(--txt)">Baixo</b>&nbsp;— ferramenta de refino/aplicação manual, não geração por spec</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab active" data-tab="free">Grátis <span class="count" id="c-free"></span></button>
+    <button class="tab" data-tab="paid">Pago <span class="count" id="c-paid"></span></button>
+    <button class="tab" data-tab="ai">IA · texto → 3D <span class="count" id="c-ai"></span></button>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="filtrar por nome, categoria…" autocomplete="off">
+    </div>
+  </div>
+</nav>
+
+<div class="tabnote" id="tabnote"></div>
+<main><div class="grid" id="grid"></div></main>
+
+<footer>
+  <p><b>Como ler:</b> nenhum plugin de marketplace aceita linguagem natural — todos são paramétricos ou bibliotecas de kitbash. O caso "descrevo em texto e ele gera" só existe na aba <b>IA</b> (e com ressalvas de topologia). O caminho mais sólido pra "spec → geometria limpa de painel" hoje são os de nota <b>Alto</b> baseados em Geometry Nodes / operadores Python — também os mais automatizáveis headless nesta workspace.</p>
+  <p style="margin-top:10px">Preços de packs em portais anti-bot (Superhive/ArtStation) são aproximados — confirmar na página de compra. Imagens marcadas no detalhe quando são do canal do vendor e não do card exato do produto.</p>
+</footer>
+
+<div class="modal-bg" id="modalbg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const DATA = __DATA__;
+
+const SPEC_CLASS = s => { s=s.toLowerCase(); if(s.includes('alto'))return 'alto'; if(s.includes('baixo'))return 'baixo'; return 'medio'; };
+const SPEC_LABEL = {alto:'Spec→Geo: Alto',medio:'Spec→Geo: Médio',baixo:'Spec→Geo: Baixo'};
+
+const TABNOTES = {
+  free: `<div class="box"><strong>Grátis.</strong> Inclui nativos do Blender (Discombobulator, Tissue) e open-source forte (Sci-fi Panels MIT, RandoMesh, BY-GEN, ND). Os de nota <strong>Alto</strong> aqui já cobrem o caso "ajusto parâmetros → painel mecânico gerado" sem custo — e a maioria é dirigível por Python.</div>`,
+  paid: `<div class="box"><strong>Pago.</strong> Dois grupos: <em>geradores</em> paramétricos (Random Flow, Plating Generator, Pamir Panel — nota Alto) e <em>bibliotecas/ferramentas</em> de kitbash e refino (KIT OPS, Control Console, MESHmachine, BoxCutter). Pra "painel de controle literal com botões/alavancas", o <strong>Control Console Kit</strong> é o mais direto; pra geração por spec, os Geometry-Nodes.</div>`,
+  ai: `<div class="box"><strong>IA — texto → 3D.</strong> A única via pra "descrevo em linguagem natural e sai um painel". Ressalva honesta: geradores puros (Meshy, Tripo, Hunyuan) produzem malha densa/triangulada que precisa de retopo pra virar asset limpo. Os mais promissores pro <em>seu</em> caso são <strong>3D-Agent</strong> (gera + escreve Python no Blender) e <strong>Sloyd</strong> (modo template paramétrico = malha limpa).</div>`
+};
+
+const grid = document.getElementById('grid');
+const modalbg = document.getElementById('modalbg');
+const modal = document.getElementById('modal');
+let curTab = 'free';
+
+document.getElementById('c-free').textContent = DATA.free.length;
+document.getElementById('c-paid').textContent = DATA.paid.length;
+document.getElementById('c-ai').textContent = DATA.ai.length;
+
+function render(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  document.getElementById('tabnote').innerHTML = TABNOTES[curTab];
+  let items = DATA[curTab].filter(i=>i.image_ok!==false);
+  if(q) items = items.filter(i => (i.name+' '+i.vendor+' '+i.category+' '+i.description).toLowerCase().includes(q));
+  if(!items.length){ grid.innerHTML = `<div class="empty">Nada bate com "${q}".</div>`; return; }
+  grid.innerHTML = items.map(i=>{
+    const sc = SPEC_CLASS(i.spec);
+    const isFree = i.price.toLowerCase().includes('grátis');
+    return `<article class="card" data-id="${i.id}">
+      <div class="thumb">
+        <div class="badges">
+          <span class="price ${isFree?'free':''}">${i.price}</span>
+          <span class="spec-badge"><span class="dot ${sc}"></span>${i.spec}</span>
+        </div>
+        <span class="cat-tag">${i.category}</span>
+        <img src="${i.image}" alt="${i.name}" loading="lazy">
+      </div>
+      <div class="card-body">
+        <div class="card-name">${i.name}</div>
+        <div class="card-vendor">${i.vendor}</div>
+        <div class="card-desc">${i.description}</div>
+        <div class="card-foot">
+          <span class="nl-pill ${i.nl.toLowerCase().includes('sim')?'nl-yes':'nl-no'}">texto→3D: ${i.nl}</span>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function openModal(id){
+  const all=[...DATA.free,...DATA.paid,...DATA.ai];
+  const i = all.find(x=>x.id===id); if(!i) return;
+  const sc = SPEC_CLASS(i.spec);
+  const isFree = i.price.toLowerCase().includes('grátis');
+  modal.innerHTML = `
+    <div class="modal-hero">
+      <button class="close" id="mclose">&times;</button>
+      <img src="${i.image}" alt="${i.name}">
+      <div class="modal-head"><div class="mname">${i.name}</div><div class="mvendor">${i.vendor}</div></div>
+    </div>
+    <div class="modal-body">
+      <div class="chips">
+        <span class="chip price ${isFree?'free':''}"><span class="lab">Preço</span>${i.price}</span>
+        <span class="chip"><span class="lab">Categoria</span>${i.category}</span>
+        <span class="chip"><span class="lab">Texto→3D</span>${i.nl}</span>
+      </div>
+      <div class="specbar"><span class="sdot dot ${sc}"></span><span class="stxt"><b>${SPEC_LABEL[sc]}</b> — ${i.spec_note}</span></div>
+      <div class="msec"><h4>O que faz</h4><p>${i.description}</p></div>
+      <div class="msec"><h4>Diferencial</h4><p>${i.differential}</p></div>
+      <div class="msec"><h4>Automação via Python (headless)</h4><p>${i.auto}</p></div>
+      <a class="mlink" href="${i.url}" target="_blank" rel="noopener">Ver página oficial
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </div>`;
+  modalbg.classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('mclose').onclick=closeModal;
+}
+function closeModal(){ modalbg.classList.remove('open'); document.body.style.overflow=''; history.replaceState(null,'',location.pathname); }
+
+grid.addEventListener('click',e=>{const c=e.target.closest('.card'); if(c) {openModal(c.dataset.id); history.replaceState(null,'','#'+c.dataset.id);}});
+modalbg.addEventListener('click',e=>{if(e.target===modalbg)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); curTab=t.dataset.tab; render();
+});
+document.getElementById('search').addEventListener('input',render);
+
+render();
+if(location.hash){ const id=location.hash.slice(1); const all=[...DATA.free,...DATA.paid,...DATA.ai]; if(all.find(x=>x.id===id)) openModal(id); }
+</script>
+</body>
+</html>
