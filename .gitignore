@@ -49,3 +49,8 @@ experiment-28-navigation/out/web/house.glb
 experiment-28-navigation/out/tour/walkthrough.mp4
 experiment-28-navigation/out/tour/frames/
 experiment-28-navigation/out/web/_*.png
+
+experiment-29-canefield/out/*.blend
+experiment-29-canefield/out/dl/
+experiment-29-canefield/out/web/*.glb
+experiment-29-canefield/out/tour/
