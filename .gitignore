@@ -45,3 +45,7 @@ experiment-22-dollhouse/out/
 
 experiment-24-machine-panels/index_built.html
 experiment-24-machine-panels/.playwright-mcp/
+experiment-28-navigation/out/web/house.glb
+experiment-28-navigation/out/tour/walkthrough.mp4
+experiment-28-navigation/out/tour/frames/
+experiment-28-navigation/out/web/_*.png
