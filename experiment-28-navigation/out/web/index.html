@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>The Lonely Outpost — Walkthrough</title>
+<style>
+  :root{ --fg:#e8e4dc; --panel:rgba(18,20,24,.82); --accent:#c9a86a; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; overflow:hidden; background:#0c0d10; font-family:system-ui,sans-serif; color:var(--fg); }
+  #app{ position:fixed; inset:0; }
+  canvas{ display:block; }
+  #hud{ position:fixed; left:0; right:0; bottom:0; padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+        background:linear-gradient(to top, rgba(8,9,11,.9), transparent); pointer-events:none; }
+  .row{ display:flex; gap:10px; align-items:center; justify-content:center; pointer-events:auto; flex-wrap:wrap; }
+  button{ font:inherit; font-size:13px; color:var(--fg); background:var(--panel);
+          border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:11px 16px; cursor:pointer;
+          backdrop-filter:blur(10px); transition:.15s; -webkit-tap-highlight-color:transparent; }
+  button:hover{ border-color:var(--accent); color:#fff; }
+  button.active{ background:var(--accent); color:#1a160d; border-color:var(--accent); font-weight:600; }
+  #scrub{ width:min(560px,90vw); margin:0 auto 12px; pointer-events:auto; display:flex; gap:10px; align-items:center; }
+  #scrub input[type=range]{ -webkit-appearance:none; appearance:none; flex:1; height:4px; border-radius:4px; background:rgba(255,255,255,.18); outline:none; }
+  #scrub input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 0 4px rgba(201,168,106,.2); }
+  #scrub input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; border-radius:50%; background:var(--accent); cursor:pointer; }
+  #tlabel{ font-variant-numeric:tabular-nums; font-size:12px; opacity:.7; min-width:38px; text-align:right; }
+  #title{ position:fixed; top:0; left:0; right:0; padding:16px; background:linear-gradient(to bottom, rgba(8,9,11,.7), transparent); pointer-events:none; }
+  #title h1{ font-size:15px; font-weight:600; letter-spacing:.04em; }
+  #title p{ font-size:12px; opacity:.6; margin-top:3px; }
+  #hint{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; font-size:13px; opacity:0; transition:opacity .4s; pointer-events:none; background:var(--panel); padding:14px 18px; border-radius:12px; backdrop-filter:blur(10px); max-width:80vw; }
+  #hint.show{ opacity:1; }
+  #loader{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; background:#0c0d10; z-index:10; transition:opacity .6s; }
+  #loader.hide{ opacity:0; pointer-events:none; }
+  .spin{ width:34px; height:34px; border:3px solid rgba(255,255,255,.15); border-top-color:var(--accent); border-radius:50%; animation:sp 1s linear infinite; }
+  @keyframes sp{ to{ transform:rotate(360deg); } }
+  #loader p{ font-size:13px; opacity:.7; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="title"><h1>The Lonely Outpost — Walkthrough</h1><p>Tour gravado no Blender · você pode assumir o controle</p></div>
+<div id="hint"></div>
+<div id="hud">
+  <div id="scrub"><input id="t" type="range" min="0" max="1000" value="0"><span id="tlabel">0%</span></div>
+  <div class="row">
+    <button id="bPlay" class="active">► Reproduzir tour</button>
+    <button id="bOrbit">Órbita livre</button>
+    <button id="bWalk">Andar (WASD)</button>
+    <button id="bReset">Reiniciar</button>
+  </div>
+</div>
+<div id="loader"><div class="spin"></div><p>Carregando a casa…</p></div>
+
+<script type="importmap">
+{ "imports":{
+  "three":"https://unpkg.com/three@0.161.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.161.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.AgXToneMapping;
+renderer.toneMappingExposure = 1.0;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9fb0c0);
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.05, 4000);
+
+scene.add(new THREE.HemisphereLight(0xbcd0e6, 0x55503f, 1.1));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.4); sun.position.set(8,14,6); scene.add(sun);
+scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.enableDamping = true; orbit.dampingFactor = 0.08; orbit.enabled = false;
+
+let curvePos=null, curveLook=null, PATH=null;
+async function loadPath(){
+  const j = await fetch('campath.json').then(r=>r.json());
+  PATH=j;
+  let lastLook=new THREE.Vector3(0,0,0);
+  const pts=j.points.map(p=>({ t:p.t, pos:new THREE.Vector3(...p.pos),
+    look:p.look?new THREE.Vector3(...p.look):null }));
+  for(const p of pts){ if(!p.look) p.look=lastLook.clone(); else lastLook=p.look; }
+  curvePos=new THREE.CatmullRomCurve3(pts.map(p=>p.pos), false,'catmullrom',0.5);
+  curveLook=new THREE.CatmullRomCurve3(pts.map(p=>p.look), false,'catmullrom',0.5);
+  camera.fov=j.fov||50; camera.updateProjectionMatrix();
+}
+function sampleCam(t){ camera.position.copy(curvePos.getPoint(t)); camera.lookAt(curveLook.getPoint(t)); }
+
+const loader=new GLTFLoader();
+const draco=new DRACOLoader();
+draco.setDecoderPath('https://unpkg.com/three@0.161.0/examples/jsm/libs/draco/');
+loader.setDRACOLoader(draco);
+loader.load('house.glb', g=>{ scene.add(g.scene); document.getElementById('loader').classList.add('hide'); },
+  undefined, e=>{ document.querySelector('#loader p').textContent='Falha ao carregar a casa.'; console.error(e); });
+
+let mode='tour', tourT=0, playing=true; const TOUR_SECS=14;
+const bPlay=document.getElementById('bPlay'),bOrbit=document.getElementById('bOrbit'),
+      bWalk=document.getElementById('bWalk'),bReset=document.getElementById('bReset');
+const slider=document.getElementById('t'),tlabel=document.getElementById('tlabel'),hint=document.getElementById('hint');
+function showHint(t){ hint.textContent=t; hint.classList.add('show'); clearTimeout(showHint._t); showHint._t=setTimeout(()=>hint.classList.remove('show'),2200); }
+function setMode(m){
+  mode=m; [bPlay,bOrbit,bWalk].forEach(b=>b.classList.remove('active'));
+  orbit.enabled=(m==='orbit');
+  if(m==='tour'){ bPlay.classList.add('active'); playing=true; bPlay.textContent='❚❚ Pausar tour'; }
+  if(m==='orbit'){ bOrbit.classList.add('active'); orbit.target.copy(curveLook?curveLook.getPoint(tourT):new THREE.Vector3()); showHint('Arraste pra girar · pinça/scroll pra zoom'); }
+  if(m==='walk'){ bWalk.classList.add('active'); syncWalkFromCamera(); showHint('W A S D pra andar · arraste pra olhar · Q/E sobe/desce'); }
+}
+bPlay.onclick=()=>{ if(mode!=='tour') setMode('tour'); else { playing=!playing; bPlay.textContent=playing?'❚❚ Pausar tour':'► Reproduzir tour'; } };
+bOrbit.onclick=()=>setMode('orbit');
+bWalk.onclick=()=>setMode('walk');
+bReset.onclick=()=>{ tourT=0; slider.value=0; setMode('tour'); playing=true; bPlay.textContent='❚❚ Pausar tour'; };
+slider.oninput=()=>{ tourT=slider.value/1000; if(mode==='tour'){ playing=false; bPlay.textContent='► Reproduzir tour'; } if(curvePos) sampleCam(tourT); };
+
+const keys={}; addEventListener('keydown',e=>keys[e.code]=true); addEventListener('keyup',e=>keys[e.code]=false);
+let yaw=0,pitch=0,dragging=false,lx=0,ly=0;
+renderer.domElement.addEventListener('pointerdown',e=>{ if(mode==='walk'){ dragging=true; lx=e.clientX; ly=e.clientY; } });
+addEventListener('pointerup',()=>dragging=false);
+addEventListener('pointermove',e=>{ if(mode==='walk'&&dragging){ yaw-=(e.clientX-lx)*0.0032; pitch-=(e.clientY-ly)*0.0032; pitch=Math.max(-1.3,Math.min(1.3,pitch)); lx=e.clientX; ly=e.clientY; } });
+function walkUpdate(dt){
+  const dir=new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch));
+  const fwd=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw));
+  const right=new THREE.Vector3(fwd.z,0,-fwd.x); const spd=4.0*dt;
+  if(keys['KeyW']) camera.position.addScaledVector(fwd,spd);
+  if(keys['KeyS']) camera.position.addScaledVector(fwd,-spd);
+  if(keys['KeyA']) camera.position.addScaledVector(right,spd);
+  if(keys['KeyD']) camera.position.addScaledVector(right,-spd);
+  if(keys['KeyQ']) camera.position.y-=spd;
+  if(keys['KeyE']) camera.position.y+=spd;
+  camera.lookAt(camera.position.clone().add(dir));
+}
+function syncWalkFromCamera(){ const d=new THREE.Vector3(); camera.getWorldDirection(d); yaw=Math.atan2(d.x,d.z); pitch=Math.asin(THREE.MathUtils.clamp(d.y,-1,1)); }
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(curvePos){
+    if(mode==='tour'){ if(playing){ tourT+=dt/TOUR_SECS; if(tourT>=1){ tourT=1; playing=false; bPlay.textContent='► Reproduzir tour'; } slider.value=tourT*1000; } sampleCam(tourT); }
+    else if(mode==='orbit'){ orbit.update(); }
+    else if(mode==='walk'){ walkUpdate(dt); }
+  }
+  tlabel.textContent=Math.round(tourT*100)+'%';
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+(async()=>{ await loadPath(); setMode('tour'); requestAnimationFrame(loop); })();
+</script>
+</body>
+</html>

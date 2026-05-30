@@ -54,17 +54,23 @@ com regua (leitura visual assistida por escala desenhada), nao de raycast.
    - Gotcha 2: este build do Blender 5.1 nao expoe `FFMPEG` no enum de saida ->
      renderizo PNG sequence e encodo MP4 com `imageio-ffmpeg` (instalado no py).
 
-2. **Viewer web interativo**: `out/web/index.html` + `house.glb` (4.3MB —
-   re-exportado com texturas 1024 WEBP; o export cru saia 68MB com 4K embutido)
-   + `campath.json` (mesmo trajeto, convertido Blender Z-up -> Three.js Y-up).
-   Three.js, 4 modos: Reproduzir tour (scrub), Orbita livre, Andar 1a pessoa
-   (WASD), Reiniciar. Validado em browser headless: GLB carrega, tour roda,
-   zero erro (so 404 de favicon).
+2. **Viewer web interativo**: `out/web/index.html` + `house.glb` (4.9MB —
+   export cru saia 68MB; reduzi via gltf-transform: Draco + texturas WEBP +
+   scale 1024) + `campath.json` (mesmo trajeto, Blender Z-up -> Three.js Y-up).
+   Three.js com DRACOLoader, 4 modos: Reproduzir tour (scrub), Orbita livre,
+   Andar 1a pessoa (WASD), Reiniciar. Validado abrindo a URL hospedada (v2) em
+   browser: GLB carrega, tour roda, zero erro (so 404 de favicon).
+   - Gotcha 3: GLB Draco precisa de DRACOLoader no viewer, senao
+     "No DRACOLoader instance provided" e a casa nao carrega. Adicionado.
 
-## Links hospedados (GCS / st.did.lu, v1) — verificados HTTP 200
+## Links hospedados (GCS / st.did.lu, v2) — abertos e validados em browser
 
-- Viewer:  https://st.did.lu/blender-exp28-navigation/v1/index.html
-- Video:   https://st.did.lu/blender-exp28-navigation/v1/walkthrough.mp4
+- Viewer:  https://st.did.lu/blender-exp28-navigation/v2/index.html
+- Video:   https://st.did.lu/blender-exp28-navigation/v2/walkthrough.mp4
+
+(v1 ficou com GLB de 68MB e, depois, um GLB Draco sem DRACOLoader no viewer
+— quebrado. v2 e a boa: GLB 4.9MB Draco + viewer com DRACOLoader. Cache do GCS
+e agressivo, por isso a URL nova em vez de sobrescrever v1.)
 
 ## Pipeline (scripts/)
 
