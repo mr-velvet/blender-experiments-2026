@@ -54,3 +54,6 @@ experiment-29-canefield/out/*.blend
 experiment-29-canefield/out/dl/
 experiment-29-canefield/out/web/*.glb
 experiment-29-canefield/out/tour/
+
+experiment-30-grass-soil-variants/out/variants/
+experiment-30-grass-soil-variants/out/soil/
